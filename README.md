@@ -1,38 +1,72 @@
-# Talenom General Ledger Client
+# 🏭 Talenom General Ledger - Industrial File Processor
 
-A modern Node.js client application for the Talenom General Ledger API with an industrial-style web interface. This application allows you to query general ledger events, account balances, chart of accounts, and process CSV/Excel files through a user-friendly web dashboard.
+A modern, industrial-themed Node.js application for processing general ledger files with specialized tools for different data formats. Features a comprehensive web interface with sound effects and advanced file processing capabilities.
 
-![Industrial Dashboard](https://img.shields.io/badge/UI-Industrial%20Theme-blue) ![Node.js](https://img.shields.io/badge/Node.js-v16+-green) ![Express](https://img.shields.io/badge/Express-4.18+-red) ![OAuth2](https://img.shields.io/badge/Auth-OAuth2-purple)
+![Industrial Theme](https://img.shields.io/badge/UI-Industrial%20Theme-orange) ![Node.js](https://img.shields.io/badge/Node.js-v16+-green) ![Express](https://img.shields.io/badge/Express-4.18+-red) ![Processing](https://img.shields.io/badge/Processing-Multi%20Format-purple)
 
 ## 🚀 Features
 
-### API Integration
-- **General Ledger Events**: Query voucher rows with full pagination support
-- **Account Balances**: Retrieve accumulated balances for specific accounts and dates
-- **Chart of Accounts**: Get utilized bookkeeping accounts for time periods
-- **OAuth2 Authentication**: Secure client credentials flow authentication
-- **Comprehensive Error Handling**: Robust error handling with user-friendly messages
+### 🏭 **Main Processor**
+- **CSV & Excel Support**: Parse and process various file formats
+- **Industrial UI**: Dark theme with orange/purple gradients
+- **Real-time Processing**: Live feedback and status updates
+- **Data Validation**: Comprehensive file type and content validation
+- **Export Capabilities**: Multiple export format options
 
-### File Processing
-- **CSV Support**: Parse and process CSV files
-- **Excel Support**: Handle .xlsx and .xls files
-- **Drag & Drop**: Modern file upload interface
-- **Data Validation**: File type and size validation
+### 🏗️ **Myclub-transformer (Esimerkkiseura)**
+- **Excel Processing**: Specialized handler for Myclub format files
+- **Account Mapping**: Intelligent account number transformation
+- **Sound Effects**: Industrial sound feedback (Jackhammer.wav)
+- **Bulldozer Sound Generation**: Web Audio API fallback sounds
+- **Talenom Integration**: Direct export to Talenom format
 
-### User Interface
-- **Industrial Dark Theme**: Modern, professional dark UI
-- **Responsive Design**: Works on desktop, tablet, and mobile
-- **Real-time Status**: Live connection and operation status indicators
-- **Toast Notifications**: User-friendly success/error notifications
-- **Data Export**: Export results as JSON files
-- **Loading States**: Clear loading indicators and progress feedback
+### 🔗 **Jatko-PASI Data Merger**
+- **Tire POIS Integration**: Reads files with `44841_tire*_POIS*` pattern
+- **POLO PASI Merging**: Combines with `44841TPM*_POLO_PASI*` files
+- **Data Extraction**: Extracts numbers after `;;;` delimiters
+- **Automatic Matching**: ID-based data merging and consolidation
+- **CSV Output**: Produces merged CSV files for download
 
-### Developer Features
-- **Comprehensive Logging**: Structured logging with Winston
-- **Rate Limiting**: Built-in API rate limiting
-- **Security Headers**: Helmet.js security middleware
-- **Health Checks**: API connectivity monitoring
-- **Hot Reload**: Development mode with nodemon
+### 🔧 **Account Configuration**
+- **Mapping Management**: Configure account number transformations
+- **Excel Import/Export**: 5-column structure with account names
+- **Real-time Updates**: Live configuration changes
+- **Validation**: Account mapping validation and testing
+
+### 🎵 **Industrial Sound System**
+- **Audio Feedback**: Jackhammer, bulldozer, and industrial sounds
+- **Web Audio API**: Procedural sound generation fallback
+- **Volume Control**: Adjustable sound levels
+- **Multi-format Support**: WAV and MP3 audio files
+
+## 🎯 Processor Guide
+
+### 🏭 **Main Processor** (`/`)
+- **Purpose**: General CSV and Excel file processing
+- **Supported Formats**: .csv, .xlsx, .xls
+- **Features**: Data validation, export options, real-time processing
+- **Usage**: Upload files via drag-and-drop or file selector
+
+### 🏗️ **Myclub-transformer** (`/esimerkkiseura`)
+- **Purpose**: Convert Myclub/Esimerkkiseura Excel files to Talenom format
+- **Input**: Excel files (.xlsx, .xls) with specific sheet structure
+- **Output**: Talenom-compatible voucher format
+- **Sound**: Plays jackhammer sound during processing
+- **Account Mapping**: Uses configured account mappings for transformation
+
+### 🔗 **Jatko-PASI** (`/jatko-pasi`)
+- **Purpose**: Merge tire POIS data with POLO PASI files
+- **Input Requirements**:
+  - Tire file: Contains `44841_tire` and `_POIS` in filename
+  - PASI file: Contains `44841TPM` and `_POLO_PASI` in filename
+- **Process**: Extracts numbers after `;;;` from tire files and appends to matching PASI records
+- **Output**: Updated CSV file with merged data
+
+### 🔧 **Account Config** (`/account-config`)
+- **Purpose**: Manage account number mappings
+- **Features**: Add, edit, delete account mappings
+- **Import/Export**: Excel files with 5-column structure
+- **Applications**: Supports 'main' and 'esimerkkiseura' mapping categories
 
 ## 📋 Prerequisites
 
@@ -185,25 +219,43 @@ http://localhost:3000
 
 ### Project Structure
 ```
-talenom-general-ledger-client/
-├── server.js                 # Main application server
-├── package.json              # Dependencies and scripts
-├── .env.example              # Environment template
-├── .gitignore               # Git ignore rules
-├── README.md                # This file
-├── public/                  # Static web assets
-│   ├── index.html           # Main HTML page
-│   ├── styles.css           # CSS styles
-│   └── script.js            # Client-side JavaScript
-├── services/                # Backend services
-│   └── apiClient.js         # Talenom API client
-├── utils/                   # Utility modules
-│   └── logger.js            # Winston logger configuration
-└── logs/                    # Application logs (created automatically)
-    ├── combined.log         # All logs
-    ├── error.log            # Error logs only
-    ├── exceptions.log       # Uncaught exceptions
-    └── rejections.log       # Unhandled promise rejections
+talenom-general-ledger-industrial/
+├── server.js                          # Main Express server
+├── package.json                       # Dependencies and scripts  
+├── .env.example                       # Environment template
+├── .gitignore                         # Git ignore rules
+├── README.md                          # This documentation
+├── public/                            # Frontend static files
+│   ├── index.html                     # Main processor dashboard
+│   ├── esimerkkiseura.html           # Myclub-transformer interface
+│   ├── jatko-pasi.html               # Jatko-PASI data merger
+│   ├── account-config.html           # Account mapping configuration
+│   ├── styles.css                    # Legacy CSS (if present)
+│   └── script.js                     # Legacy JavaScript (if present)
+├── services/                          # Business logic services
+│   ├── apiClient.js                  # Talenom API integration
+│   ├── esimerkkiseuraProcessor.js    # Myclub format processor
+│   ├── jatkoPasiProcessor.js         # PASI data merger
+│   └── accountMappingService.js      # Account mapping management
+├── utils/                             # Utility modules
+│   ├── logger.js                     # Winston logging configuration
+│   └── excelAnalyzer.js              # Excel file analysis tools
+├── config/                           # Configuration files
+│   └── account-mappings.json         # Account mapping storage
+├── audio/                            # Sound effects
+│   ├── Jackhammer.wav               # Primary industrial sound
+│   ├── BldgExplode.wav              # Building explosion sound
+│   ├── CrowdBoo.wav                 # Crowd reactions
+│   ├── CrowdYay.wav                 # Success sounds
+│   ├── Siren.wav                    # Alert sounds
+│   └── 514.mp3                      # Additional audio
+├── temp/                             # Temporary processing files
+├── logs/                             # Application logs
+│   ├── combined.log                 # All logs
+│   ├── error.log                    # Error logs only
+│   ├── exceptions.log               # Uncaught exceptions
+│   └── rejections.log               # Unhandled promise rejections
+└── uploads/                          # File upload staging area
 ```
 
 ### Available Scripts
