@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>File Upload Test</title>
+</head>
+<body>
+    <h1>File Upload Test</h1>
+    
+    <form id="testForm">
+        <input type="file" id="testFile" accept=".csv,.xlsx,.xls">
+        <button type="button" onclick="selectFile()">Browse</button>
+        <button type="submit">Upload</button>
+    </form>
+    
+    <div id="status"></div>
+    
+    <script>
+        function selectFile() {
+            document.getElementById('testFile').click();
+        }
+        
+        document.getElementById('testFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                document.getElementById('status').innerHTML = `Selected: ${file.name} (${file.size} bytes)`;
+            }
+        });
+        
+        document.getElementById('testForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const fileInput = document.getElementById('testFile');
+            if (!fileInput.files[0]) {
+                alert('Please select a file');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            
+            try {
+                document.getElementById('status').innerHTML = 'Uploading...';
+                
+                const response = await fetch('/api/upload-file', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('status').innerHTML = `Success! Processed ${result.rowCount} rows`;
+                } else {
+                    document.getElementById('status').innerHTML = `Error: ${result.error}`;
+                }
+            } catch (error) {
+                document.getElementById('status').innerHTML = `Error: ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html>

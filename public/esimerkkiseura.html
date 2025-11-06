@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏗️ Myclub-transformer - Industrial Excel Handler</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Custom Color Palette */
+            --color-orange: #ff6d2e;
+            --color-light: #fafafa;
+            --color-dark: #12202f;
+            --color-purple: #823bff;
+            
+            /* Theme Variables */
+            --bg-primary: var(--color-dark);
+            --bg-secondary: #0f1a26;
+            --bg-tertiary: #1a2937;
+            --bg-surface: #223344;
+            --bg-card: #182533;
+            
+            --text-primary: var(--color-light);
+            --text-secondary: #b8c4d0;
+            --text-muted: #8a96a3;
+            --text-accent: var(--color-purple);
+            
+            --accent-primary: var(--color-orange);
+            --accent-secondary: var(--color-purple);
+            --accent-warning: #ffab2e;
+            --accent-danger: #ff4757;
+            --accent-info: var(--color-purple);
+            
+            --border-primary: #2a3a4a;
+            --border-secondary: var(--bg-tertiary);
+            --border-accent: #3a4a5a;
+            
+            --shadow-sm: 0 1px 3px 0 rgba(18, 32, 47, 0.4);
+            --shadow-md: 0 4px 6px -1px rgba(18, 32, 47, 0.5);
+            --shadow-lg: 0 10px 15px -3px rgba(18, 32, 47, 0.6);
+            --shadow-xl: 0 20px 25px -5px rgba(18, 32, 47, 0.7);
+            
+            --gradient-primary: linear-gradient(135deg, var(--color-orange), var(--color-purple));
+            --gradient-surface: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+            --gradient-accent: linear-gradient(45deg, var(--color-orange), var(--color-purple));
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', 'Roboto', sans-serif;
+            background: var(--gradient-surface);
+            background-attachment: fixed;
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+            padding: 0;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Industrial background pattern */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 1px 1px, rgba(255, 109, 46, 0.08) 1px, transparent 0);
+            background-size: 20px 20px;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Header bar */
+        .header {
+            background: rgba(18, 32, 47, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid var(--color-orange);
+            padding: 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-md);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: var(--gradient-primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: var(--bg-surface);
+            color: var(--text-primary);
+        }
+
+        .nav-link.active {
+            background: var(--gradient-accent);
+            color: var(--color-light);
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .language-selector {
+            display: flex;
+            gap: 4px;
+            background: var(--bg-tertiary);
+            padding: 4px;
+            border-radius: 8px;
+            border: 1px solid var(--border-accent);
+        }
+
+        .btn-lang {
+            padding: 6px 12px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 500;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-lang:hover {
+            background: var(--bg-surface);
+            color: var(--text-primary);
+        }
+
+        .btn-lang.active {
+            background: var(--gradient-accent);
+            color: var(--color-light);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .version-badge {
+            background: var(--gradient-accent);
+            color: var(--color-light);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            border: none;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 30px;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+            align-items: start;
+        }
+
+        .upload-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-primary);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-accent);
+            box-shadow: 0 2px 8px rgba(255, 109, 46, 0.3);
+        }
+
+        .results-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-primary);
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            position: sticky;
+            top: 120px;
+            max-height: calc(100vh - 140px);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .section-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .panel-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            padding: 20px 25px;
+            border-bottom: 1px solid var(--border-primary);
+            background: var(--bg-tertiary);
+            margin: 0;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            font-family: inherit;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-accent);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-tertiary);
+            border-color: var(--accent-secondary);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            background: linear-gradient(135deg, #218838, #17a2b8);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 25px;
+        }
+
+        .file-upload-area {
+            border: 2px dashed var(--border-accent);
+            border-radius: 16px;
+            padding: 50px 40px;
+            text-align: center;
+            background: var(--bg-tertiary);
+            margin: 25px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .file-upload-area:hover {
+            border-color: var(--color-orange);
+            background: var(--bg-surface);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 109, 46, 0.2);
+        }
+
+        .file-upload-area.file-selected {
+            border-color: var(--color-orange);
+            background: rgba(255, 109, 46, 0.1);
+            border-style: solid;
+            box-shadow: 0 4px 15px rgba(255, 109, 46, 0.15);
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            display: block;
+            opacity: 0.8;
+        }
+
+        .upload-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .upload-subtext {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 0;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 15px;
+            padding: 12px 20px;
+            background: rgba(255, 109, 46, 0.2);
+            border: 1px solid rgba(255, 109, 46, 0.3);
+            border-radius: 8px;
+            color: var(--color-orange);
+            font-weight: 500;
+        }
+
+        .status {
+            padding: 16px 20px;
+            margin: 20px 0;
+            border-radius: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-left: 4px solid;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .status.success {
+            background: rgba(72, 187, 120, 0.15);
+            border-left-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        .status.error {
+            background: rgba(245, 101, 101, 0.15);
+            border-left-color: var(--accent-danger);
+            color: var(--accent-danger);
+        }
+
+        .status.info {
+            background: rgba(66, 153, 225, 0.15);
+            border-left-color: var(--accent-secondary);
+            color: var(--accent-secondary);
+        }
+
+        .status-icon {
+            font-size: 18px;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .log-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .log {
+            background: var(--bg-primary);
+            padding: 20px;
+            font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            flex: 1;
+            overflow-y: auto;
+            border-radius: 0 0 16px 16px;
+            line-height: 1.4;
+            color: var(--text-accent);
+        }
+
+        .results-summary {
+            padding: 20px 25px;
+            border-bottom: 1px solid var(--border-primary);
+            background: var(--bg-secondary);
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .summary-item .btn {
+            padding: 10px 20px;
+            font-size: 12px;
+            margin-left: auto;
+        }
+
+        .summary-label {
+            color: var(--text-secondary);
+        }
+
+        .summary-value {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: var(--bg-tertiary);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--gradient-accent);
+            width: 0%;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 8px rgba(255, 109, 46, 0.4);
+        }
+
+        @media (max-width: 1024px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .results-panel {
+                position: relative;
+                top: auto;
+                max-height: 500px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px 20px;
+            }
+            
+            .header-controls {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .main-container {
+                padding: 20px 15px;
+            }
+            
+            .upload-section,
+            .results-panel {
+                padding: 25px 20px;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">🏗️</div>
+                <span>Myclub-transformer</span>
+            </div>
+            <div class="header-controls">
+                <div class="nav-links">
+                    <a href="/" class="nav-link">🏭 Main Processor</a>
+                    <a href="/esimerkkiseura" class="nav-link active">🏗️ Myclub-transformer</a>
+                    <a href="/jatko-pasi" class="nav-link">🔗 Jatko-PASI</a>
+                    <a href="/account-config" class="nav-link">🔧 Account Config</a>
+                </div>
+                <div class="language-selector">
+                    <button class="btn btn-lang active" data-lang="en">🇬🇧 EN</button>
+                    <button class="btn btn-lang" data-lang="fi">🇫🇮 FI</button>
+                    <button class="btn btn-lang" data-lang="sv">🇸🇪 SV</button>
+                </div>
+                <div class="version-badge">v1.0 Industrial</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-container">
+        <div class="content-grid">
+            <!-- Upload Section -->
+            <div class="upload-section">
+                            <div class="section-title">
+                <div class="title-icon">📊</div>
+                <div class="title-text">
+                    📊 <span>Myclub-transformer Excel Processor</span>
+                </div>
+            </div>
+            <div class="section-subtitle">
+                Upload Excel files in Myclub format (with sheets "Kirjanpito" and "Erittely"). 
+                Our industrial processor will convert them to Talenom-compatible format.
+            </div>
+
+                            <div id="status" class="status info">
+                <span class="status-icon">⚡</span>
+                <div class="status-content">
+                    <span>System ready - Waiting for Myclub Excel file</span>
+                </div>
+            </div>
+
+                <form id="fileUploadForm">
+                    <div class="file-upload-area" id="fileUploadArea">
+                        <div class="upload-icon">📊</div>
+                        <div class="upload-text">Drag & drop Myclub Excel file here</div>
+                        <div class="upload-subtext">or click to browse • Supports XLS, XLSX files</div>
+                        <input type="file" id="fileInput" name="file" accept=".xlsx,.xls" style="display: none;">
+                    </div>
+                </form>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary" id="browseFileBtn">
+                        📂 <span>Browse Files</span>
+                    </button>
+                    <button class="btn btn-primary" id="processFileBtn" disabled>
+                        ⚡ <span>Process Excel File</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Results Panel -->
+            <div class="results-panel">
+                <h3 class="panel-title">🔍 <span>Processing Results & Logs</span></h3>
+                
+                <div class="results-summary" id="resultsSummary" style="display: none;">
+                    <div class="summary-item">
+                        <span class="summary-label">File processed:</span>
+                        <span class="summary-value" id="fileName">-</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Sheets processed:</span>
+                        <span class="summary-value" id="sheetCount">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Vouchers created:</span>
+                        <span class="summary-value" id="voucherCount">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Processing time:</span>
+                        <span class="summary-value" id="processingTime">-</span>
+                    </div>
+                    <div class="summary-item">
+                        <button class="btn btn-secondary" id="downloadJsonBtn" style="display: none;">
+                            <span>💾</span>
+                            <span>Download JSON</span>
+                        </button>
+                    </div>
+                    <div class="summary-item">
+                        <button class="btn btn-success" id="downloadExcelBtn" style="display: none;">
+                            <span>📊</span>
+                            <span>Download Excel</span>
+                        </button>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                </div>
+
+                <div class="log-container">
+                    <div id="log" class="log">                    <div id="log" class="log"># Myclub-transformer Excel Processor v1.0
+# Industrial-grade Excel file processor for Talenom integration
+# Ready for operations...
+
+</div>
+
+</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let processedJsonData = null;
+
+        // Bulldozer sound effect function
+        function playBuldozerSound() {
+            try {
+                log('🔨 Attempting to play jackhammer sound...', 'debug');
+                
+                // Create and play the jackhammer audio
+                const audio = new Audio('/Jackhammer.wav');
+                audio.volume = 0.5; // Set volume to 50%
+                
+                audio.play().then(() => {
+                    log('🔨💥 Jackhammer activated!', 'success');
+                }).catch(error => {
+                    console.log('Jackhammer audio failed, using fallback:', error);
+                    log('🔨 Jackhammer file unavailable, generating industrial sound...', 'warn');
+                    // Fallback to generated sound if file fails
+                    generateBuldozerSound();
+                });
+                
+            } catch (error) {
+                console.log('Sound playback failed:', error);
+                log('🔇 Sound system unavailable', 'warn');
+                // Fallback to generated sound
+                generateBuldozerSound();
+            }
+        }
+
+        // Generate bulldozer-like sound using Web Audio API
+        function generateBuldozerSound() {
+            try {
+                log('🔊 Starting jackhammer sound generation...', 'debug');
+                
+                // Check for Web Audio API support
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) {
+                    log('❌ Web Audio API not supported', 'warn');
+                    return;
+                }
+                
+                const audioContext = new AudioContext();
+                
+                // Resume context if it's suspended (required by some browsers)
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume().then(() => {
+                        log('🔊 Audio context resumed', 'debug');
+                        createBuldozerSound(audioContext);
+                    });
+                } else {
+                    createBuldozerSound(audioContext);
+                }
+                
+            } catch (error) {
+                console.log('Web Audio API failed:', error);
+                log('🚨 Bulldozer sound system offline', 'error');
+            }
+        }
+        
+        // Create the actual bulldozer sound
+        function createBuldozerSound(audioContext) {
+            try {
+                const duration = 1.5; // 1.5 seconds
+                const sampleRate = audioContext.sampleRate;
+                const frameCount = sampleRate * duration;
+                const arrayBuffer = audioContext.createBuffer(1, frameCount, sampleRate);
+                const channelData = arrayBuffer.getChannelData(0);
+                
+                log('🎛️ Generating bulldozer audio buffer...', 'debug');
+                
+                // Generate bulldozer-like rumbling sound
+                for (let i = 0; i < frameCount; i++) {
+                    const t = i / sampleRate;
+                    const envelope = Math.max(0, 1 - (t / duration) * 0.8); // Gentle fade out
+                    
+                    // Mix multiple frequencies for industrial sound
+                    let sample = 0;
+                    sample += Math.sin(2 * Math.PI * 45 * t) * 0.4; // Deep rumble
+                    sample += Math.sin(2 * Math.PI * 90 * t) * 0.3; // Engine tone
+                    sample += Math.sin(2 * Math.PI * 135 * t) * 0.2; // Higher harmonic
+                    sample += Math.sin(2 * Math.PI * 200 * t) * 0.1; // Mechanical whine
+                    sample += (Math.random() - 0.5) * 0.5; // Noise for mechanical sound
+                    
+                    // Add some vibration effect
+                    const vibration = Math.sin(2 * Math.PI * 8 * t) * 0.1;
+                    sample = sample * (1 + vibration);
+                    
+                    channelData[i] = sample * envelope * 0.25; // Keep volume reasonable
+                }
+                
+                // Create gain node for volume control
+                const gainNode = audioContext.createGain();
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+                
+                // Play the generated sound
+                const source = audioContext.createBufferSource();
+                source.buffer = arrayBuffer;
+                source.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                source.start();
+                
+                log('🚜💨 Bulldozer sound activated!', 'success');
+                
+                // Clean up after playing
+                source.onended = () => {
+                    source.disconnect();
+                    gainNode.disconnect();
+                    log('🔧 Bulldozer engine stopped', 'debug');
+                };
+                
+            } catch (error) {
+                console.log('Sound generation failed:', error);
+                log('🔧 Bulldozer engine malfunction', 'error');
+            }
+        }
+
+        // Play test connection sound (514.mp3)
+        function playTestConnectionSound() {
+            try {
+                const audio = new Audio('/514.mp3');
+                audio.volume = 0.6; // Set volume to 60%
+                
+                audio.play().then(() => {
+                    log('🎺 Test connection sound activated!', 'success');
+                }).catch(error => {
+                    log('🎺 Test connection sound file unavailable', 'warn');
+                });
+                
+            } catch (error) {
+                log('🔇 Test connection sound system unavailable', 'warn');
+            }
+        }
+
+        function log(message, type = 'info') {
+            const logElement = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            
+            const prefixes = {
+                'info': '[INFO]',
+                'success': '[OK]  ',
+                'error': '[ERR] ',
+                'warn': '[WARN]',
+                'debug': '[DBG] '
+            };
+            
+            const prefix = prefixes[type] || '[INFO]';
+            logElement.textContent += `${timestamp} ${prefix} ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(`${prefix} ${message}`);
+        }
+
+        function updateProgress(percentage) {
+            const progressFill = document.getElementById('progressFill');
+            progressFill.style.width = `${percentage}%`;
+        }
+
+        function showResultsSummary(fileName, sheetCount, voucherCount, processingTime, jsonData = null) {
+            const summary = document.getElementById('resultsSummary');
+            document.getElementById('fileName').textContent = fileName;
+            document.getElementById('sheetCount').textContent = sheetCount;
+            document.getElementById('voucherCount').textContent = voucherCount;
+            document.getElementById('processingTime').textContent = processingTime;
+            
+            const downloadJsonBtn = document.getElementById('downloadJsonBtn');
+            const downloadExcelBtn = document.getElementById('downloadExcelBtn');
+            
+            if (jsonData) {
+                processedJsonData = jsonData;
+                downloadJsonBtn.style.display = 'inline-flex';
+                downloadExcelBtn.style.display = 'inline-flex';
+                log('Download buttons activated', 'success');
+            } else {
+                downloadJsonBtn.style.display = 'none';
+                downloadExcelBtn.style.display = 'none';
+            }
+            
+            summary.style.display = 'block';
+            updateProgress(100);
+        }
+
+        function hideResultsSummary() {
+            document.getElementById('resultsSummary').style.display = 'none';
+            document.getElementById('downloadJsonBtn').style.display = 'none';
+            document.getElementById('downloadExcelBtn').style.display = 'none';
+            processedJsonData = null;
+            updateProgress(0);
+        }
+
+        function updateStatus(type, message, icon = null) {
+            const statusEl = document.getElementById('status');
+            const iconEl = statusEl.querySelector('.status-icon');
+            const textEl = statusEl.querySelector('span:last-child') || statusEl;
+            
+            statusEl.className = `status ${type}`;
+            
+            if (icon) {
+                iconEl.textContent = icon;
+            } else {
+                const icons = {
+                    'info': '⚡',
+                    'success': '✅',
+                    'error': '❌',
+                    'loading': '⏳'
+                };
+                iconEl.textContent = icons[type] || '⚡';
+            }
+            
+            if (textEl !== statusEl) {
+                textEl.textContent = message;
+            } else {
+                statusEl.innerHTML = `<span class="status-icon">${iconEl.textContent}</span><span>${message}</span>`;
+            }
+        }
+
+        function downloadProcessedJson() {
+            if (!processedJsonData) {
+                log('No JSON data available for download', 'error');
+                return;
+            }
+
+            try {
+                const jsonString = JSON.stringify(processedJsonData, null, 2);
+                const blob = new Blob([jsonString], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `myclub_vouchers_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.json`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                URL.revokeObjectURL(url);
+                
+                log(`JSON file downloaded: ${link.download}`, 'success');
+                updateStatus('success', `JSON downloaded successfully`);
+            } catch (error) {
+                log(`Download failed: ${error.message}`, 'error');
+                updateStatus('error', `Download failed: ${error.message}`);
+            }
+        }
+
+        async function uploadFile(file) {
+            const startTime = Date.now();
+            
+            // Play bulldozer sound effect
+            playBuldozerSound();
+            
+            log(`🔨 Jackhammer deployed - Target acquired: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`, 'info');
+            updateStatus('loading', 'Processing Myclub Excel file...', '⏳');
+            hideResultsSummary();
+            
+            updateProgress(10);
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                updateProgress(25);
+                log('🔧 Analyzing Excel sheets structure...', 'info');
+                
+                const response = await fetch('/api/upload-esimerkkiseura', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                updateProgress(75);
+                log(`📈 Server response: ${response.status} ${response.statusText}`, 'info');
+
+                const result = await response.json();
+                updateProgress(90);
+                
+                if (response.ok) {
+                    const processingTime = `${Date.now() - startTime}ms`;
+                    log(`🎉 Myclub file processed successfully!`, 'success');
+                    log(`📊 Sheets processed: ${result.totalSheets}`, 'success');
+                    log(`📋 Vouchers created: ${result.totalVouchers}`, 'success');
+                    
+                    updateStatus('success', `File processed - ${result.totalVouchers} vouchers created`);
+                    showResultsSummary(result.fileName, result.totalSheets, result.totalVouchers, processingTime, result.data);
+                    
+                    // Log sheet details
+                    Object.keys(result.sheetResults).forEach(sheetName => {
+                        const sheet = result.sheetResults[sheetName];
+                        log(`  📋 ${sheetName}: ${sheet.originalRowCount} rows → ${sheet.voucherCount} vouchers`, 'info');
+                    });
+                } else {
+                    throw new Error(result.error || result.message || 'Processing failed');
+                }
+            } catch (error) {
+                log(`🚨 Processing failed: ${error.message}`, 'error');
+                updateStatus('error', `Processing failed: ${error.message}`);
+                updateProgress(0);
+            }
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            log('Myclub-transformer Processor initialized');
+
+            // Browse button
+            document.getElementById('browseFileBtn').addEventListener('click', function() {
+                document.getElementById('fileInput').click();
+            });
+
+            // File upload area click
+            document.getElementById('fileUploadArea').addEventListener('click', function() {
+                document.getElementById('fileInput').click();
+            });
+
+            // File input change
+            document.getElementById('fileInput').addEventListener('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    log(`File selected: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`, 'info');
+                    
+                    const processBtn = document.getElementById('processFileBtn');
+                    processBtn.disabled = false;
+                    
+                    // Update upload area display
+                    const uploadArea = document.getElementById('fileUploadArea');
+                    uploadArea.classList.add('file-selected');
+                    
+                    const uploadText = uploadArea.querySelector('.upload-text');
+                    const uploadSubtext = uploadArea.querySelector('.upload-subtext');
+                    const uploadIcon = uploadArea.querySelector('.upload-icon');
+                    
+                    if (uploadIcon) uploadIcon.textContent = '📊';
+                    if (uploadText) uploadText.textContent = file.name;
+                    if (uploadSubtext) uploadSubtext.textContent = `${(file.size / 1024).toFixed(1)} KB • Ready for processing`;
+                    
+                    updateStatus('info', `File ready: ${file.name}`);
+                    log('File validation: Excel format ✓', 'success');
+                } else {
+                    log('File selection cleared', 'warn');
+                    hideResultsSummary();
+                }
+            });
+
+            // Process file button
+            document.getElementById('processFileBtn').addEventListener('click', function() {
+                const file = document.getElementById('fileInput').files[0];
+                if (file) {
+                    uploadFile(file);
+                } else {
+                    log('No file selected for processing', 'error');
+                }
+            });
+
+            // Download JSON button
+            document.getElementById('downloadJsonBtn').addEventListener('click', function() {
+                downloadProcessedJson();
+            });
+
+            // Download Excel button
+            document.getElementById('downloadExcelBtn').addEventListener('click', function() {
+                log('📊 Downloading processed Excel file...', 'info');
+                
+                const link = document.createElement('a');
+                link.href = '/api/download-esimerkkiseura-excel';
+                link.download = 'myclub_processed.xlsx';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                log('📊 Excel download initiated', 'success');
+            });
+
+            log('🏗️ Myclub-transformer Excel Processor ready', 'success');
+            log('Supported sheets: Kirjanpito, Erittely', 'info');
+        });
+    </script>
+</body>
+</html>

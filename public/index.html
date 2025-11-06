@@ -1,0 +1,1609 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏭 Talenom General Ledger - Industrial File Processor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Custom Color Palette */
+            --color-orange: #ff6d2e;
+            --color-light: #fafafa;
+            --color-dark: #12202f;
+            --color-purple: #823bff;
+            
+            /* Theme Variables */
+            --bg-primary: var(--color-dark);
+            --bg-secondary: #0f1a26;
+            --bg-tertiary: #1a2937;
+            --bg-surface: #223344;
+            --bg-card: #182533;
+            
+            --text-primary: var(--color-light);
+            --text-secondary: #b8c4d0;
+            --text-muted: #8a96a3;
+            --text-accent: var(--color-purple);
+            
+            --accent-primary: var(--color-orange);
+            --accent-secondary: var(--color-purple);
+            --accent-warning: #ffab2e;
+            --accent-danger: #ff4757;
+            --accent-info: var(--color-purple);
+            
+            --border-primary: #2a3a4a;
+            --border-secondary: var(--bg-tertiary);
+            --border-accent: #3a4a5a;
+            
+            --shadow-sm: 0 1px 3px 0 rgba(18, 32, 47, 0.4);
+            --shadow-md: 0 4px 6px -1px rgba(18, 32, 47, 0.5);
+            --shadow-lg: 0 10px 15px -3px rgba(18, 32, 47, 0.6);
+            --shadow-xl: 0 20px 25px -5px rgba(18, 32, 47, 0.7);
+            
+            --gradient-primary: linear-gradient(135deg, var(--color-orange), var(--color-purple));
+            --gradient-surface: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+            --gradient-accent: linear-gradient(45deg, var(--color-orange), var(--color-purple));
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', 'Roboto', sans-serif;
+            background: var(--gradient-surface);
+            background-attachment: fixed;
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+            padding: 0;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Industrial background pattern */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 1px 1px, rgba(255, 109, 46, 0.08) 1px, transparent 0);
+            background-size: 20px 20px;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Additional accent background */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(130, 59, 255, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Header bar */
+        .header {
+            background: rgba(18, 32, 47, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid var(--color-orange);
+            padding: 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-md);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .nav-link:hover {
+            background: var(--bg-surface);
+            color: var(--text-primary);
+        }
+
+        .nav-link.active {
+            background: var(--gradient-accent);
+            color: var(--color-light);
+        }
+
+        .language-selector {
+            display: flex;
+            gap: 4px;
+            background: var(--bg-tertiary);
+            padding: 4px;
+            border-radius: 8px;
+            border: 1px solid var(--border-accent);
+        }
+
+        .btn-lang {
+            padding: 6px 12px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 500;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-lang:hover {
+            background: var(--bg-surface);
+            color: var(--text-primary);
+        }
+
+        .btn-lang.active {
+            background: var(--gradient-accent);
+            color: var(--color-light);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: var(--gradient-primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .version-badge {
+            background: var(--gradient-accent);
+            color: var(--color-light);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            border: none;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 30px;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+            align-items: start;
+        }
+
+        .upload-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-primary);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-accent);
+            box-shadow: 0 2px 8px rgba(255, 109, 46, 0.3);
+        }
+
+        .results-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-primary);
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            position: sticky;
+            top: 120px;
+            max-height: calc(100vh - 140px);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (max-width: 1024px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .results-panel {
+                position: relative;
+                top: auto;
+                max-height: 500px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px 20px;
+            }
+            
+            .header-controls {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .main-container {
+                padding: 20px 15px;
+            }
+            
+            .upload-section,
+            .results-panel {
+                padding: 25px 20px;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                justify-content: center;
+            }
+        }
+
+        .section-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .panel-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            padding: 20px 25px;
+            border-bottom: 1px solid var(--border-primary);
+            background: var(--bg-tertiary);
+            margin: 0;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            font-family: inherit;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-accent);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-tertiary);
+            border-color: var(--accent-secondary);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            background: linear-gradient(135deg, #218838, #17a2b8);
+        }
+
+        .btn-info {
+            background: var(--accent-info);
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: #319795;
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 25px;
+        }
+
+        .file-upload-area {
+            border: 2px dashed var(--border-accent);
+            border-radius: 16px;
+            padding: 50px 40px;
+            text-align: center;
+            background: var(--bg-tertiary);
+            margin: 25px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .file-upload-area::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, rgba(66, 153, 225, 0.05) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .file-upload-area:hover {
+            border-color: var(--color-orange);
+            background: var(--bg-surface);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 109, 46, 0.2);
+        }
+
+        .file-upload-area:hover::before {
+            opacity: 1;
+        }
+
+        .file-upload-area.drag-over {
+            border-color: var(--color-purple);
+            background: rgba(130, 59, 255, 0.1);
+            transform: scale(1.02);
+            box-shadow: 0 8px 25px rgba(130, 59, 255, 0.2);
+        }
+
+        .file-upload-area.file-selected {
+            border-color: var(--color-orange);
+            background: rgba(255, 109, 46, 0.1);
+            border-style: solid;
+            box-shadow: 0 4px 15px rgba(255, 109, 46, 0.15);
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            display: block;
+            opacity: 0.8;
+        }
+
+        .upload-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .upload-subtext {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 0;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 15px;
+            padding: 12px 20px;
+            background: rgba(255, 109, 46, 0.2);
+            border: 1px solid rgba(255, 109, 46, 0.3);
+            border-radius: 8px;
+            color: var(--color-orange);
+            font-weight: 500;
+        }
+
+        .form-input {
+            padding: 12px 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-primary);
+            border-radius: 8px;
+            color: var(--text-primary);
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .status {
+            padding: 16px 20px;
+            margin: 20px 0;
+            border-radius: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-left: 4px solid;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .status.success {
+            background: rgba(72, 187, 120, 0.15);
+            border-left-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        .status.error {
+            background: rgba(245, 101, 101, 0.15);
+            border-left-color: var(--accent-danger);
+            color: var(--accent-danger);
+        }
+
+        .status.info {
+            background: rgba(66, 153, 225, 0.15);
+            border-left-color: var(--accent-secondary);
+            color: var(--accent-secondary);
+        }
+
+        .status-icon {
+            font-size: 18px;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .log-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .log {
+            background: var(--bg-primary);
+            padding: 20px;
+            font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            flex: 1;
+            overflow-y: auto;
+            border-radius: 0 0 16px 16px;
+            line-height: 1.4;
+            color: var(--text-accent);
+        }
+
+        .log::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .log::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        .log::-webkit-scrollbar-thumb {
+            background: var(--border-accent);
+            border-radius: 3px;
+        }
+
+        .results-summary {
+            padding: 20px 25px;
+            border-bottom: 1px solid var(--border-primary);
+            background: var(--bg-secondary);
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .summary-item .btn {
+            padding: 10px 20px;
+            font-size: 12px;
+            margin-left: auto;
+        }
+
+        .summary-label {
+            color: var(--text-secondary);
+        }
+
+        .summary-value {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: var(--bg-tertiary);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--gradient-accent);
+            width: 0%;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 8px rgba(255, 109, 46, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">🏭</div>
+                <span data-i18n="app.title">Talenom General Ledger</span>
+            </div>
+            <div class="header-controls">
+                <div class="nav-links">
+                    <a href="/" class="nav-link active">🏭 Main Processor</a>
+                    <a href="/esimerkkiseura" class="nav-link">🏗️ Myclub-transformer</a>
+                    <a href="/jatko-pasi" class="nav-link">🔗 Jatko-PASI</a>
+                    <a href="/account-config" class="nav-link">🔧 Account Config</a>
+                </div>
+                <div class="language-selector">
+                    <button class="btn btn-lang active" data-lang="en">🇬🇧 EN</button>
+                    <button class="btn btn-lang" data-lang="fi">🇫🇮 FI</button>
+                    <button class="btn btn-lang" data-lang="sv">🇸🇪 SV</button>
+                </div>
+                <div class="version-badge" data-i18n="app.version">v1.0 Industrial</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-container">
+        <div class="content-grid">
+            <!-- Upload Section -->
+            <div class="upload-section">
+                <div class="section-title">
+                    📄 <span data-i18n="upload.title">File Processing Station</span>
+                </div>
+                <div class="section-subtitle" data-i18n="upload.subtitle">
+                    Upload and process CSV or Excel files containing general ledger data. 
+                    Our industrial-grade processor will parse your data and prepare it for integration.
+                </div>
+
+                <div id="status" class="status info">
+                    <span class="status-icon">⚡</span>
+                    <span data-i18n="status.ready">System ready - Waiting for file input</span>
+                </div>
+
+                <form id="fileUploadForm">
+                    <div class="file-upload-area" id="fileUploadArea">
+                        <div class="upload-icon">📁</div>
+                        <div class="upload-text" data-i18n="upload.dropzone">Drag & drop your file here</div>
+                        <div class="upload-subtext" data-i18n="upload.formats">or click to browse • Supports CSV, XLS, XLSX</div>
+                        <input type="file" id="fileInput" name="file" accept=".csv,.xlsx,.xls" style="display: none;">
+                    </div>
+                </form>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary" id="browseFileBtn">
+                        📂 <span data-i18n="buttons.browse">Browse Files</span>
+                    </button>
+                    <button class="btn btn-success" id="downloadTemplateBtn">
+                        📥 <span data-i18n="buttons.template">Download Template</span>
+                    </button>
+                    <button class="btn btn-primary" id="processFileBtn" disabled>
+                        ⚡ <span data-i18n="buttons.process">Process File</span>
+                    </button>
+                    <button class="btn btn-info" id="testConnectionBtn">
+                        🔧 <span data-i18n="buttons.test">Test Connection</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Results Panel -->
+            <div class="results-panel">
+                <h3 class="panel-title">🔍 <span data-i18n="results.title">Processing Results & Logs</span></h3>
+                
+                <div class="results-summary" id="resultsSummary" style="display: none;">
+                    <div class="summary-item">
+                        <span class="summary-label" data-i18n="results.file">File processed:</span>
+                        <span class="summary-value" id="fileName">-</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label" data-i18n="results.records">Records found:</span>
+                        <span class="summary-value" id="recordCount">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label" data-i18n="results.time">Processing time:</span>
+                        <span class="summary-value" id="processingTime">-</span>
+                    </div>
+                    <div class="summary-item">
+                        <button class="btn btn-secondary" id="downloadJsonBtn" style="display: none;">
+                            <span>💾</span>
+                            <span data-i18n="buttons.download">Download JSON</span>
+                        </button>
+                    </div>
+                    <div class="summary-item">
+                        <button class="btn btn-success" id="downloadPopulatedTemplateBtn" style="display: none;">
+                            <span>📊</span>
+                            <span data-i18n="buttons.downloadProcessed">Download Processed Template</span>
+                        </button>
+                    </div>
+                    <div class="summary-item">
+                        <button class="btn btn-warning" id="sendToTalenomBtn" style="display: none;">
+                            <span>🚀</span>
+                            <span data-i18n="buttons.sendToTalenom">Send to Talenom</span>
+                        </button>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                </div>
+
+                <div class="log-container">
+                    <div id="log" class="log"># Talenom Industrial File Processor v1.0
+# System Status: Ready
+# Waiting for operations...
+
+</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Internationalization
+        const translations = {
+            en: {
+                'app.title': 'Talenom General Ledger',
+                'app.version': 'v1.0 Industrial',
+                'upload.title': 'File Processing Station',
+                'upload.subtitle': 'Upload Finnish accounting CSV files with columns: Tili, Nimi, Päiväys, Tositelaji, Tosite, ALV-%, ALV(EUR), Debet, Kredit, Selite. Our industrial-grade processor will validate and transform your data for Talenom API integration.',
+                'upload.dropzone': 'Drag & drop your file here',
+                'upload.formats': 'or click to browse • Supports CSV, XLS, XLSX',
+                'buttons.browse': 'Browse Files',
+                'buttons.template': 'Download Template',
+                'buttons.process': 'Process File',
+                'buttons.test': 'Test Connection',
+                'buttons.download': 'Download JSON',
+                'buttons.downloadProcessed': 'Download Processed Template',
+                'buttons.sendToTalenom': 'Send to Talenom',
+                'results.title': 'Processing Results & Logs',
+                'results.file': 'File processed:',
+                'results.records': 'Records found:',
+                'results.time': 'Processing time:',
+                'status.ready': 'System ready - Waiting for file input',
+                'status.loading': 'Processing file through industrial pipeline...',
+                'status.success': 'File processed successfully',
+                'status.error': 'Processing failed',
+                'status.connection': 'Testing server connection...',
+                'messages.fileSelected': 'File loaded - {filename} ready for processing',
+                'messages.connectionSuccess': 'Server connection established - System ready',
+                'messages.connectionFail': 'Connection failed: {error}',
+                'messages.processSuccess': 'File processed - {count} records extracted',
+                'messages.processFail': 'Processing failed: {error}'
+            },
+            fi: {
+                'app.title': 'Talenom Pääkirjamurskain',
+                'app.version': 'v1.0',
+                'upload.title': 'Murskausasema',
+                'upload.subtitle': 'Lataa suomalaisia kirjanpidon CSV-tiedostoja sarakkeilla: Tili, Nimi, Päiväys, Tositelaji, Tosite, ALV-%, ALV(EUR), Debet, Kredit, Selite. Pääkirjamurska validoi ja muuntaa tiedot Talenom API:a varten.',
+                'upload.dropzone': 'Vedä ja pudota tiedosto tähän',
+                'upload.formats': 'tai klikkaa selataksesi • Tukee CSV, XLS, XLSX',
+                'buttons.browse': 'Selaa tiedostoja',
+                'buttons.template': 'Lataa mallitiedosto',
+                'buttons.process': 'Murskaa pääkirja',
+                'buttons.test': 'Testaa yhteys',
+                'buttons.download': 'Lataa JSON',
+                'buttons.downloadProcessed': 'Lataa käsitelty mallitiedosto',
+                'buttons.sendToTalenom': 'Lähetä Talenomiin',
+                'results.title': 'Teknistä liibalaabaa:',
+                'results.file': 'Käsitelty pääkirja:',
+                'results.records': 'Löydetyt tietueet:',
+                'results.time': 'Käsittelyaika:',
+                'status.ready': 'Järjestelmä valmis - Odottaa tiedoston syöttöä',
+                'status.loading': 'Käsitellään tiedostoa murskassa... Pidä sormet etäällä',
+                'status.success': 'Tiedosto murskattu onnistuneesti',
+                'status.error': 'Murskaus epäonnistui',
+                'status.connection': 'Testataan palvelinyhteys...',
+                'messages.fileSelected': 'Tiedosto ladattu - {filename} valmis murskattavaksi',
+                'messages.connectionSuccess': 'Palvelinyhteys muodostettu - murska toimintavalmis',
+                'messages.connectionFail': 'Yhteys epäonnistui: {error}',
+                'messages.processSuccess': 'Tiedosto murskattu - {count} tietuetta purettu',
+                'messages.processFail': 'Murskaus epäonnistui: {error}'
+            },
+            sv: {
+                'app.title': 'Talenom Huvudboksmällare',
+                'app.version': 'v1.0',
+                'upload.title': 'Filbehandlingsstation',
+                'upload.subtitle': 'Ladda upp CSV- eller Excel-huvudböcker. Det kommer att automatiskt bryta ner data och ladda upp den via API till Easor Accounting.',
+                'upload.dropzone': 'Dra och släpp din fil här',
+                'upload.formats': 'eller klicka för att bläddra • Stöder CSV, XLS, XLSX',
+                'buttons.browse': 'Bläddra filer',
+                'buttons.template': 'Ladda ner mall',
+                'buttons.process': 'Bearbeta fil',
+                'buttons.test': 'Testa anslutningen',
+                'buttons.download': 'Ladda ner JSON',
+                'buttons.downloadProcessed': 'Ladda ner bearbetad mall',
+                'buttons.sendToTalenom': 'Skicka till Talenom',
+                'results.title': 'Bearbetningsresultat & Loggar',
+                'results.file': 'Bearbetad fil:',
+                'results.records': 'Hittade poster:',
+                'results.time': 'Bearbetningstid:',
+                'status.ready': 'System redo - väntar på filinmatning',
+                'status.loading': 'Bearbetar fil genom industriell pipeline... Håll bort fingrarna',
+                'status.success': 'Fil processerad!',
+                'status.error': 'Bearbetning misslyckades',
+                'status.connection': 'Testar serveranslutning...',
+                'messages.fileSelected': 'Fil laddad - {filename} redo för bearbetning',
+                'messages.connectionSuccess': 'Serveranslutning etablerad - System redo',
+                'messages.connectionFail': 'Anslutning misslyckades: {error}',
+                'messages.processSuccess': 'Fil bearbetad - {count} poster extraherade',
+                'messages.processFail': 'Bearbetning misslyckades: {error}'
+            }
+        };
+
+        let currentLang = 'en';
+        let processedJsonData = null; // Store the processed JSON data for download
+
+        function t(key, params = {}) {
+            let text = translations[currentLang][key] || translations['en'][key] || key;
+            
+            // Replace parameters
+            Object.keys(params).forEach(param => {
+                text = text.replace(new RegExp(`\\{${param}\\}`, 'g'), params[param]);
+            });
+            
+            return text;
+        }
+
+        function updateLanguage(lang) {
+            if (!translations[lang]) return;
+            
+            currentLang = lang;
+            
+            // Update all elements with data-i18n attributes
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                element.textContent = t(key);
+            });
+            
+            // Update language selector
+            document.querySelectorAll('.btn-lang').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.lang === lang) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Update dynamic content
+            updateStatus('success', t('status.ready'));
+            
+            // Store language preference
+            localStorage.setItem('preferred-language', lang);
+            
+            log(t('messages.connectionSuccess'), 'success');
+        }
+
+        // Enhanced logging function
+        function log(message, type = 'info') {
+            const logElement = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            
+            const prefixes = {
+                'info': '[INFO]',
+                'success': '[OK]  ',
+                'error': '[ERR] ',
+                'warn': '[WARN]',
+                'debug': '[DBG] '
+            };
+            
+            const prefix = prefixes[type] || '[INFO]';
+            logElement.textContent += `${timestamp} ${prefix} ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(`${prefix} ${message}`);
+        }
+
+        // Progress and summary functions
+        function updateProgress(percentage) {
+            const progressFill = document.getElementById('progressFill');
+            progressFill.style.width = `${percentage}%`;
+        }
+
+        function showResultsSummary(fileName, recordCount, processingTime, jsonData = null) {
+            const summary = document.getElementById('resultsSummary');
+            document.getElementById('fileName').textContent = fileName;
+            document.getElementById('recordCount').textContent = recordCount;
+            document.getElementById('processingTime').textContent = processingTime;
+            
+            // Show download buttons if we have JSON data
+            const downloadBtn = document.getElementById('downloadJsonBtn');
+            const downloadTemplateBtn = document.getElementById('downloadPopulatedTemplateBtn');
+            log(`Download button element found: ${!!downloadBtn}`, 'debug');
+            log(`Template download button element found: ${!!downloadTemplateBtn}`, 'debug');
+            log(`JSON data available: ${!!jsonData}, records: ${jsonData ? jsonData.length : 0}`, 'debug');
+            
+            if (jsonData) {
+                processedJsonData = jsonData;
+                downloadBtn.style.display = 'inline-flex';
+                downloadTemplateBtn.style.display = 'inline-flex';
+                log('Both download buttons shown', 'success');
+            } else {
+                downloadBtn.style.display = 'none';
+                downloadTemplateBtn.style.display = 'none';
+                log('Download buttons hidden - no JSON data', 'info');
+            }
+            updateSendToTalenomButton();
+            summary.style.display = 'block';
+            updateProgress(100);
+        }
+
+        function hideResultsSummary() {
+            document.getElementById('resultsSummary').style.display = 'none';
+            document.getElementById('downloadJsonBtn').style.display = 'none';
+            document.getElementById('downloadPopulatedTemplateBtn').style.display = 'none';
+            document.getElementById('sendToTalenomBtn').style.display = 'none';
+            processedJsonData = null;
+            updateProgress(0);
+        }
+
+        // Show/hide Send to Talenom button if processedJsonData is available
+        function updateSendToTalenomButton() {
+            const btn = document.getElementById('sendToTalenomBtn');
+            if (processedJsonData) {
+                btn.style.display = '';
+            } else {
+                btn.style.display = 'none';
+            }
+        }
+
+        function downloadProcessedJson() {
+            log('Download function called', 'info');
+            log(`Processed data available: ${!!processedJsonData}`, 'debug');
+            
+            if (!processedJsonData) {
+                log('No JSON data available for download', 'error');
+                return;
+            }
+
+            try {
+                // Create formatted JSON string
+                const jsonString = JSON.stringify(processedJsonData, null, 2);
+                
+                // Create blob and download link
+                const blob = new Blob([jsonString], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                // Create and trigger download
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `processed_data_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.json`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                // Clean up the URL object
+                URL.revokeObjectURL(url);
+                
+                log(`JSON file downloaded: ${link.download}`, 'success');
+                updateStatus('success', `JSON downloaded successfully`);
+            } catch (error) {
+                log(`Download failed: ${error.message}`, 'error');
+                updateStatus('error', `Download failed: ${error.message}`);
+            }
+        }
+
+        function resetFileUploadArea() {
+            const uploadArea = document.getElementById('fileUploadArea');
+            const processBtn = document.getElementById('processFileBtn');
+            
+            uploadArea.classList.remove('file-selected');
+            processBtn.disabled = true;
+            
+            // Reset content
+            const uploadIcon = uploadArea.querySelector('.upload-icon');
+            const uploadText = uploadArea.querySelector('.upload-text');
+            const uploadSubtext = uploadArea.querySelector('.upload-subtext');
+            const fileInfo = uploadArea.querySelector('.file-info');
+            
+            if (uploadIcon) uploadIcon.textContent = '📁';
+            if (uploadText) uploadText.textContent = 'Drag & drop your file here';
+            if (uploadSubtext) uploadSubtext.textContent = 'or click to browse • Supports CSV, XLS, XLSX';
+            if (fileInfo) fileInfo.remove();
+            
+            hideResultsSummary();
+        }
+
+        // Status update function
+        function updateStatus(type, message, icon = null) {
+            const statusEl = document.getElementById('status');
+            const iconEl = statusEl.querySelector('.status-icon');
+            const textEl = statusEl.querySelector('span:last-child') || statusEl;
+            
+            statusEl.className = `status ${type}`;
+            
+            if (icon) {
+                iconEl.textContent = icon;
+            } else {
+                const icons = {
+                    'info': '⚡',
+                    'success': '✅',
+                    'error': '❌',
+                    'loading': '⏳'
+                };
+                iconEl.textContent = icons[type] || '⚡';
+            }
+            
+            if (textEl !== statusEl) {
+                textEl.textContent = message;
+            } else {
+                statusEl.innerHTML = `<span class="status-icon">${iconEl.textContent}</span><span>${message}</span>`;
+            }
+        }
+
+        // Debug function to check file input state
+        function debugFileInput() {
+            const fileInput = document.getElementById('fileInput');
+            log(`=== File Input Debug ===`);
+            log(`Element found: ${!!fileInput}`);
+            if (fileInput) {
+                log(`ID: ${fileInput.id}`);
+                log(`Type: ${fileInput.type}`);
+                log(`Files count: ${fileInput.files.length}`);
+                log(`Value: ${fileInput.value}`);
+                if (fileInput.files.length > 0) {
+                    log(`First file: ${fileInput.files[0].name}`);
+                }
+            }
+            log(`=== End File Input Debug ===`);
+        }
+
+        // Bulldozer sound effect function
+        function playBuldozerSound() {
+            try {
+                log('🔨 Attempting to play jackhammer sound...', 'debug');
+                
+                // Create and play the jackhammer audio
+                const audio = new Audio('/Jackhammer.wav');
+                audio.volume = 0.5; // Set volume to 50%
+                
+                audio.play().then(() => {
+                    log('🔨💥 Jackhammer activated!', 'success');
+                }).catch(error => {
+                    console.log('Jackhammer audio failed, using fallback:', error);
+                    log('🔨 Jackhammer file unavailable, generating industrial sound...', 'warn');
+                    // Fallback to generated sound if file fails
+                    generateBuldozerSound();
+                });
+                
+            } catch (error) {
+                console.log('Sound playback failed:', error);
+                log('🔇 Sound system unavailable', 'warn');
+                // Fallback to generated sound
+                generateBuldozerSound();
+            }
+        }
+
+        // Generate bulldozer-like sound using Web Audio API
+        function generateBuldozerSound() {
+            try {
+                log('� Starting jackhammer sound generation...', 'debug');
+                
+                // Check for Web Audio API support
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) {
+                    log('❌ Web Audio API not supported', 'warn');
+                    return;
+                }
+                
+                const audioContext = new AudioContext();
+                
+                // Resume context if it's suspended (required by some browsers)
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume().then(() => {
+                        log('🔊 Audio context resumed', 'debug');
+                        createBuldozerSound(audioContext);
+                    });
+                } else {
+                    createBuldozerSound(audioContext);
+                }
+                
+            } catch (error) {
+                console.log('Web Audio API failed:', error);
+                log('🚨 Bulldozer sound system offline', 'error');
+            }
+        }
+        
+        // Create the actual bulldozer sound
+        function createBuldozerSound(audioContext) {
+            try {
+                const duration = 1.5; // 1.5 seconds
+                const sampleRate = audioContext.sampleRate;
+                const frameCount = sampleRate * duration;
+                const arrayBuffer = audioContext.createBuffer(1, frameCount, sampleRate);
+                const channelData = arrayBuffer.getChannelData(0);
+                
+                log('🎛️ Generating bulldozer audio buffer...', 'debug');
+                
+                // Generate bulldozer-like rumbling sound
+                for (let i = 0; i < frameCount; i++) {
+                    const t = i / sampleRate;
+                    const envelope = Math.max(0, 1 - (t / duration) * 0.8); // Gentle fade out
+                    
+                    // Mix multiple frequencies for industrial sound
+                    let sample = 0;
+                    sample += Math.sin(2 * Math.PI * 45 * t) * 0.4; // Deep rumble
+                    sample += Math.sin(2 * Math.PI * 90 * t) * 0.3; // Engine tone
+                    sample += Math.sin(2 * Math.PI * 135 * t) * 0.2; // Higher harmonic
+                    sample += Math.sin(2 * Math.PI * 200 * t) * 0.1; // Mechanical whine
+                    sample += (Math.random() - 0.5) * 0.5; // Noise for mechanical sound
+                    
+                    // Add some vibration effect
+                    const vibration = Math.sin(2 * Math.PI * 8 * t) * 0.1;
+                    sample = sample * (1 + vibration);
+                    
+                    channelData[i] = sample * envelope * 0.25; // Keep volume reasonable
+                }
+                
+                // Create gain node for volume control
+                const gainNode = audioContext.createGain();
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+                
+                // Play the generated sound
+                const source = audioContext.createBufferSource();
+                source.buffer = arrayBuffer;
+                source.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                source.start();
+                
+                log('🚜💨 Bulldozer sound activated!', 'success');
+                
+                // Clean up after playing
+                source.onended = () => {
+                    source.disconnect();
+                    gainNode.disconnect();
+                    log('🔧 Bulldozer engine stopped', 'debug');
+                };
+                
+            } catch (error) {
+                console.log('Sound generation failed:', error);
+                log('🔧 Bulldozer engine malfunction', 'error');
+            }
+        }
+
+        // Play test connection sound (514.mp3)
+        function playTestConnectionSound() {
+            try {
+                const audio = new Audio('/514.mp3');
+                audio.volume = 0.6; // Set volume to 60%
+                
+                audio.play().then(() => {
+                    log('🎺 Test connection sound activated!', 'success');
+                }).catch(error => {
+                    log('🎺 Test connection sound file unavailable', 'warn');
+                });
+                
+            } catch (error) {
+                log('🔇 Test connection sound system unavailable', 'warn');
+            }
+        }
+
+        // Play critical error sound (BldgExplode.wav)
+        function playCriticalErrorSound() {
+            try {
+                const audio = new Audio('/BldgExplode.wav');
+                audio.volume = 0.7; // Set volume to 70% for dramatic effect
+                
+                audio.play().then(() => {
+                    log('💥💣 Critical error sound activated!', 'error');
+                }).catch(error => {
+                    log('💥 Critical error sound file unavailable', 'warn');
+                });
+                
+            } catch (error) {
+                log('🔇 Critical error sound system unavailable', 'warn');
+            }
+        }
+
+        // Play success sound (CrowdYay.wav) when processing is complete
+        function playCrowdYaySound() {
+            try {
+                log('🎉 Attempting to play success celebration sound...', 'debug');
+                
+                const audio = new Audio('/CrowdYay.wav');
+                audio.volume = 0.6; // Set volume to 60%
+                
+                audio.play().then(() => {
+                    log('🎉🎊 SUCCESS! Crowd celebration activated!', 'success');
+                }).catch(error => {
+                    log('🎉 Success sound file unavailable, using fallback celebration', 'warn');
+                    console.log('CrowdYay.wav failed:', error);
+                    // Fallback to a simple success beep if file not available
+                    generateSuccessSound();
+                });
+                
+            } catch (error) {
+                console.log('Success sound playback failed:', error);
+                log('🔇 Success sound system unavailable', 'warn');
+                generateSuccessSound();
+            }
+        }
+
+        // Generate a success sound using Web Audio API as fallback
+        function generateSuccessSound() {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) {
+                    log('❌ Web Audio API not supported for success sound', 'warn');
+                    return;
+                }
+                
+                const audioContext = new AudioContext();
+                
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume().then(() => {
+                        createSuccessSound(audioContext);
+                    });
+                } else {
+                    createSuccessSound(audioContext);
+                }
+                
+            } catch (error) {
+                console.log('Success sound generation failed:', error);
+                log('🎊 Success sound system offline', 'warn');
+            }
+        }
+
+        // Create the actual success sound
+        function createSuccessSound(audioContext) {
+            try {
+                const duration = 1.0; // 1 second
+                const sampleRate = audioContext.sampleRate;
+                const frameCount = sampleRate * duration;
+                const arrayBuffer = audioContext.createBuffer(1, frameCount, sampleRate);
+                const channelData = arrayBuffer.getChannelData(0);
+                
+                // Generate a pleasant success chord (C major)
+                for (let i = 0; i < frameCount; i++) {
+                    const t = i / sampleRate;
+                    const envelope = Math.max(0, 1 - (t / duration)); // Fade out
+                    
+                    // C major chord frequencies
+                    let sample = 0;
+                    sample += Math.sin(2 * Math.PI * 261.63 * t) * 0.3; // C4
+                    sample += Math.sin(2 * Math.PI * 329.63 * t) * 0.2; // E4
+                    sample += Math.sin(2 * Math.PI * 392.00 * t) * 0.2; // G4
+                    sample += Math.sin(2 * Math.PI * 523.25 * t) * 0.1; // C5
+                    
+                    channelData[i] = sample * envelope * 0.3;
+                }
+                
+                const gainNode = audioContext.createGain();
+                gainNode.gain.setValueAtTime(0.4, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+                
+                const source = audioContext.createBufferSource();
+                source.buffer = arrayBuffer;
+                source.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                source.start();
+                
+                log('🎼🎉 Success chord played!', 'success');
+                
+                source.onended = () => {
+                    source.disconnect();
+                    gainNode.disconnect();
+                };
+                
+            } catch (error) {
+                console.log('Success sound generation failed:', error);
+                log('🎊 Success sound generator malfunction', 'error');
+            }
+        }
+
+        // Enhanced connection test
+        async function testConnection() {
+            log('Starting connection diagnostics...', 'info');
+            
+            // Play test connection sound
+            playTestConnectionSound();
+            
+            updateStatus('loading', t('status.connection'), '🔍');
+            updateProgress(25);
+            
+            try {
+                log('Attempting server handshake...', 'debug');
+                const response = await fetch('/api/test', {
+                    method: 'GET'
+                });
+                
+                updateProgress(75);
+                log(`Server responded: ${response.status} ${response.statusText}`, 'info');
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    log(`Connection established successfully`, 'success');
+                    log(`Server message: ${result.message}`, 'info');
+                    updateStatus('success', t('messages.connectionSuccess'));
+                    updateProgress(100);
+                    
+                    setTimeout(() => {
+                        updateProgress(0);
+                    }, 2000);
+                } else {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+            } catch (error) {
+                log(`Connection failed: ${error.message}`, 'error');
+                
+                // Play critical error sound for connection failures
+                playCriticalErrorSound();
+                
+                updateStatus('error', t('messages.connectionFail', { error: error.message }));
+                updateProgress(0);
+            }
+        }
+
+        // Enhanced file upload with industrial processing
+        async function uploadFile(file) {
+            const startTime = Date.now();
+            
+            // Play bulldozer sound effect
+            playBuldozerSound();
+            
+            log(`� Jackhammer deployed - Target acquired: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`, 'info');
+            updateStatus('loading', t('status.loading'), '�');
+            hideResultsSummary();
+            
+            updateProgress(10);
+            log('🔥 Jackhammer engines warming up...', 'debug');
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                updateProgress(25);
+                log('�� Jackhammer breaking through concrete data...', 'info');
+                
+                const response = await fetch('/api/upload-file', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                updateProgress(60);
+                log(`🏗️ Industrial jackhammer processing response: ${response.status} ${response.statusText}`, 'info');
+
+                const result = await response.json();
+                updateProgress(85);
+                
+                if (response.ok) {
+                    const processingTime = `${Date.now() - startTime}ms`;
+                    log(`🎉 Data successfully shattered and processed!`, 'success');
+                    log(`🗂️ Data chunks extracted: ${result.rowCount}`, 'success');
+                    log(`✅ Structural integrity validated`, 'success');
+                    
+                    updateStatus('success', t('messages.processSuccess', { count: result.rowCount }));
+                    showResultsSummary(result.fileName, result.rowCount, processingTime, result.data);
+                    
+                    // Log sample data
+                    if (result.data && result.data.length > 0) {
+                        log(`Sample record: ${JSON.stringify(result.data[0], null, 2)}`, 'debug');
+                    }
+                } else {
+                    throw new Error(result.error || result.message || 'Jackhammer malfunction detected');
+                }
+            } catch (error) {
+                log(`🚨 Jackhammer breakdown: ${error.message}`, 'error');
+                
+                // Play critical error sound for processing failures
+                playCriticalErrorSound();
+                
+                updateStatus('error', t('messages.processFail', { error: error.message }));
+                updateProgress(0);
+            }
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            log('Page loaded, initializing...');
+
+            // Debug: Check if file input exists at startup
+            const initialFileInput = document.getElementById('fileInput');
+            log(`Initial file input check - found: ${!!initialFileInput}`);
+            if (initialFileInput) {
+                log(`Initial file input - ID: ${initialFileInput.id}, type: ${initialFileInput.type}`);
+            }
+
+            // Test connection button
+            document.getElementById('testConnectionBtn').addEventListener('click', testConnection);
+
+            // Download template button
+            document.getElementById('downloadTemplateBtn').addEventListener('click', function() {
+                log('📥 Downloading template file...', 'info');
+                
+                // Create a temporary link element to trigger download
+                const link = document.createElement('a');
+                link.href = '/api/download-template';
+                link.download = 'mallitiedosto_tuonti.xlsx';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                log('📥 Template download initiated', 'success');
+            });
+
+            // Browse button
+            document.getElementById('browseFileBtn').addEventListener('click', function() {
+                log('Browse button clicked');
+                document.getElementById('fileInput').click();
+            });
+
+            // File upload area click
+            document.getElementById('fileUploadArea').addEventListener('click', function() {
+                log('Upload area clicked');
+                document.getElementById('fileInput').click();
+            });
+
+            // Enhanced file input change
+            document.getElementById('fileInput').addEventListener('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    log(`File selected: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`, 'info');
+                    
+                    const processBtn = document.getElementById('processFileBtn');
+                    processBtn.disabled = false;
+                    
+                    // Update upload area display
+                    const uploadArea = document.getElementById('fileUploadArea');
+                    uploadArea.classList.add('file-selected');
+                    
+                    // Update the content elegantly
+                    const uploadText = uploadArea.querySelector('.upload-text');
+                    const uploadSubtext = uploadArea.querySelector('.upload-subtext');
+                    const uploadIcon = uploadArea.querySelector('.upload-icon');
+                    
+                    if (uploadIcon) uploadIcon.textContent = '📄';
+                    if (uploadText) uploadText.textContent = file.name;
+                    if (uploadSubtext) uploadSubtext.textContent = `${(file.size / 1024).toFixed(1)} KB • Ready for processing`;
+                    
+                    // Add file info
+                    let fileInfo = uploadArea.querySelector('.file-info');
+                    if (!fileInfo) {
+                        fileInfo = document.createElement('div');
+                        fileInfo.className = 'file-info';
+                        uploadArea.appendChild(fileInfo);
+                    }
+                    fileInfo.innerHTML = `
+                        <span>�</span>
+                        <span>${file.type || 'Unknown type'}</span>
+                        <span>•</span>
+                        <span>Last modified: ${new Date(file.lastModified).toLocaleDateString()}</span>
+                    `;
+                    
+                    updateStatus('info', t('messages.fileSelected', { filename: file.name }));
+                    log('File validation: Format supported ✓', 'success');
+                } else {
+                    log('File selection cleared', 'warn');
+                    resetFileUploadArea();
+                }
+            });
+
+            // Process file button
+            document.getElementById('processFileBtn').addEventListener('click', function() {
+                log('Process file button clicked');
+                debugFileInput(); // Full debug when process button is clicked
+                
+                const fileInput = document.getElementById('fileInput');
+                const file = fileInput ? fileInput.files[0] : null;
+                if (file) {
+                    log(`Processing file: ${file.name}`);
+                    uploadFile(file);
+                } else {
+                    log('No file selected for processing - file object is null/undefined');
+                }
+            });
+
+            // Form submit
+            document.getElementById('fileUploadForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const file = document.getElementById('fileInput').files[0];
+                if (file) {
+                    uploadFile(file);
+                }
+            });
+
+            // Event delegation fallback for process button
+            document.addEventListener('click', function(e) {
+                if (e.target && e.target.id === 'processFileBtn') {
+                    log('Process file button clicked via delegation');
+                    e.preventDefault();
+                    
+                    const fileInput = document.getElementById('fileInput');
+                    log(`[Delegation] File input element found: ${!!fileInput}`);
+                    log(`[Delegation] Files in input: ${fileInput ? fileInput.files.length : 'N/A'}`);
+                    
+                    const file = fileInput ? fileInput.files[0] : null;
+                    if (file) {
+                        log(`Processing file via delegation: ${file.name}`);
+                        uploadFile(file);
+                    } else {
+                        log('No file selected for processing (delegation) - file object is null/undefined');
+                        log(`[Delegation] File input value: ${fileInput ? fileInput.value : 'N/A'}`);
+                    }
+                }
+            });
+
+            // Download button
+            document.getElementById('downloadJsonBtn').addEventListener('click', function() {
+                log('Download button clicked');
+                downloadProcessedJson();
+            });
+
+            // Download populated template button
+            document.getElementById('downloadPopulatedTemplateBtn').addEventListener('click', function() {
+                log('📊 Downloading populated template...', 'info');
+                
+                // Create a temporary link element to trigger download
+                const link = document.createElement('a');
+                link.href = '/api/download-populated-template';
+                link.download = 'processed_template.xlsx';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                log('📊 Populated template download initiated', 'success');
+            });
+
+            // Send to Talenom button
+            document.getElementById('sendToTalenomBtn').addEventListener('click', async function() {
+                if (!processedJsonData) {
+                    log('No processed JSON data to send', 'error');
+                    updateStatus('error', 'No processed data to send');
+                    return;
+                }
+                let organizationNumber = prompt('Enter organization number for Talenom API:');
+                if (!organizationNumber) {
+                    log('Organization number input cancelled', 'warn');
+                    return;
+                }
+                updateStatus('loading', 'Sending data to Talenom...');
+                try {
+                    const response = await fetch('/api/send-to-talenom', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ organizationNumber, voucherData: processedJsonData })
+                    });
+                    const result = await response.json();
+                    if (response.ok && result.success) {
+                        log('Vouchers sent to Talenom successfully', 'success');
+                        updateStatus('success', 'Vouchers sent to Talenom successfully');
+                        playCrowdYaySound(); // Play success sound only when successfully sent to Talenom
+                    } else {
+                        throw new Error(result.error || 'Unknown error');
+                    }
+                } catch (error) {
+                    log('Error sending to Talenom: ' + error.message, 'error');
+                    updateStatus('error', 'Error sending to Talenom: ' + error.message);
+                }
+            });
+
+            // Set up language switching
+            document.querySelectorAll('.btn-lang').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    updateLanguage(this.dataset.lang);
+                });
+            });
+
+            // Load saved language or detect browser language
+            const savedLang = localStorage.getItem('preferred-language');
+            const browserLang = navigator.language.split('-')[0];
+            const defaultLang = savedLang || (translations[browserLang] ? browserLang : 'en');
+            updateLanguage(defaultLang);
+
+            log('Industrial File Processor initialized successfully', 'success');
+            log('System status: All subsystems operational', 'info');
+        });
+    </script>
+</body>
+</html>

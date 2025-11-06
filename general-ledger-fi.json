@@ -1,0 +1,3509 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "General Ledger [FI]",
+        "description": "This API contains main functions to process accounting and is intended to be used within the FI region.\n</p><h4>Description</h4><p>\nThis API contains the main endpoints for Talenom's accounting system",
+        "termsOfService": "https://www.talenom.fi/en/description-of-data-protection-and-descriptions-of-registers",
+        "contact": {
+            "name": "Talenom Integration Services",
+            "url": "https://integration.talenom.fi/",
+            "email": "integraatiot@talenom.fi"
+        },
+        "version": "1.0"
+    },
+    "servers": [
+        {
+            "url": "https://apim.talenom.com/fi/general-ledger"
+        }
+    ],
+    "paths": {
+        "/v1/account-balances/{organizationNumber}": {
+            "get": {
+                "tags": [
+                    "AccountBalances"
+                ],
+                "summary": "Get Account Balances By Date V1",
+                "description": "Returns accumulated balances for each bookkeeping account used in the query parameters up to a specific date",
+                "operationId": "PublicGetAccountBalancesByDateV1",
+                "parameters": [
+                    {
+                        "name": "organizationNumber",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "date",
+                        "in": "query",
+                        "description": "The end date for accumulating account balances",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2023-11-07"
+                        },
+                        "example": "2023-11-07"
+                    },
+                    {
+                        "name": "accountNumbers",
+                        "in": "query",
+                        "description": "Single ledger account number or comma separated list of account numbers to fetch balances. If account does not exist for organization, it's omitted from results",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "1701,3000"
+                        },
+                        "example": 17013000
+                    },
+                    {
+                        "name": "accept-language",
+                        "in": "header",
+                        "description": "Optional language and locale that the client prefers",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "examples": {
+                            "Finnish": {
+                                "value": "fi"
+                            },
+                            "Swedish": {
+                                "value": "sv"
+                            },
+                            "English": {
+                                "value": "en"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/AccountBalancesOut"
+                                    }
+                                },
+                                "example": [
+                                    {
+                                        "account": "string",
+                                        "saldo": 0
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "error": "string",
+                                    "code": "string",
+                                    "telemetryId": "string"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Authenticated user does not have proper rights or roles to perform this action or wrong authentication method used"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error: Please try again later or contact support.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "error": "string",
+                                    "code": "string",
+                                    "telemetryId": "string"
+                                }
+                            }
+                        }
+                    },
+                    "502": {
+                        "description": "Bad gateway"
+                    },
+                    "503": {
+                        "description": "Temporarily unavailable"
+                    }
+                }
+            }
+        },
+        "/v1/chart-of-accounts/used-accounts/{organizationNumber}": {
+            "get": {
+                "tags": [
+                    "ChartOfAccounts"
+                ],
+                "summary": "Get Utilized Chart Of Accounts V1",
+                "description": "Returns list of used bookkeeping accounts for given time period.\r\n\r\nPlease use Accept-Language -header to get account names localized.",
+                "operationId": "PublicGetUtilizedChartOfAccountsV1",
+                "parameters": [
+                    {
+                        "name": "organizationNumber",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "fromDate",
+                        "in": "query",
+                        "description": "From date (inclusive)",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2022-01-01"
+                        },
+                        "example": "2022-01-01"
+                    },
+                    {
+                        "name": "toDate",
+                        "in": "query",
+                        "description": "To date (inclusive)",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2022-12-21"
+                        },
+                        "example": "2022-12-21"
+                    },
+                    {
+                        "name": "accept-language",
+                        "in": "header",
+                        "description": "Optional language and locale that the client prefers",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "examples": {
+                            "Finnish": {
+                                "value": "fi"
+                            },
+                            "Swedish": {
+                                "value": "sv"
+                            },
+                            "English": {
+                                "value": "en"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/UsedAccountsOut"
+                                    }
+                                },
+                                "example": [
+                                    {
+                                        "number": "4500",
+                                        "name": "Salaries"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "error": "string",
+                                    "code": "string",
+                                    "telemetryId": "string"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Authenticated user does not have proper rights or roles to perform this action or wrong authentication method used"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error: Please try again later or contact support.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "error": "string",
+                                    "code": "string",
+                                    "telemetryId": "string"
+                                }
+                            }
+                        }
+                    },
+                    "502": {
+                        "description": "Bad gateway"
+                    },
+                    "503": {
+                        "description": "Temporarily unavailable"
+                    }
+                }
+            }
+        },
+        "/v1/general-ledger-events/{organizationNumber}": {
+            "get": {
+                "tags": [
+                    "GeneralLedgerEvents"
+                ],
+                "summary": "Get General Ledger Events V1",
+                "description": "Returns list of general ledger events (aka voucher rows).\r\n\r\n ### Pagination ###\r\n This endpoint supports pagination through the use of **pageIndex** and **pageSize** values in the query parameters. \r\n A typical use case is when you have a large number of events, and you want to retrieve them systematically. \r\n By specifying the **pageIndex** and **pageSize** values, you can retrieve the dimensions in manageable pages.       \r\n In the response, you will get pagination metadata to help you figure out the total size of the dataset\r\n #### Here's an example of using pagination ####\r\n Suppose you have a total of 100 events in the system, and you want to retrieve all of them systematically:\r\n* First, make the request with **pageIndex**: 0 and **pageSize**: 50. You will get the first 50 records\r\n* Next, you make the next request with **pageIndex**: 50 and **pageSize**: 50 and you will get the next set of records\r\n* Just to make sure that there is no more records left, make another request with **pageIndex**: 100 and **pageSize**: 50, when there is no more records to show, you will get empty array []",
+                "operationId": "PublicGetGeneralLedgerEventsV1",
+                "parameters": [
+                    {
+                        "name": "organizationNumber",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pageIndex",
+                        "in": "query",
+                        "description": "Page index starting from zero.",
+                        "required": true,
+                        "schema": {
+                            "maximum": 2147483647,
+                            "minimum": 0,
+                            "type": "integer",
+                            "format": "int32",
+                            "example": 0
+                        },
+                        "example": 0
+                    },
+                    {
+                        "name": "pageSize",
+                        "in": "query",
+                        "description": "Amount of the rows returned in single request, maximum is 10000",
+                        "required": true,
+                        "schema": {
+                            "maximum": 10000,
+                            "minimum": 1,
+                            "type": "integer",
+                            "format": "int32",
+                            "example": 10
+                        },
+                        "example": 10
+                    },
+                    {
+                        "name": "fromDate",
+                        "in": "query",
+                        "description": "Start date to fetch vouchers from (inclusive).",
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2022-01-01"
+                        },
+                        "example": "2022-01-01"
+                    },
+                    {
+                        "name": "toDate",
+                        "in": "query",
+                        "description": "End date to fetch vouchers to (inclusive).",
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2022-12-31"
+                        },
+                        "example": "2022-12-31"
+                    },
+                    {
+                        "name": "accountNumbers",
+                        "in": "query",
+                        "description": "Single account number or comma separated list of accounting account numbers",
+                        "schema": {
+                            "type": "string",
+                            "example": "1701,3000"
+                        },
+                        "example": 17013000
+                    },
+                    {
+                        "name": "category",
+                        "in": "query",
+                        "description": "Voucher category used to list only rows for specific voucher category.\r\n\r\nPossible values for Category:\r\nePurchaseInvoice\r\nPurchaseInvoice\r\nTravelExpense\r\neSalesInvoice\r\nSalesInvoice\r\neSalesInvoiceReceivable\r\neSalesMemo\r\nCash\r\nSalary\r\nOnBehalfPaidExpenses\r\nCreditCardVouchers\r\nReceipts\r\nMemo\r\nTaxSummary\r\nOther\r\nBankTransactions\r\nReferenceTransactions\r\nBalanceSheetCleanup\r\nPeriodic\r\nHistory\r\nConcern\r\nVatPostings\r\nRecurrent\r\nTaxPeriodisation\r\nMarginalTax\r\nIntegrationSales\r\nIntegrationPurchase\r\nIntegrationSalary\r\nIntegrationMemo\r\nIntegrationBank\r\nIntegrationPeriodic",
+                        "schema": {
+                            "type": "string",
+                            "example": "Memo"
+                        },
+                        "example": "Memo"
+                    },
+                    {
+                        "name": "accept-language",
+                        "in": "header",
+                        "description": "Optional language and locale that the client prefers",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "examples": {
+                            "Finnish": {
+                                "value": "fi"
+                            },
+                            "Swedish": {
+                                "value": "sv"
+                            },
+                            "English": {
+                                "value": "en"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneralLedgerEventPagedResultOut"
+                                },
+                                "example": {
+                                    "currentPage": 0,
+                                    "pageCount": 0,
+                                    "pageSize": 0,
+                                    "rowCount": 0,
+                                    "results": [
+                                        {
+                                            "id": "string",
+                                            "accountNumber": "3000",
+                                            "description": "Invoice 123457",
+                                            "voucherDescription": "Invoice 123457",
+                                            "credit": -100,
+                                            "debet": 100,
+                                            "vatCode": "string",
+                                            "vatPercentage": 24,
+                                            "vatIncludedAmount": 124,
+                                            "costCenter": "10",
+                                            "costType": "1000A",
+                                            "project": "20",
+                                            "projectType": "20000P",
+                                            "voucherId": "string",
+                                            "vatExcludedAmount": 100,
+                                            "vatAmount": 24,
+                                            "voucherDate": "2021-11-29",
+                                            "voucherNumber": "94-92-2021",
+                                            "category": "Recurrent",
+                                            "invoiceNumber": "123457",
+                                            "matchKey": "string",
+                                            "voucherState": "Accepted",
+                                            "acceptedTimestamp": "2021-11-29T10:01:00.0000000+00:00",
+                                            "referenceNumber": "5536456641",
+                                            "concern": 66
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "error": "string",
+                                    "code": "string",
+                                    "telemetryId": "string"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Authenticated user does not have proper rights or roles to perform this action or wrong authentication method used"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error: Please try again later or contact support.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "error": "string",
+                                    "code": "string",
+                                    "telemetryId": "string"
+                                }
+                            }
+                        }
+                    },
+                    "502": {
+                        "description": "Bad gateway"
+                    },
+                    "503": {
+                        "description": "Temporarily unavailable"
+                    }
+                }
+            }
+        },
+        "/v1/vouchers/{organizationNumber}": {
+            "post": {
+                "tags": [
+                    "Vouchers"
+                ],
+                "summary": "Add Collection Of Vouchers V1",
+                "description": "Adds a collection of vouchers to bookkeeping. [DEPRECATED]\r\n\r\n### Voucher ###\r\nPlease note, this endpoint is deprecated and will be removed in the future. Please use the new endpoint /v1/vouchers/accepted/{organizationNumber} or /v2/vouchers/{organizationNumber} instead.",
+                "operationId": "PublicAddCollectionOfVouchersV1",
+                "parameters": [
+                    {
+                        "name": "organizationNumber",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "accept-language",
+                        "in": "header",
+                        "description": "Optional language and locale that the client prefers",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "examples": {
+                            "Finnish": {
+                                "value": "fi"
+                            },
+                            "Swedish": {
+                                "value": "sv"
+                            },
+                            "English": {
+                                "value": "en"
+                            }
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/VoucherCreate"
+                                }
+                            },
+                            "example": [
+                                {
+                                    "id": null,
+                                    "tryAccept": true,
+                                    "generateMissingDimensionValues": false,
+                                    "denyCreationOfLedgerItems": false,
+                                    "categoryCID": "Receipts",
+                                    "voucherStateCID": "Draft",
+                                    "voucherNumber": null,
+                                    "voucherDate": "2023-12-31",
+                                    "invoiceNumber": "A12345678-X",
+                                    "referenceNumber": "123547",
+                                    "description": "Gas station XYZ Ltd",
+                                    "customerComment": null,
+                                    "customerCommentToAccounting": "Gas for the car ABC-123",
+                                    "accountingComment": null,
+                                    "vatIncludedAmount": 124,
+                                    "vatAmount": 24,
+                                    "postings": [
+                                        {
+                                            "id": null,
+                                            "accountNumber": "3000",
+                                            "vatPercentage": null,
+                                            "isReadOnly": false,
+                                            "description": "95 octane Gas ",
+                                            "vatIncludedAmount": 124,
+                                            "matchKey": null,
+                                            "costCenter": "Cost 1",
+                                            "costType": "ABC123",
+                                            "project": "Oulu 10",
+                                            "projectType": "ABC321"
+                                        }
+                                    ],
+                                    "acceptor": "e.g. Firstname Lastname or firstname.lastname@example.com",
+                                    "preventVatPeeling": false,
+                                    "preventVoucherAutomation": false,
+                                    "voucherImageBase64Str": null,
+                                    "voucherDetail": {
+                                        "rows": [
+                                            {
+                                                "description": "95 octane gasoline",
+                                                "vatIncludedAmount": 123.1,
+                                                "vatAmount": 12.31,
+                                                "vatPercentage": 10
+                                            }
+                                        ],
+                                        "others": [
+                                            {
+                                                "key": "Registration number",
+                                                "value": "ABC-123"
+                                            }
+                                        ],
+                                        "payments": [
+                                            {
+                                                "paymentDate": "2024-01-14",
+                                                "amount": 123.1
+                                            }
+                                        ],
+                                        "dimensions": [
+                                            {
+                                                "totalAmount": 100.12,
+                                                "dimensionPercentage": null,
+                                                "costCenter": "CC1",
+                                                "costType": "CT1",
+                                                "project": "P1",
+                                                "projectType": "PT1"
+                                            }
+                                        ],
+                                        "sender": "Company ABC Ltd",
+                                        "receiver": "John Doe",
+                                        "invoiceDate": "2023-12-31",
+                                        "dueDate": "2024-01-15",
+                                        "deliveryDate": "2023-12-14",
+                                        "deliveryPeriodStart": "2023-10-31",
+                                        "deliveryPeriodEnd": "2023-11-30",
+                                        "sellerDetail": "\"Our reference: XYZ-123\"",
+                                        "vatIncludedAmount": 124,
+                                        "vatAmount": 24,
+                                        "creatorName": "Jane Doe",
+                                        "paymentDate": "2024-01-02",
+                                        "paymentMessage": "Abc 123",
+                                        "originalPaymentCurrencyCode": "USD",
+                                        "originalPaymentVatIncludedAmount": 123.13,
+                                        "costType": "travel expence",
+                                        "vatIncludedAmountGeneralVat": 123.45,
+                                        "vatIncludedAmountLower1Vat": 67.89,
+                                        "vatIncludedAmountLower2Vat": 45.67,
+                                        "vatIncludedAmountZeroVat": 100,
+                                        "vatIncludedAmountReverseVat": 80,
+                                        "vatIncludedAmountMargin": 150,
+                                        "vatExcludedAmount": 100,
+                                        "vatExcludedAmountGeneralVat": 90,
+                                        "vatExcludedAmountLower1Vat": 60,
+                                        "vatExcludedAmountLower2Vat": 40,
+                                        "vatExcludedAmountZeroVat": 100,
+                                        "vatExcludedAmountReverseVat": 80,
+                                        "vatExcludedAmountMargin": 150,
+                                        "vatAmountGeneralVat": 13.45,
+                                        "vatAmountLower1Vat": 7.89,
+                                        "vatAmountLower2Vat": 5.67,
+                                        "vatAmountZeroVat": 11.23,
+                                        "vatAmountReverseVat": 5.67,
+                                        "vatAmountMargin": 1.23,
+                                        "paymentCardNumberLastDigits": "1234",
+                                        "paymentTransactionType": "DEBIT",
+                                        "senderBusinessId": "1234567-8",
+                                        "senderVatId": "FI12345678",
+                                        "senderStreetAddress": "Example street 10 A 1",
+                                        "senderPostalCode": "90100",
+                                        "senderPostalCity": "Oulu",
+                                        "senderBankAccountNumber": "FI4950009420028730",
+                                        "receiverBusinessId": "1234567-8",
+                                        "receiverVatId": "FI12345678",
+                                        "receiverStreetAddress": "Receiverstreet 11 B 2",
+                                        "receiverPostalCode": "90460",
+                                        "receiverPostalCity": "Oulunsalo",
+                                        "receiverBankAccountNumber": "FI4950009420028730",
+                                        "deliveryStreetAddress": "Deliverystreet 12 C 3",
+                                        "deliveryPostalCode": "90100",
+                                        "deliveryPostalCity": "Oulu"
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Item added"
+                    },
+                    "204": {
+                        "description": "No content"
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "error": "string",
+                                    "code": "string",
+                                    "telemetryId": "string"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Authenticated user does not have proper rights or roles to perform this action or wrong authentication method used"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error: Please try again later or contact support.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "error": "string",
+                                    "code": "string",
+                                    "telemetryId": "string"
+                                }
+                            }
+                        }
+                    },
+                    "502": {
+                        "description": "Bad gateway"
+                    },
+                    "503": {
+                        "description": "Temporarily unavailable"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "Vouchers"
+                ],
+                "summary": "Get Vouchers V1",
+                "description": "Retrieves a list of vouchers based on various search criteria. \r\nIt supports pagination and allows filtering by voucher ID, date range, category, and state. \r\nAdditionally, it can include or exclude postings associated with each voucher.",
+                "operationId": "PublicGetVouchersV1",
+                "parameters": [
+                    {
+                        "name": "organizationNumber",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "description": "The id parameter is an array of strings that specifies the unique identifiers of the vouchers to be included in the search results. \r\n            This parameter allows you to filter the vouchers based on their specific IDs.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    {
+                        "name": "dateFrom",
+                        "in": "query",
+                        "description": "The dateFrom parameter specifies the minimum date for the voucher date range. \r\n            It is used to filter vouchers that have a date on or after the specified dateFrom value.",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "dateTo",
+                        "in": "query",
+                        "description": "The dateTo parameter specifies the maximum date for the voucher date range. \r\n            It is used to filter vouchers that have a date on or before the specified dateTo value.",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "category",
+                        "in": "query",
+                        "description": "The category parameter is an array of strings that specifies the categories of the vouchers to be included in the search results. \r\n            This parameter allows you to filter the vouchers based on their assigned categories, such as:\r\n            ePurchaseInvoice, PurchaseInvoice, TravelExpense, eSalesInvoice, SalesInvoice, eSalesInvoiceReceivable, eSalesMemo, Cash, Salary, OnBehalfPaidExpenses,\r\n            CreditCardVouchers, Receipts, Memo, TaxSummary, Other, BankTransactions, ReferenceTransactions, Periodic, History, Concern, VatPostings, Recurrent,\r\n            TaxPeriodisation, MarginalTax, IntegrationSales, IntegrationPurchase, IntegrationSalary, IntegrationMemo, IntegrationBank and IntegrationPeriodic.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    {
+                        "name": "voucherState",
+                        "in": "query",
+                        "description": "The voucherState parameter is an array of strings that specifies the states of the vouchers to be included in the search results. \r\n            This parameter allows you to filter the vouchers based on their current state, such as \"Draft\", \"Accepted\", \"Locked\", or \"Deleted\".",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    {
+                        "name": "pageIndex",
+                        "in": "query",
+                        "description": "The pageIndex parameter indicates the zero-based index of the page to be returned. \r\n            Pagination is a common technique used to divide a large dataset into smaller, more manageable chunks or \"pages\". \r\n            By specifying the pageIndex, you can retrieve a specific subset of the total results.",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "default": 0
+                        }
+                    },
+                    {
+                        "name": "pageSize",
+                        "in": "query",
+                        "description": "The pageSize parameter determines the number of vouchers to be returned in a single page of results. \r\n            Pagination is a technique used to divide a large dataset into smaller, more manageable chunks or \"pages\". \r\n            By specifying the pageSize, you can control the number of items that are retrieved in each page.",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "default": 100
+                        }
+                    },
+                    {
+                        "name": "includePostings",
+                        "in": "query",
+                        "description": "The includePostings parameter is a boolean flag that indicates whether the postings related to \r\n            each voucher should be included in the response. Postings are typically detailed entries or transactions associated with a voucher, \r\n            and including them can provide more comprehensive information about each voucher.",
+                        "schema": {
+                            "type": "boolean",
+                            "default": false
+                        }
+                    },
+                    {
+                        "name": "accept-language",
+                        "in": "header",
+                        "description": "Optional language and locale that the client prefers",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "examples": {
+                            "Finnish": {
+                                "value": "fi"
+                            },
+                            "Swedish": {
+                                "value": "sv"
+                            },
+                            "English": {
+                                "value": "en"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/VoucherReadOut"
+                                    }
+                                },
+                                "example": [
+                                    {
+                                        "id": null,
+                                        "category": "Recurrent",
+                                        "voucherDate": "2021-11-29",
+                                        "description": "Invoice 123457",
+                                        "voucherState": "Draft",
+                                        "voucherNumber": "94-92-2021",
+                                        "invoiceNumber": "123457",
+                                        "referenceNumber": "5536456641",
+                                        "vatIncludedAmount": 124,
+                                        "vatExcludedAmount": 100,
+                                        "vatAmount": 24,
+                                        "correctionForVoucherId": "string",
+                                        "origin": "string",
+                                        "concern": 66,
+                                        "customerComment": "string",
+                                        "createdDateUtc": "string",
+                                        "updatedDateUtc": "string",
+                                        "approvedDateUtc": "string",
+                                        "lockedDateUtc": "string",
+                                        "deletedDateUtc": "string",
+                                        "postings": [
+                                            {
+                                                "id": null,
+                                                "generatedPosting": true,
+                                                "accountNumber": "3000",
+                                                "vatPercentage": null,
+                                                "description": "95 octane Gas ",
+                                                "vatIncludedAmount": 124,
+                                                "vatExcludedAmount": null,
+                                                "vatAmount": null,
+                                                "matchKey": null,
+                                                "costCenter": "Cost 1",
+                                                "costType": "ABC123",
+                                                "project": "Oulu 10",
+                                                "projectType": "ABC321",
+                                                "rowVersion": "string"
+                                            }
+                                        ],
+                                        "rowVersion": "string"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "error": "string",
+                                    "code": "string",
+                                    "telemetryId": "string"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Authenticated user does not have proper rights or roles to perform this action or wrong authentication method used"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error: Please try again later or contact support.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "error": "string",
+                                    "code": "string",
+                                    "telemetryId": "string"
+                                }
+                            }
+                        }
+                    },
+                    "502": {
+                        "description": "Bad gateway"
+                    },
+                    "503": {
+                        "description": "Temporarily unavailable"
+                    }
+                }
+            }
+        },
+        "/v1/vouchers/accepted/{organizationNumber}": {
+            "post": {
+                "tags": [
+                    "Vouchers"
+                ],
+                "summary": "Add Collection Of Accepted Vouchers V1",
+                "description": "Adds a collection of accepted vouchers to bookkeeping.\r\n\r\n### Voucher ###\r\n\r\nA voucher is an object that groups postings with the same category, date, and voucher number.\r\nTypical categories are, for example: IntegrationSales, IntegrationPurchase, and IntegrationSalary.\r\nThe voucher date needs to belong to an existing accounting period, and the associated bookkeeping period needs to be open.\r\nA single voucher contains postings which include details such as vatIncludedAmount, vatAmount, and description for specific posting \"row\".\r\nAn acceptor can be a full name or an email address. Each voucher can have only one voucher image but multiple attachments.\r\n\r\n\r\n### Acceptor ###\r\n\r\nThe Acceptor typically refers to an individual who holds the responsibility for ensuring the accuracy and correctness of the data recorded in a specific voucher.\r\nIn cases where automated accounting processes are employed, the Acceptor may denote the name of the system or software entity that submitted the voucher collection.\r\nAccepted vouchers should have at least two postings with valid account numbers, and the total of amounts should be zero.\r\nIf a voucher is posted as Accepted and if it doesn't meet all requirements, an HTTP 400 Bad Request with a validation error message will be returned.\r\n\r\n### Postings ###\r\n\r\nA posting has attributes such as an account number, a description, an amount, a matchkey, and dimension values (costCenter, costType, project, projectType).\r\nAccount numbers are based on the active chart of accounts. The account should exist and be enabled.\r\nThe amounts are based on the default accounting currency for the current region.\r\n\r\nBy default, the Matchkey field should be left as null.\r\nMatchkeys are essential for creating new ledger items and tracking corresponding matches to existing ledger items.\r\nMatchkeys can be assigned when the posting's account number is a ledger account, and if not provided, the system will generate a new matchkey for ledger account postings.\r\nIf mandatory dimensions have been enabled, then the dimension values should be set for each posting with a profit account.\r\n\r\n### Voucher image ###\r\n\r\nThe voucher image must always be in PDF format and serialized as a base64 string. You can include the image in the JSON body using the 'VoucherImageBase64Str' field.\r\n\r\n### Performance aspects ###\r\n\r\nThe number of vouchers in a collection should be based on the number of postings and matchkeys.\r\nThe more items or matchkeys there are, the longer the process will take.\r\n\r\n### Example request - Bare minimum Accepted state voucher ###\r\n\r\n```json\r\n[{\r\n\t\"category\": \"Cash\",\r\n\t\"voucherDate\": \"2023-10-31\",      \r\n\t\"description\": \"Sales October\",     \r\n\t\"postings\": [\r\n\t\t{        \r\n\t\t\t\"accountNumber\": \"3000\",        \r\n\t\t\t\"description\": \"Buckets\",\r\n\t\t\t\"vatIncludedAmount\": -2300.00\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"accountNumber\": \"2365\",\r\n\t\t\t\"vatIncludedAmount\": 2300\r\n\t\t}\r\n\t],        \r\n\t\"acceptor\": \"John Doe\"        \r\n}]        \r\n```\r\n\r\n### Example response - GUID for the created voucher ###\r\n\r\n```json\r\n[\r\n  {\r\n    \"voucherId\": \"e2bc83d3-0d9b-4f46-5ee6-08dbd9ed91c1\"\r\n  }\r\n]\r\n```",
+                "operationId": "PublicAddCollectionOfAcceptedVouchersV1",
+                "parameters": [
+                    {
+                        "name": "organizationNumber",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "accept-language",
+                        "in": "header",
+                        "description": "Optional language and locale that the client prefers",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "examples": {
+                            "Finnish": {
+                                "value": "fi"
+                            },
+                            "Swedish": {
+                                "value": "sv"
+                            },
+                            "English": {
+                                "value": "en"
+                            }
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/VoucherCreateAccepted"
+                                }
+                            },
+                            "example": [
+                                {
+                                    "category": "Receipts",
+                                    "voucherNumber": null,
+                                    "voucherDate": "2023-12-31",
+                                    "invoiceNumber": "A12345678-X",
+                                    "referenceNumber": "123547",
+                                    "description": "Gas station XYZ Ltd",
+                                    "customerComment": null,
+                                    "postings": [
+                                        {
+                                            "accountNumber": "3000",
+                                            "vatPercentage": null,
+                                            "description": "95 octane Gas ",
+                                            "vatIncludedAmount": 124,
+                                            "matchKey": null,
+                                            "costCenter": "Cost 1",
+                                            "costType": "ABC123",
+                                            "project": "Oulu 10",
+                                            "projectType": "ABC321"
+                                        }
+                                    ],
+                                    "acceptor": "e.g. Firstname Lastname or firstname.lastname@example.com",
+                                    "voucherImageBase64Str": null
+                                }
+                            ]
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Item added",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/VoucherCreateOut"
+                                    }
+                                },
+                                "example": [
+                                    {
+                                        "voucherId": "string"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "No content"
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "error": "string",
+                                    "code": "string",
+                                    "telemetryId": "string"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Authenticated user does not have proper rights or roles to perform this action or wrong authentication method used"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error: Please try again later or contact support.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "error": "string",
+                                    "code": "string",
+                                    "telemetryId": "string"
+                                }
+                            }
+                        }
+                    },
+                    "502": {
+                        "description": "Bad gateway"
+                    },
+                    "503": {
+                        "description": "Temporarily unavailable"
+                    }
+                }
+            }
+        },
+        "/v2/vouchers/{organizationNumber}": {
+            "post": {
+                "tags": [
+                    "Vouchers"
+                ],
+                "summary": "Add Collection Of Vouchers V2",
+                "description": "Detailed version of voucher collection posting.\r\n\r\n ### Voucher ###\r\n \r\n A voucher is an object that groups postings with the same category, date, and voucher number.\r\n Typical categories include, for example: eSalesInvoice, ePurchaseInvoice, Memo, and BankTransaction.\r\n The voucher date must belong to an existing accounting period, and the associated bookkeeping period\r\n must be open.\r\n Vouchers also have attributes such as an invoice number, a reference number, a concern number, and an acceptor.\r\n Reference numbers can be used to match vouchers if the information is provided and if matchkeys are undefined.\r\n An acceptor can be a full name or an email address.\r\n Each voucher can have only one voucher image but multiple attachments.\r\n Different validation rules are applied based on the voucher states:\r\n * Draft vouchers are pending for acceptance. By default, the vouchers will be candidates for automated handling (fetching voucher details, running posting rules, running AI, etc.)\r\n * Accepted vouchers should have at least two postings with valid account numbers, and the total of\r\n amounts should be zero.\r\n * Locked vouchers are read-only protected. This state is set when the associated bookkeeping period is closed.\r\n \r\n Vouchers can be posted in Draft, Accepted, or Locked states.\r\n A voucher remains in a Draft state until it fulfills all the prerequisites for transitioning to the Accepted state, at which point it can be accepted either automatically by the system or manually by a user.\r\n If a voucher is posted as Accepted or Locked and it does not meet all Accepted/Locked requirements, an HTTP 400 Bad Request with a\r\n validation error message will be returned.\r\n \r\n ### TryAccept ###\r\n TryAccept in the JSON body is a feature that can be used for vouchers posted in the Draft state. With TryAccept set as true, the system will attempt to accept the voucher. If the voucher is valid for\r\n the Accepted state, it will be saved as Accepted, otherwise as Draft.\r\n \r\n ### Acceptor ###\r\n \r\n The Acceptor typically refers to an individual who holds the responsibility for ensuring the accuracy and correctness of the data recorded in a specific voucher.\r\n In cases where automated accounting processes are employed, the Acceptor may denote the name of the system or software entity that submitted the voucher collection.\r\n \r\n ### Postings ###\r\n \r\n A posting has attributes such as an account number, a description, an amount, a matchkey, and dimension values (costCenter, costType, project, projectType).\r\n Account numbers are based on the active chart of accounts. The account should exist and be enabled.\r\n The amounts are based on the default accounting currency for the current region.\r\n \r\n By default, the Matchkey field should be left as null.\r\n Matchkeys are essential for creating new ledger items and tracking corresponding matches to existing ledger items.\r\n Matchkeys can be assigned when the posting's account number is a ledger account, and if not provided, the system will generate a new matchkey for ledger account postings.\r\n If mandatory dimensions have been enabled, then the dimension values should be set for each posting with a profit account.\r\n \r\n ### Voucher image ###\r\n \r\n The voucher image must always be in PDF format and serialized as a base64 string. You can include the image in the JSON body using the 'VoucherImageBase64Str' field.\r\n \r\n ### Voucher details ###\r\n \r\n Voucher details can be provided to facilitate voucher automation and to provide more detailed information for the accountant.\r\n The more details provided, the more likely the voucher will be processed and accepted automatically.\r\n\r\n\r\n ### Performance aspects ###\r\n \r\n The number of vouchers in a collection should be based on the number of postings and matchkeys.\r\n The more items or matchkeys there are, the longer the process will take.\r\n \r\n ### Example request - Bare minimum Accepted state voucher ###\r\n \r\n\t[{\r\n\t\t\"category\": \"Cash\",\r\n\t\t\"voucherState\": \"Accepted\",\r\n\t\t\"voucherDate\": \"2023-10-31\",      \r\n\t\t\"description\": \"Sales October\",     \r\n\t\t\"vatIncludedAmount\": 2300.00,\r\n\t\t\"postings\": [\r\n\t\t\t{        \r\n\t\t\t\t\"accountNumber\": \"3000\",        \r\n\t\t\t\t\"description\": \"Buckets\",\r\n\t\t\t\t\"vatIncludedAmount\": -2300.00\r\n\t\t\t},\r\n\t\t\t{\r\n\t\t\t\t\"accountNumber\": \"2365\",\r\n\t\t\t\t\"vatIncludedAmount\": 2300\r\n\t\t\t}\r\n\t\t],        \r\n\t\t\"acceptor\": \"John Doe\"        \r\n\t}]        \r\n\t\r\n\t\r\n ### Example request - Bare minimum Draft voucher ###\r\n\t[{\r\n\t\t\"category\": \"TravelExpense\",\r\n\t\t\"description\": \"Destination\",\r\n\t\t\"voucherState\": \"Draft\",\r\n\t\t\"postings\": [\r\n\t\t\t{                \r\n\t\t\t\t\"vatIncludedAmount\": -500.00\r\n\t\t\t},\r\n\t\t\t{        \r\n\t\t\t\t\"vatIncludedAmount\": 500.00\r\n\t\t\t}\r\n\t\t]        \r\n\t}]\r\n\t\r\n ### Example response - GUID for the created voucher ###\r\n \r\n [\r\n   {\r\n     \"voucherId\": \"e2bc83d3-0d9b-4f46-5ee6-08dbd9ed91c1\"\r\n   }\r\n ]",
+                "operationId": "PublicAddCollectionOfVouchersV2",
+                "parameters": [
+                    {
+                        "name": "organizationNumber",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "accept-language",
+                        "in": "header",
+                        "description": "Optional language and locale that the client prefers",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "examples": {
+                            "Finnish": {
+                                "value": "fi"
+                            },
+                            "Swedish": {
+                                "value": "sv"
+                            },
+                            "English": {
+                                "value": "en"
+                            }
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/VoucherCreateV2"
+                                }
+                            },
+                            "example": [
+                                {
+                                    "id": null,
+                                    "tryAccept": true,
+                                    "category": "Receipts",
+                                    "voucherState": "Draft",
+                                    "voucherNumber": null,
+                                    "voucherDate": "2023-12-31",
+                                    "invoiceNumber": "A12345678-X",
+                                    "referenceNumber": "123547",
+                                    "description": "Gas station XYZ Ltd",
+                                    "customerComment": null,
+                                    "customerCommentToAccounting": "Gas for the car ABC-123",
+                                    "accountingComment": null,
+                                    "vatIncludedAmount": 124,
+                                    "vatAmount": 24,
+                                    "postings": [
+                                        {
+                                            "id": null,
+                                            "accountNumber": "3000",
+                                            "vatPercentage": null,
+                                            "isReadOnly": false,
+                                            "description": "95 octane Gas ",
+                                            "vatIncludedAmount": 124,
+                                            "matchKey": null,
+                                            "costCenter": "Cost 1",
+                                            "costType": "ABC123",
+                                            "project": "Oulu 10",
+                                            "projectType": "ABC321"
+                                        }
+                                    ],
+                                    "acceptor": "System integration",
+                                    "preventVatPeeling": false,
+                                    "voucherImageBase64Str": null,
+                                    "voucherDetail": {
+                                        "rows": [
+                                            {
+                                                "description": "95 octane gasoline",
+                                                "vatIncludedAmount": 123.1,
+                                                "vatAmount": 12.31,
+                                                "vatPercentage": 10
+                                            }
+                                        ],
+                                        "others": [
+                                            {
+                                                "key": "Registration number",
+                                                "value": "ABC-123"
+                                            }
+                                        ],
+                                        "payments": [
+                                            {
+                                                "paymentDate": "2024-01-14",
+                                                "amount": 123.1
+                                            }
+                                        ],
+                                        "dimensions": [
+                                            {
+                                                "totalAmount": 100.12,
+                                                "dimensionPercentage": null,
+                                                "costCenter": "CC1",
+                                                "costType": "CT1",
+                                                "project": "P1",
+                                                "projectType": "PT1"
+                                            }
+                                        ],
+                                        "sender": "Company ABC Ltd",
+                                        "receiver": "John Doe",
+                                        "invoiceDate": "2023-12-31",
+                                        "dueDate": "2024-01-15",
+                                        "deliveryDate": "2023-12-14",
+                                        "deliveryPeriodStart": "2023-10-31",
+                                        "deliveryPeriodEnd": "2023-11-30",
+                                        "sellerDetail": "\"Our reference: XYZ-123\"",
+                                        "vatIncludedAmount": 124,
+                                        "vatAmount": 24,
+                                        "creatorName": "Jane Doe",
+                                        "paymentDate": "2024-01-02",
+                                        "paymentMessage": "Abc 123",
+                                        "originalPaymentCurrencyCode": "USD",
+                                        "originalPaymentVatIncludedAmount": 123.13,
+                                        "costType": "travel expence",
+                                        "vatIncludedAmountGeneralVat": 123.45,
+                                        "vatIncludedAmountLower1Vat": 67.89,
+                                        "vatIncludedAmountLower2Vat": 45.67,
+                                        "vatIncludedAmountZeroVat": 100,
+                                        "vatIncludedAmountReverseVat": 80,
+                                        "vatIncludedAmountMargin": 150,
+                                        "vatExcludedAmount": 100,
+                                        "vatExcludedAmountGeneralVat": 90,
+                                        "vatExcludedAmountLower1Vat": 60,
+                                        "vatExcludedAmountLower2Vat": 40,
+                                        "vatExcludedAmountZeroVat": 100,
+                                        "vatExcludedAmountReverseVat": 80,
+                                        "vatExcludedAmountMargin": 150,
+                                        "vatAmountGeneralVat": 13.45,
+                                        "vatAmountLower1Vat": 7.89,
+                                        "vatAmountLower2Vat": 5.67,
+                                        "vatAmountZeroVat": 11.23,
+                                        "vatAmountReverseVat": 5.67,
+                                        "vatAmountMargin": 1.23,
+                                        "paymentCardNumberLastDigits": "1234",
+                                        "paymentTransactionType": "DEBIT",
+                                        "senderBusinessId": "1234567-8",
+                                        "senderVatId": "FI12345678",
+                                        "senderStreetAddress": "Example street 10 A 1",
+                                        "senderPostalCode": "90100",
+                                        "senderPostalCity": "Oulu",
+                                        "senderBankAccountNumber": "FI4950009420028730",
+                                        "receiverBusinessId": "1234567-8",
+                                        "receiverVatId": "FI12345678",
+                                        "receiverStreetAddress": "Receiverstreet 11 B 2",
+                                        "receiverPostalCode": "90460",
+                                        "receiverPostalCity": "Oulunsalo",
+                                        "receiverBankAccountNumber": "FI4950009420028730",
+                                        "deliveryStreetAddress": "Deliverystreet 12 C 3",
+                                        "deliveryPostalCode": "90100",
+                                        "deliveryPostalCity": "Oulu"
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Item added",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/VoucherCreateOut"
+                                    }
+                                },
+                                "example": [
+                                    {
+                                        "voucherId": "string"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "No content"
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "error": "string",
+                                    "code": "string",
+                                    "telemetryId": "string"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Authenticated user does not have proper rights or roles to perform this action or wrong authentication method used"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error: Please try again later or contact support.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "error": "string",
+                                    "code": "string",
+                                    "telemetryId": "string"
+                                }
+                            }
+                        }
+                    },
+                    "502": {
+                        "description": "Bad gateway"
+                    },
+                    "503": {
+                        "description": "Temporarily unavailable"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "Vouchers"
+                ],
+                "summary": "Get Vouchers V2",
+                "description": "Retrieves a list of vouchers based on various search criteria with paging information. \r\nIt supports pagination and allows filtering by voucher ID, date range, category, and state. \r\nAdditionally, it can include or exclude postings associated with each voucher.",
+                "operationId": "PublicGetVouchersV2",
+                "parameters": [
+                    {
+                        "name": "organizationNumber",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "description": "The id parameter is an array of strings that specifies the unique identifiers of the vouchers to be included in the search results. \r\n            This parameter allows you to filter the vouchers based on their specific IDs.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    {
+                        "name": "dateFrom",
+                        "in": "query",
+                        "description": "The dateFrom parameter specifies the minimum date for the voucher date range. \r\n            It is used to filter vouchers that have a date on or after the specified dateFrom value.",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "dateTo",
+                        "in": "query",
+                        "description": "The dateTo parameter specifies the maximum date for the voucher date range. \r\n            It is used to filter vouchers that have a date on or before the specified dateTo value.",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "category",
+                        "in": "query",
+                        "description": "The category parameter is an array of strings that specifies the categories of the vouchers to be included in the search results. \r\n            This parameter allows you to filter the vouchers based on their assigned categories, such as:\r\n            ePurchaseInvoice, PurchaseInvoice, TravelExpense, eSalesInvoice, SalesInvoice, eSalesInvoiceReceivable, eSalesMemo, Cash, Salary, OnBehalfPaidExpenses,\r\n            CreditCardVouchers, Receipts, Memo, TaxSummary, Other, BankTransactions, ReferenceTransactions, Periodic, History, Concern, VatPostings, Recurrent,\r\n            TaxPeriodisation, MarginalTax, IntegrationSales, IntegrationPurchase, IntegrationSalary, IntegrationMemo, IntegrationBank and IntegrationPeriodic.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    {
+                        "name": "voucherState",
+                        "in": "query",
+                        "description": "The voucherState parameter is an array of strings that specifies the states of the vouchers to be included in the search results. \r\n            This parameter allows you to filter the vouchers based on their current state, such as \"Draft\", \"Accepted\", \"Locked\", or \"Deleted\".",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    {
+                        "name": "pageIndex",
+                        "in": "query",
+                        "description": "The pageIndex parameter indicates the zero-based index of the page to be returned. \r\n            Pagination is a common technique used to divide a large dataset into smaller, more manageable chunks or \"pages\". \r\n            By specifying the pageIndex, you can retrieve a specific subset of the total results.",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "default": 0
+                        }
+                    },
+                    {
+                        "name": "pageSize",
+                        "in": "query",
+                        "description": "The pageSize parameter determines the number of vouchers to be returned in a single page of results. \r\n            Pagination is a technique used to divide a large dataset into smaller, more manageable chunks or \"pages\". \r\n            By specifying the pageSize, you can control the number of items that are retrieved in each page.",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "default": 100
+                        }
+                    },
+                    {
+                        "name": "includePostings",
+                        "in": "query",
+                        "description": "The includePostings parameter is a boolean flag that indicates whether the postings related to \r\n            each voucher should be included in the response. Postings are typically detailed entries or transactions associated with a voucher, \r\n            and including them can provide more comprehensive information about each voucher.",
+                        "schema": {
+                            "type": "boolean",
+                            "default": false
+                        }
+                    },
+                    {
+                        "name": "accept-language",
+                        "in": "header",
+                        "description": "Optional language and locale that the client prefers",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "examples": {
+                            "Finnish": {
+                                "value": "fi"
+                            },
+                            "Swedish": {
+                                "value": "sv"
+                            },
+                            "English": {
+                                "value": "en"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/VoucherPagedResultOut"
+                                },
+                                "example": {
+                                    "currentPage": 0,
+                                    "pageCount": 0,
+                                    "pageSize": 0,
+                                    "rowCount": 0,
+                                    "results": [
+                                        {
+                                            "id": null,
+                                            "category": "Recurrent",
+                                            "voucherDate": "2021-11-29",
+                                            "description": "Invoice 123457",
+                                            "voucherState": "Draft",
+                                            "voucherNumber": "94-92-2021",
+                                            "invoiceNumber": "123457",
+                                            "referenceNumber": "5536456641",
+                                            "vatIncludedAmount": 124,
+                                            "vatExcludedAmount": 100,
+                                            "vatAmount": 24,
+                                            "correctionForVoucherId": "string",
+                                            "origin": "string",
+                                            "concern": 66,
+                                            "customerComment": "string",
+                                            "createdDateUtc": "string",
+                                            "updatedDateUtc": "string",
+                                            "approvedDateUtc": "string",
+                                            "lockedDateUtc": "string",
+                                            "deletedDateUtc": "string",
+                                            "postings": [
+                                                {
+                                                    "id": null,
+                                                    "generatedPosting": true,
+                                                    "accountNumber": "3000",
+                                                    "vatPercentage": null,
+                                                    "description": "95 octane Gas ",
+                                                    "vatIncludedAmount": 124,
+                                                    "vatExcludedAmount": null,
+                                                    "vatAmount": null,
+                                                    "matchKey": null,
+                                                    "costCenter": "Cost 1",
+                                                    "costType": "ABC123",
+                                                    "project": "Oulu 10",
+                                                    "projectType": "ABC321",
+                                                    "rowVersion": "string"
+                                                }
+                                            ],
+                                            "rowVersion": "string"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "error": "string",
+                                    "code": "string",
+                                    "telemetryId": "string"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Authenticated user does not have proper rights or roles to perform this action or wrong authentication method used"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error: Please try again later or contact support.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "error": "string",
+                                    "code": "string",
+                                    "telemetryId": "string"
+                                }
+                            }
+                        }
+                    },
+                    "502": {
+                        "description": "Bad gateway"
+                    },
+                    "503": {
+                        "description": "Temporarily unavailable"
+                    }
+                }
+            }
+        },
+        "/v1/vouchers/{organizationNumber}/{voucherId}": {
+            "delete": {
+                "tags": [
+                    "Vouchers"
+                ],
+                "summary": "Delete Voucher By Id V1",
+                "description": "Delete Voucher By Id V1",
+                "operationId": "PublicDeleteVoucherByIdV1",
+                "parameters": [
+                    {
+                        "name": "voucherId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "organizationNumber",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "error": "string",
+                                    "code": "string",
+                                    "telemetryId": "string"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Authenticated user does not have proper rights or roles to perform this action or wrong authentication method used"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error: Please try again later or contact support.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "error": "string",
+                                    "code": "string",
+                                    "telemetryId": "string"
+                                }
+                            }
+                        }
+                    },
+                    "502": {
+                        "description": "Bad gateway"
+                    },
+                    "503": {
+                        "description": "Temporarily unavailable"
+                    }
+                }
+            }
+        },
+        "/v1/vouchers/{organizationNumber}/{voucherId}/image": {
+            "get": {
+                "tags": [
+                    "Vouchers"
+                ],
+                "summary": "Get Voucher Image V1",
+                "description": "Retrieves the image of a specific voucher based on its ID. \r\nThe image is returned as a PDF file.",
+                "operationId": "PublicGetVoucherImageV1",
+                "parameters": [
+                    {
+                        "name": "voucherId",
+                        "in": "path",
+                        "description": "The unique identifier of the voucher whose image is to be retrieved. This parameter is extracted from the route.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "organizationNumber",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "accept-language",
+                        "in": "header",
+                        "description": "Optional language and locale that the client prefers",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "examples": {
+                            "Finnish": {
+                                "value": "fi"
+                            },
+                            "Swedish": {
+                                "value": "sv"
+                            },
+                            "English": {
+                                "value": "en"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                },
+                                "example": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "error": "string",
+                                    "code": "string",
+                                    "telemetryId": "string"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Authenticated user does not have proper rights or roles to perform this action or wrong authentication method used"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error: Please try again later or contact support.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "error": "string",
+                                    "code": "string",
+                                    "telemetryId": "string"
+                                }
+                            }
+                        }
+                    },
+                    "502": {
+                        "description": "Bad gateway"
+                    },
+                    "503": {
+                        "description": "Temporarily unavailable"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "AccountBalancesOut": {
+                "type": "object",
+                "properties": {
+                    "account": {
+                        "type": "string",
+                        "description": "Account number",
+                        "nullable": true
+                    },
+                    "saldo": {
+                        "type": "number",
+                        "description": "Account saldo",
+                        "format": "double"
+                    }
+                },
+                "additionalProperties": false,
+                "description": "Account balances dto"
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "error": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "code": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "telemetryId": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "GeneralLedgerEventOut": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "Id of general ledger event. Same as posting id",
+                        "format": "uuid"
+                    },
+                    "accountNumber": {
+                        "type": "string",
+                        "description": "Account number",
+                        "nullable": true,
+                        "example": "3000"
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Description",
+                        "nullable": true,
+                        "example": "Invoice 123457"
+                    },
+                    "voucherDescription": {
+                        "type": "string",
+                        "description": "Voucher description",
+                        "nullable": true,
+                        "example": "Invoice 123457"
+                    },
+                    "credit": {
+                        "type": "number",
+                        "description": "Credit amount",
+                        "format": "double",
+                        "nullable": true,
+                        "example": -100
+                    },
+                    "debet": {
+                        "type": "number",
+                        "description": "Debet amount",
+                        "format": "double",
+                        "nullable": true,
+                        "example": 100
+                    },
+                    "vatCode": {
+                        "type": "string",
+                        "description": "Vat code. Populated only when requested with IsVatInfoIncluded flag",
+                        "nullable": true
+                    },
+                    "vatPercentage": {
+                        "type": "number",
+                        "description": "Vat percentage. Populated only when requested with IsVatInfoIncluded flag",
+                        "format": "double",
+                        "nullable": true,
+                        "example": 24
+                    },
+                    "vatIncludedAmount": {
+                        "type": "number",
+                        "description": "Vat included amount",
+                        "format": "double",
+                        "nullable": true,
+                        "example": 124
+                    },
+                    "costCenter": {
+                        "type": "string",
+                        "description": "Cost center code",
+                        "nullable": true,
+                        "example": "10"
+                    },
+                    "costType": {
+                        "type": "string",
+                        "description": "Cost type code",
+                        "nullable": true,
+                        "example": "1000A"
+                    },
+                    "project": {
+                        "type": "string",
+                        "description": "Project code",
+                        "nullable": true,
+                        "example": "20"
+                    },
+                    "projectType": {
+                        "type": "string",
+                        "description": "Project type code",
+                        "nullable": true,
+                        "example": "20000P"
+                    },
+                    "voucherId": {
+                        "type": "string",
+                        "description": "Id of voucher where this event belongs",
+                        "format": "uuid"
+                    },
+                    "vatExcludedAmount": {
+                        "type": "number",
+                        "description": "Vat excluded amount",
+                        "format": "double",
+                        "nullable": true,
+                        "example": 100
+                    },
+                    "vatAmount": {
+                        "type": "number",
+                        "description": "Vat amount",
+                        "format": "double",
+                        "nullable": true,
+                        "example": 24
+                    },
+                    "voucherDate": {
+                        "type": "string",
+                        "description": "Voucher date",
+                        "format": "date",
+                        "nullable": true,
+                        "example": "2021-11-29"
+                    },
+                    "voucherNumber": {
+                        "type": "string",
+                        "description": "Voucher number",
+                        "nullable": true,
+                        "example": "94-92-2021"
+                    },
+                    "category": {
+                        "type": "string",
+                        "description": "Voucher category",
+                        "nullable": true,
+                        "example": "Recurrent"
+                    },
+                    "invoiceNumber": {
+                        "type": "string",
+                        "description": "Invoice number for invoice type of vouchers",
+                        "nullable": true,
+                        "example": "123457"
+                    },
+                    "matchKey": {
+                        "type": "string",
+                        "description": "Match key is internally used to match voucher into other resources, for example to specific sales invoice",
+                        "nullable": true
+                    },
+                    "voucherState": {
+                        "type": "string",
+                        "description": "Voucher state shows state of the voucher",
+                        "nullable": true,
+                        "example": "Accepted"
+                    },
+                    "acceptedTimestamp": {
+                        "type": "string",
+                        "description": "Time voucher accepted in UTC",
+                        "format": "date-time",
+                        "nullable": true,
+                        "example": "2021-11-29T10:01:00.0000000+00:00"
+                    },
+                    "referenceNumber": {
+                        "type": "string",
+                        "description": "Payment reference number for invoice type of vouchers",
+                        "nullable": true,
+                        "example": "5536456641"
+                    },
+                    "concern": {
+                        "type": "integer",
+                        "description": "Organization's parent company organization number",
+                        "format": "int32",
+                        "nullable": true,
+                        "example": 66
+                    }
+                },
+                "additionalProperties": false,
+                "description": "Output dto for general ledger events. Some properties are populated based on query received."
+            },
+            "GeneralLedgerEventPagedResultOut": {
+                "type": "object",
+                "properties": {
+                    "currentPage": {
+                        "type": "integer",
+                        "description": "Current page",
+                        "format": "int32"
+                    },
+                    "pageCount": {
+                        "type": "integer",
+                        "description": "Total number of pages",
+                        "format": "int32"
+                    },
+                    "pageSize": {
+                        "type": "integer",
+                        "description": "Size of one page",
+                        "format": "int32"
+                    },
+                    "rowCount": {
+                        "type": "integer",
+                        "description": "Total row count",
+                        "format": "int32"
+                    },
+                    "results": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/GeneralLedgerEventOut"
+                        },
+                        "description": "Results",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "PostingCreate": {
+                "required": [
+                    "isReadOnly"
+                ],
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "Postings identifier. In most cases should be left null. Can be provided when creating a new voucher or left null, in which case the system will generate a new ID.",
+                        "format": "uuid",
+                        "nullable": true,
+                        "example": null
+                    },
+                    "accountNumber": {
+                        "type": "string",
+                        "description": "Accounting account number from organizations chart of accounts.",
+                        "nullable": true,
+                        "example": "3000"
+                    },
+                    "vatPercentage": {
+                        "type": "number",
+                        "description": "Vat percentage decimal. Can be used if vat percentage is other than system default",
+                        "format": "double",
+                        "nullable": true,
+                        "example": null
+                    },
+                    "isReadOnly": {
+                        "type": "boolean",
+                        "description": "True if this postings values should be treated read only.",
+                        "example": false
+                    },
+                    "description": {
+                        "maxLength": 100,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Posting description, e.g. product name. Should be left null when there's no logical description available for the posting.",
+                        "nullable": true,
+                        "example": "95 octane Gas "
+                    },
+                    "vatIncludedAmount": {
+                        "type": "number",
+                        "description": "Gross value of the posting. \r\nIn most cases VatIncludedAmount should be provided and VatExcludedAmount and VatAmount is calculated by the system.",
+                        "format": "double",
+                        "nullable": true,
+                        "example": 124
+                    },
+                    "matchKey": {
+                        "maxLength": 15,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "MatchKey can be used for creating a new Ledger item (no Ledger item with provided MatchKey + AccountNumber already exists) or to match this posting to an existing Ledger item.\r\nWhen MatchKey is left null a new one is created by the system. System generated MatchKeys are from series beginning with the letter S. e.g. S1, S2, S3...",
+                        "nullable": true,
+                        "example": null
+                    },
+                    "costCenter": {
+                        "maxLength": 8,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "CostCenter dimension value.",
+                        "nullable": true,
+                        "example": "Cost 1"
+                    },
+                    "costType": {
+                        "maxLength": 8,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "CostType dimension value.",
+                        "nullable": true,
+                        "example": "ABC123"
+                    },
+                    "project": {
+                        "maxLength": 8,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Project dimension value.",
+                        "nullable": true,
+                        "example": "Oulu 10"
+                    },
+                    "projectType": {
+                        "maxLength": 8,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "ProjectType dimension value.",
+                        "nullable": true,
+                        "example": "ABC321"
+                    }
+                },
+                "additionalProperties": false,
+                "description": "Vouchers posting entry"
+            },
+            "PostingCreateAccepted": {
+                "required": [
+                    "accountNumber",
+                    "vatIncludedAmount"
+                ],
+                "type": "object",
+                "properties": {
+                    "accountNumber": {
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "Accounting account number from organizations chart of accounts.\r\nRequired for accepted vouchers.",
+                        "example": "3000"
+                    },
+                    "vatPercentage": {
+                        "type": "number",
+                        "description": "Vat percentage decimal. Can be used if vat percentage is other than system default",
+                        "format": "double",
+                        "nullable": true,
+                        "example": null
+                    },
+                    "description": {
+                        "maxLength": 100,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Posting description, e.g. product name. Should be left null when there's no logical description available for the posting.",
+                        "nullable": true,
+                        "example": "95 octane Gas "
+                    },
+                    "vatIncludedAmount": {
+                        "type": "number",
+                        "description": "Gross value of the posting. \r\nIn most cases VatIncludedAmount should be provided and VatExcludedAmount and VatAmount is calculated by the system.",
+                        "format": "double",
+                        "example": 124
+                    },
+                    "matchKey": {
+                        "maxLength": 15,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "If you need to match this posting to some existing ledger item, the existing matchkey should be provided here.",
+                        "nullable": true,
+                        "example": null
+                    },
+                    "costCenter": {
+                        "maxLength": 8,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "CostCenter dimension value.",
+                        "nullable": true,
+                        "example": "Cost 1"
+                    },
+                    "costType": {
+                        "maxLength": 8,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "CostType dimension value.",
+                        "nullable": true,
+                        "example": "ABC123"
+                    },
+                    "project": {
+                        "maxLength": 8,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Project dimension value.",
+                        "nullable": true,
+                        "example": "Oulu 10"
+                    },
+                    "projectType": {
+                        "maxLength": 8,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "ProjectType dimension value.",
+                        "nullable": true,
+                        "example": "ABC321"
+                    }
+                },
+                "additionalProperties": false,
+                "description": "Vouchers posting entry"
+            },
+            "PostingCreateV2": {
+                "required": [
+                    "isReadOnly"
+                ],
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "Postings identifier. In most cases should be left null. Can be provided when creating a new voucher or left null, in which case the system will generate a new ID.",
+                        "format": "uuid",
+                        "nullable": true,
+                        "example": null
+                    },
+                    "accountNumber": {
+                        "type": "string",
+                        "description": "Accounting account number from organizations chart of accounts.",
+                        "nullable": true,
+                        "example": "3000"
+                    },
+                    "vatPercentage": {
+                        "type": "number",
+                        "description": "Vat percentage decimal. Can be used if vat percentage is other than system default",
+                        "format": "double",
+                        "nullable": true,
+                        "example": null
+                    },
+                    "isReadOnly": {
+                        "type": "boolean",
+                        "description": "True if this postings values should be treated read only.",
+                        "example": false
+                    },
+                    "description": {
+                        "maxLength": 100,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Posting description, e.g. product name. Should be left null when there's no logical description available for the posting.",
+                        "nullable": true,
+                        "example": "95 octane Gas "
+                    },
+                    "vatIncludedAmount": {
+                        "type": "number",
+                        "description": "Gross value of the posting. \r\nIn most cases VatIncludedAmount should be provided and VatExcludedAmount and VatAmount is calculated by the system.",
+                        "format": "double",
+                        "nullable": true,
+                        "example": 124
+                    },
+                    "matchKey": {
+                        "maxLength": 15,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "MatchKey can be used for creating a new Ledger item (no Ledger item with provided MatchKey + AccountNumber already exists) or to match this posting to an existing Ledger item.\r\nWhen MatchKey is left null a new one is created by the system. System generated MatchKeys are from series beginning with the letter S. e.g. S1, S2, S3...",
+                        "nullable": true,
+                        "example": null
+                    },
+                    "costCenter": {
+                        "maxLength": 8,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "CostCenter dimension value.",
+                        "nullable": true,
+                        "example": "Cost 1"
+                    },
+                    "costType": {
+                        "maxLength": 8,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "CostType dimension value.",
+                        "nullable": true,
+                        "example": "ABC123"
+                    },
+                    "project": {
+                        "maxLength": 8,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Project dimension value.",
+                        "nullable": true,
+                        "example": "Oulu 10"
+                    },
+                    "projectType": {
+                        "maxLength": 8,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "ProjectType dimension value.",
+                        "nullable": true,
+                        "example": "ABC321"
+                    }
+                },
+                "additionalProperties": false,
+                "description": "Vouchers posting entry"
+            },
+            "PostingReadOut": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "Postings identifier. In most cases should be left null. Can be provided when creating a new voucher or left null, in which case the system will generate a new ID.",
+                        "format": "uuid",
+                        "nullable": true,
+                        "example": null
+                    },
+                    "generatedPosting": {
+                        "type": "boolean",
+                        "description": "True if a posting was automatically generated (e.g. VAT posting)."
+                    },
+                    "accountNumber": {
+                        "type": "string",
+                        "description": "Accounting account number from organizations chart of accounts.",
+                        "nullable": true,
+                        "example": "3000"
+                    },
+                    "vatPercentage": {
+                        "type": "number",
+                        "description": "Vat percentage decimal. Can be used if vat percentage is other than system default",
+                        "format": "double",
+                        "nullable": true,
+                        "example": null
+                    },
+                    "description": {
+                        "maxLength": 100,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Posting description, e.g. product name.",
+                        "nullable": true,
+                        "example": "95 octane Gas "
+                    },
+                    "vatIncludedAmount": {
+                        "type": "number",
+                        "description": "Net value of the posting. \r\nIn most cases VatIncludedAmount should be provided and VatExcludedAmount and VatAmount is calculated by the system.",
+                        "format": "double",
+                        "nullable": true,
+                        "example": 124
+                    },
+                    "vatExcludedAmount": {
+                        "type": "number",
+                        "description": "Gross value of the posting. \r\nIn most cases VatIncludedAmount should be provided and VatExcludedAmount and VatAmount is calculated by the system.",
+                        "format": "double",
+                        "nullable": true,
+                        "example": null
+                    },
+                    "vatAmount": {
+                        "type": "number",
+                        "description": "Vat value of the posting. \r\nIn most cases VatIncludedAmount should be provided and VatExcludedAmount and VatAmount is calculated by the system.",
+                        "format": "double",
+                        "nullable": true,
+                        "example": null
+                    },
+                    "matchKey": {
+                        "maxLength": 15,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "MatchKey can be used for creating a new Ledger item (no Ledger item with provided MatchKey + AccountNumber already exists) or \r\nto match this posting to an existing Ledger item.\r\nWhen MatchKey is left null a new one is created by the system. \r\nSystem generated MatchKeys are from series beginning with the letter S. e.g. S1, S2, S3...",
+                        "nullable": true,
+                        "example": null
+                    },
+                    "costCenter": {
+                        "maxLength": 8,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "CostCenter dimension value.",
+                        "nullable": true,
+                        "example": "Cost 1"
+                    },
+                    "costType": {
+                        "maxLength": 8,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "CostType dimension value.",
+                        "nullable": true,
+                        "example": "ABC123"
+                    },
+                    "project": {
+                        "maxLength": 8,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Project dimension value.",
+                        "nullable": true,
+                        "example": "Oulu 10"
+                    },
+                    "projectType": {
+                        "maxLength": 8,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "ProjectType dimension value.",
+                        "nullable": true,
+                        "example": "ABC321"
+                    },
+                    "rowVersion": {
+                        "type": "string",
+                        "format": "byte",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "UsedAccountsOut": {
+                "type": "object",
+                "properties": {
+                    "number": {
+                        "type": "string",
+                        "description": "Account number",
+                        "nullable": true,
+                        "example": "4500"
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Account name in request language",
+                        "nullable": true,
+                        "example": "Salaries"
+                    }
+                },
+                "additionalProperties": false,
+                "description": "Output dto for accounts used."
+            },
+            "VoucherCreate": {
+                "required": [
+                    "categoryCID",
+                    "description",
+                    "postings",
+                    "voucherStateCID"
+                ],
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "Vouchers identifier. Can be provided when creating a new voucher or left null, in which case the system will generate a new ID.",
+                        "format": "uuid",
+                        "nullable": true,
+                        "example": null
+                    },
+                    "tryAccept": {
+                        "type": "boolean",
+                        "description": "Try accept feature for Draft vouchers. \r\nTries to update vouchers state to Accepted and leaves it to Draft sate if it doesn't meet all of the requeirements for Accepted.",
+                        "example": true
+                    },
+                    "generateMissingDimensionValues": {
+                        "type": "boolean",
+                        "description": "Set to true if new dimension values should be created from the postings.\r\nBy default the values need to exist or an exception is raised.",
+                        "example": false
+                    },
+                    "denyCreationOfLedgerItems": {
+                        "type": "boolean",
+                        "description": "Prevents accepted voucher to have ledger items created. Only allowed to migration vouchers.",
+                        "example": false
+                    },
+                    "categoryCID": {
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "Vouchers category:\r\n\r\nePurchaseInvoice\r\nPurchaseInvoice\r\nTravelExpense\r\neSalesInvoice\r\nSalesInvoice\r\neSalesInvoiceReceivable\r\neSalesMemo\r\nCash\r\nSalary\r\nOnBehalfPaidExpenses\r\nCreditCardVouchers\r\nReceipts\r\nMemo\r\nTaxSummary\r\nOther\r\nBankTransactions\r\nReferenceTransactions\r\nBalanceSheetCleanup\r\nPeriodic\r\nHistory\r\nConcern\r\nVatPostings\r\nRecurrent\r\nTaxPeriodisation\r\nMarginalTax\r\nIntegrationSales\r\nIntegrationPurchase\r\nIntegrationSalary\r\nIntegrationMemo\r\nIntegrationBank\r\nIntegrationPeriodic",
+                        "example": "Receipts"
+                    },
+                    "voucherStateCID": {
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "State of the voucher:\r\nDraft,\r\nAccepted,\r\nLocked,\r\nDeleted",
+                        "example": "Draft"
+                    },
+                    "voucherNumber": {
+                        "maxLength": 100,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Vouchers displayed number. e.g. 21-53-2023.",
+                        "nullable": true,
+                        "example": null
+                    },
+                    "voucherDate": {
+                        "type": "string",
+                        "description": "Vouchers Date",
+                        "format": "date",
+                        "nullable": true,
+                        "example": "2023-12-31"
+                    },
+                    "invoiceNumber": {
+                        "maxLength": 50,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "InvoiceNumber this voucher is related to.",
+                        "nullable": true,
+                        "example": "A12345678-X"
+                    },
+                    "referenceNumber": {
+                        "maxLength": 25,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Reference number of an invoice this voucher is related to.",
+                        "nullable": true,
+                        "example": "123547"
+                    },
+                    "description": {
+                        "maxLength": 100,
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "Vouchers description. e.g. Receiver name for sales invoice and sender name for purchase invoice.",
+                        "example": "Gas station XYZ Ltd"
+                    },
+                    "customerComment": {
+                        "type": "string",
+                        "description": "Customers comment.",
+                        "nullable": true,
+                        "example": null
+                    },
+                    "customerCommentToAccounting": {
+                        "maxLength": 2000,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Accounting details provided by the customer",
+                        "nullable": true,
+                        "example": "Gas for the car ABC-123"
+                    },
+                    "accountingComment": {
+                        "type": "string",
+                        "description": "Accounting / Talenom Comment, not visible for the customer.",
+                        "nullable": true,
+                        "example": null
+                    },
+                    "vatIncludedAmount": {
+                        "type": "number",
+                        "description": "Vouchers total vat included amount.",
+                        "format": "double",
+                        "nullable": true,
+                        "example": 124
+                    },
+                    "vatAmount": {
+                        "type": "number",
+                        "description": "Vouchers total vat amount.",
+                        "format": "double",
+                        "nullable": true,
+                        "example": 24
+                    },
+                    "postings": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PostingCreate"
+                        },
+                        "description": "List of vouchers postings"
+                    },
+                    "acceptor": {
+                        "maxLength": 100,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Vouchers acceptor, which should be provided if the voucher is created as Accepted. Can be e.g. a full name or an email address.",
+                        "nullable": true,
+                        "example": "e.g. Firstname Lastname or firstname.lastname@example.com"
+                    },
+                    "preventVatPeeling": {
+                        "type": "boolean",
+                        "description": "If set to true, prevents the system from executing vat peeling for this voucher.",
+                        "default": false,
+                        "example": false
+                    },
+                    "preventVoucherAutomation": {
+                        "type": "boolean",
+                        "description": "Prevent vouhcher automation (posting rules, AI, OCR voucher details fetching etc.)",
+                        "example": false
+                    },
+                    "voucherImageBase64Str": {
+                        "type": "string",
+                        "description": "Optional voucher image in Base64 string. Voucher image should always be in PDF format.",
+                        "nullable": true,
+                        "example": null
+                    },
+                    "voucherDetail": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/VoucherDetailCreate"
+                            }
+                        ],
+                        "description": "Voucher details",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false,
+                "description": "Accounting Voucher"
+            },
+            "VoucherCreateAccepted": {
+                "required": [
+                    "acceptor",
+                    "category",
+                    "description",
+                    "postings",
+                    "voucherDate"
+                ],
+                "type": "object",
+                "properties": {
+                    "category": {
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "Vouchers category possible values:\r\n\r\nPurchaseInvoice\r\nTravelExpense\r\nSalesInvoice\r\nCash\r\nSalary\r\nOnBehalfPaidExpenses\r\nCreditCardVouchers\r\nReceipts\r\nMemo\r\nTaxSummary\r\nOther\r\nBankTransactions\r\nReferenceTransactions\r\nIntegrationSales\r\nIntegrationPurchase\r\nIntegrationSalary\r\nIntegrationMemo",
+                        "example": "Receipts"
+                    },
+                    "voucherNumber": {
+                        "maxLength": 100,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Vouchers displayed number. e.g. 21-53-2023.",
+                        "nullable": true,
+                        "example": null
+                    },
+                    "voucherDate": {
+                        "type": "string",
+                        "description": "Vouchers Date",
+                        "format": "date",
+                        "example": "2023-12-31"
+                    },
+                    "invoiceNumber": {
+                        "maxLength": 50,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "InvoiceNumber this voucher is related to.",
+                        "nullable": true,
+                        "example": "A12345678-X"
+                    },
+                    "referenceNumber": {
+                        "maxLength": 25,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Reference number of an invoice this voucher is related to.",
+                        "nullable": true,
+                        "example": "123547"
+                    },
+                    "description": {
+                        "maxLength": 100,
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "Vouchers description. e.g. Receiver name for sales invoice and sender name for purchase invoice.",
+                        "example": "Gas station XYZ Ltd"
+                    },
+                    "customerComment": {
+                        "type": "string",
+                        "description": "Customers comment.",
+                        "nullable": true,
+                        "example": null
+                    },
+                    "postings": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PostingCreateAccepted"
+                        },
+                        "description": "List of vouchers postings"
+                    },
+                    "acceptor": {
+                        "maxLength": 100,
+                        "minLength": 2,
+                        "type": "string",
+                        "description": "Vouchers acceptor, which should be provided if the voucher is created as Accepted. Can be e.g. a full name or an email address.",
+                        "example": "e.g. Firstname Lastname or firstname.lastname@example.com"
+                    },
+                    "voucherImageBase64Str": {
+                        "type": "string",
+                        "description": "Optional voucher image in Base64 string. Voucher image should always be in PDF format.",
+                        "nullable": true,
+                        "example": null
+                    }
+                },
+                "additionalProperties": false,
+                "description": "Accounting Voucher"
+            },
+            "VoucherCreateOut": {
+                "type": "object",
+                "properties": {
+                    "voucherId": {
+                        "type": "string",
+                        "format": "uuid"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "VoucherCreateV2": {
+                "required": [
+                    "category",
+                    "description",
+                    "postings",
+                    "voucherState"
+                ],
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "Vouchers identifier. Can be provided when creating a new voucher or left null, in which case the system will generate a new ID.",
+                        "format": "uuid",
+                        "nullable": true,
+                        "example": null
+                    },
+                    "tryAccept": {
+                        "type": "boolean",
+                        "description": "Try accept feature for Draft vouchers. \r\nTries to update vouchers state to Accepted and leaves it to Draft sate if it doesn't meet all of the requeirements for Accepted.",
+                        "default": true,
+                        "example": true
+                    },
+                    "category": {
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "Vouchers category possible values:\r\n\r\nPurchaseInvoice\r\nTravelExpense\r\nSalesInvoice\r\nCash\r\nSalary\r\nOnBehalfPaidExpenses\r\nCreditCardVouchers\r\nReceipts\r\nMemo\r\nTaxSummary\r\nOther\r\nBankTransactions\r\nReferenceTransactions\r\nIntegrationSales\r\nIntegrationPurchase\r\nIntegrationSalary\r\nIntegrationMemo",
+                        "example": "Receipts"
+                    },
+                    "voucherState": {
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "State of the voucher:\r\nDraft,\r\nAccepted,\r\nLocked,\r\nDeleted",
+                        "example": "Draft"
+                    },
+                    "voucherNumber": {
+                        "maxLength": 100,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Vouchers displayed number. e.g. 21-53-2023.",
+                        "nullable": true,
+                        "example": null
+                    },
+                    "voucherDate": {
+                        "type": "string",
+                        "description": "Vouchers Date",
+                        "format": "date",
+                        "nullable": true,
+                        "example": "2023-12-31"
+                    },
+                    "invoiceNumber": {
+                        "maxLength": 50,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "InvoiceNumber this voucher is related to.",
+                        "nullable": true,
+                        "example": "A12345678-X"
+                    },
+                    "referenceNumber": {
+                        "maxLength": 25,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Reference number of an invoice this voucher is related to.",
+                        "nullable": true,
+                        "example": "123547"
+                    },
+                    "description": {
+                        "maxLength": 100,
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "Vouchers description. e.g. Receiver name for sales invoice and sender name for purchase invoice.",
+                        "example": "Gas station XYZ Ltd"
+                    },
+                    "customerComment": {
+                        "type": "string",
+                        "description": "Customers comment.",
+                        "nullable": true,
+                        "example": null
+                    },
+                    "customerCommentToAccounting": {
+                        "maxLength": 2000,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Accounting details provided by the customer",
+                        "nullable": true,
+                        "example": "Gas for the car ABC-123"
+                    },
+                    "accountingComment": {
+                        "type": "string",
+                        "description": "Accounting / Talenom Comment, not visible for the customer.",
+                        "nullable": true,
+                        "example": null
+                    },
+                    "vatIncludedAmount": {
+                        "type": "number",
+                        "description": "Gross value of the voucher. \r\nIn most cases VatIncludedAmount should be provided and VatExcludedAmount and VatAmount is calculated by the system.",
+                        "format": "double",
+                        "nullable": true,
+                        "example": 124
+                    },
+                    "vatAmount": {
+                        "type": "number",
+                        "description": "Vat value of the voucher.",
+                        "format": "double",
+                        "nullable": true,
+                        "example": 24
+                    },
+                    "postings": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PostingCreateV2"
+                        },
+                        "description": "List of vouchers postings"
+                    },
+                    "acceptor": {
+                        "maxLength": 100,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Vouchers acceptor, which should be provided if the voucher is created as Accepted. Can be e.g. a full name or an email address.",
+                        "default": "System integration",
+                        "nullable": true,
+                        "example": "e.g. Firstname Lastname or firstname.lastname@example.com"
+                    },
+                    "preventVatPeeling": {
+                        "type": "boolean",
+                        "description": "If set to true, prevents the system from executing vat peeling for this voucher.",
+                        "default": false,
+                        "example": false
+                    },
+                    "voucherImageBase64Str": {
+                        "type": "string",
+                        "description": "Optional voucher image in Base64 string. Voucher image should always be in PDF format.",
+                        "nullable": true,
+                        "example": null
+                    },
+                    "voucherDetail": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/VoucherDetailCreate"
+                            }
+                        ],
+                        "description": "Voucher details",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false,
+                "description": "Accounting Voucher"
+            },
+            "VoucherDetailCreate": {
+                "type": "object",
+                "properties": {
+                    "rows": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/VoucherDetailRowCreate"
+                        },
+                        "description": "Additional row specific details.\r\nFor example: Products by name and amount",
+                        "nullable": true
+                    },
+                    "others": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/VoucherDetailOtherRowCreate"
+                        },
+                        "description": "Additional key and value details.",
+                        "nullable": true
+                    },
+                    "payments": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/VoucherDetailPaymentCreate"
+                        },
+                        "description": "Payments by date and VAT included amount.",
+                        "nullable": true
+                    },
+                    "dimensions": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/VoucherDetailDimensionCreateRow"
+                        },
+                        "description": "Dimensions specific details",
+                        "nullable": true
+                    },
+                    "sender": {
+                        "maxLength": 256,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Invoice sender.",
+                        "nullable": true,
+                        "example": "Company ABC Ltd"
+                    },
+                    "receiver": {
+                        "maxLength": 256,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Invoice receiver.",
+                        "nullable": true,
+                        "example": "John Doe"
+                    },
+                    "invoiceDate": {
+                        "type": "string",
+                        "description": "Invoice date.",
+                        "format": "date",
+                        "nullable": true,
+                        "example": "2023-12-31"
+                    },
+                    "dueDate": {
+                        "type": "string",
+                        "description": "Due date.",
+                        "format": "date",
+                        "nullable": true,
+                        "example": "2024-01-15"
+                    },
+                    "deliveryDate": {
+                        "type": "string",
+                        "description": "Delivery date.",
+                        "format": "date",
+                        "nullable": true,
+                        "example": "2023-12-14"
+                    },
+                    "deliveryPeriodStart": {
+                        "type": "string",
+                        "description": "Delivery period start.",
+                        "format": "date",
+                        "nullable": true,
+                        "example": "2023-10-31"
+                    },
+                    "deliveryPeriodEnd": {
+                        "type": "string",
+                        "description": "Delivery period end.",
+                        "format": "date",
+                        "nullable": true,
+                        "example": "2023-11-30"
+                    },
+                    "sellerDetail": {
+                        "maxLength": 200,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Seller detail.        \r\nFor example \"Our reference\" in invoices.",
+                        "nullable": true,
+                        "example": "\"Our reference: XYZ-123\""
+                    },
+                    "vatIncludedAmount": {
+                        "type": "number",
+                        "description": "Total VAT-included amount.\r\nUpdates the !:Voucher.VatIncludedAmount in case it was still null.",
+                        "format": "double",
+                        "nullable": true,
+                        "example": 124
+                    },
+                    "vatAmount": {
+                        "type": "number",
+                        "description": "Total VAT amount.\r\nUpdates the !:Voucher.VatAmount in case it was still null.",
+                        "format": "double",
+                        "nullable": true,
+                        "example": 24
+                    },
+                    "creatorName": {
+                        "maxLength": 50,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Vouchers creator",
+                        "nullable": true,
+                        "example": "Jane Doe"
+                    },
+                    "paymentDate": {
+                        "type": "string",
+                        "description": "Payment date.",
+                        "format": "date",
+                        "nullable": true,
+                        "example": "2024-01-02"
+                    },
+                    "paymentMessage": {
+                        "maxLength": 70,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Payment message.",
+                        "nullable": true,
+                        "example": "Abc 123"
+                    },
+                    "originalPaymentCurrencyCode": {
+                        "maxLength": 3,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Payments original currency code.        \r\nSee the ISO 4217 currency codes.\r\nTo be used if the vouchers amounts have been converted from a different currency.",
+                        "nullable": true,
+                        "example": "USD"
+                    },
+                    "originalPaymentVatIncludedAmount": {
+                        "type": "number",
+                        "description": "Payments original VAT included amount.\r\nTo be used if the vouchers amounts have been converted from a different currency.",
+                        "format": "double",
+                        "nullable": true,
+                        "example": 123.13
+                    },
+                    "costType": {
+                        "maxLength": 50,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Cost type.",
+                        "nullable": true,
+                        "example": "travel expence"
+                    },
+                    "vatIncludedAmountGeneralVat": {
+                        "type": "number",
+                        "description": "VAT-included amount for general VAT.",
+                        "format": "double",
+                        "nullable": true,
+                        "example": 123.45
+                    },
+                    "vatIncludedAmountLower1Vat": {
+                        "type": "number",
+                        "description": "VAT-included amount for lower VAT category 1.",
+                        "format": "double",
+                        "nullable": true,
+                        "example": 67.89
+                    },
+                    "vatIncludedAmountLower2Vat": {
+                        "type": "number",
+                        "description": "VAT-included amount for lower VAT category 2.",
+                        "format": "double",
+                        "nullable": true,
+                        "example": 45.67
+                    },
+                    "vatIncludedAmountZeroVat": {
+                        "type": "number",
+                        "description": "VAT-included amount with zero VAT.",
+                        "format": "double",
+                        "nullable": true,
+                        "example": 100
+                    },
+                    "vatIncludedAmountReverseVat": {
+                        "type": "number",
+                        "description": "VAT-included amount with reverse VAT.",
+                        "format": "double",
+                        "nullable": true,
+                        "example": 80
+                    },
+                    "vatIncludedAmountMargin": {
+                        "type": "number",
+                        "description": "VAT-included amount for margin schemes.",
+                        "format": "double",
+                        "nullable": true,
+                        "example": 150
+                    },
+                    "vatExcludedAmount": {
+                        "type": "number",
+                        "description": "Net/vat excluded amount.",
+                        "format": "double",
+                        "nullable": true,
+                        "example": 100
+                    },
+                    "vatExcludedAmountGeneralVat": {
+                        "type": "number",
+                        "description": "Net/vat excluded amount for general VAT.",
+                        "format": "double",
+                        "nullable": true,
+                        "example": 90
+                    },
+                    "vatExcludedAmountLower1Vat": {
+                        "type": "number",
+                        "description": "Net/vat excluded amount for lower VAT category 1.",
+                        "format": "double",
+                        "nullable": true,
+                        "example": 60
+                    },
+                    "vatExcludedAmountLower2Vat": {
+                        "type": "number",
+                        "description": "Net/vat excluded amount for lower VAT category 2.",
+                        "format": "double",
+                        "nullable": true,
+                        "example": 40
+                    },
+                    "vatExcludedAmountZeroVat": {
+                        "type": "number",
+                        "description": "Net/vat excluded amount with zero VAT.",
+                        "format": "double",
+                        "nullable": true,
+                        "example": 100
+                    },
+                    "vatExcludedAmountReverseVat": {
+                        "type": "number",
+                        "description": "Net/vat excluded amount with reverse VAT.",
+                        "format": "double",
+                        "nullable": true,
+                        "example": 80
+                    },
+                    "vatExcludedAmountMargin": {
+                        "type": "number",
+                        "description": "Net/vat excluded amount for margin schemes.",
+                        "format": "double",
+                        "nullable": true,
+                        "example": 150
+                    },
+                    "vatAmountGeneralVat": {
+                        "type": "number",
+                        "description": "VAT amount for general VAT.",
+                        "format": "double",
+                        "nullable": true,
+                        "example": 13.45
+                    },
+                    "vatAmountLower1Vat": {
+                        "type": "number",
+                        "description": "VAT amount for lower VAT category 1.",
+                        "format": "double",
+                        "nullable": true,
+                        "example": 7.89
+                    },
+                    "vatAmountLower2Vat": {
+                        "type": "number",
+                        "description": "VAT amount for lower VAT category 2.",
+                        "format": "double",
+                        "nullable": true,
+                        "example": 5.67
+                    },
+                    "vatAmountZeroVat": {
+                        "type": "number",
+                        "description": "VAT amount with zero VAT.",
+                        "format": "double",
+                        "nullable": true,
+                        "example": 11.23
+                    },
+                    "vatAmountReverseVat": {
+                        "type": "number",
+                        "description": "VAT amount with reverse VAT.",
+                        "format": "double",
+                        "nullable": true,
+                        "example": 5.67
+                    },
+                    "vatAmountMargin": {
+                        "type": "number",
+                        "description": "VAT amount for margin schemes.",
+                        "format": "double",
+                        "nullable": true,
+                        "example": 1.23
+                    },
+                    "paymentCardNumberLastDigits": {
+                        "maxLength": 4,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Last 4 digits of payment cards number.",
+                        "nullable": true,
+                        "example": "1234"
+                    },
+                    "paymentTransactionType": {
+                        "maxLength": 15,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Payment transaction type.\r\nString length max 15.\r\nFor example: DEBIT, CREDIT, CASH, INVOICE.",
+                        "nullable": true,
+                        "example": "DEBIT"
+                    },
+                    "senderBusinessId": {
+                        "maxLength": 11,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Sender's Business Identity Code.",
+                        "nullable": true,
+                        "example": "1234567-8"
+                    },
+                    "senderVatId": {
+                        "maxLength": 20,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Sender's VAT number.        \r\nGenerated from the Business ID by adding a two-letter country code as a prefix \r\nand by omitting the dash character.",
+                        "nullable": true,
+                        "example": "FI12345678"
+                    },
+                    "senderStreetAddress": {
+                        "maxLength": 100,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Sender's street address.",
+                        "nullable": true,
+                        "example": "Example street 10 A 1"
+                    },
+                    "senderPostalCode": {
+                        "maxLength": 10,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Sender's postal code.",
+                        "nullable": true,
+                        "example": "90100"
+                    },
+                    "senderPostalCity": {
+                        "maxLength": 30,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Sender's postal city.",
+                        "nullable": true,
+                        "example": "Oulu"
+                    },
+                    "senderBankAccountNumber": {
+                        "maxLength": 40,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Sender's bank account.",
+                        "nullable": true,
+                        "example": "FI4950009420028730"
+                    },
+                    "receiverBusinessId": {
+                        "maxLength": 11,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Receiver's Business Identity Code.        \r\nFor example 1234567-8.",
+                        "nullable": true,
+                        "example": "1234567-8"
+                    },
+                    "receiverVatId": {
+                        "maxLength": 20,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Receiver's VAT number.        \r\nGenerated from the Business ID by adding a two-letter country code as a prefix \r\nand by omitting the dash.",
+                        "nullable": true,
+                        "example": "FI12345678"
+                    },
+                    "receiverStreetAddress": {
+                        "maxLength": 100,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Receiver's street address.",
+                        "nullable": true,
+                        "example": "Receiverstreet 11 B 2"
+                    },
+                    "receiverPostalCode": {
+                        "maxLength": 10,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Receiver's postal code.\r\nString max length 10.",
+                        "nullable": true,
+                        "example": "90460"
+                    },
+                    "receiverPostalCity": {
+                        "maxLength": 30,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Receiver's postal city.",
+                        "nullable": true,
+                        "example": "Oulunsalo"
+                    },
+                    "receiverBankAccountNumber": {
+                        "maxLength": 40,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Receiver's bank account.",
+                        "nullable": true,
+                        "example": "FI4950009420028730"
+                    },
+                    "deliveryStreetAddress": {
+                        "maxLength": 100,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Street addess for deliveries.",
+                        "nullable": true,
+                        "example": "Deliverystreet 12 C 3"
+                    },
+                    "deliveryPostalCode": {
+                        "maxLength": 10,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Postal code for deliveries.",
+                        "nullable": true,
+                        "example": "90100"
+                    },
+                    "deliveryPostalCity": {
+                        "maxLength": 30,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Postal city for deliveries.\r\nString max length 30.",
+                        "nullable": true,
+                        "example": "Oulu"
+                    }
+                },
+                "additionalProperties": false,
+                "description": "Voucher details for voucher handling automation"
+            },
+            "VoucherDetailDimensionCreateRow": {
+                "type": "object",
+                "properties": {
+                    "totalAmount": {
+                        "type": "number",
+                        "description": "Amount posted to this dimension combination. Alternative to DimensionPercentage.",
+                        "format": "double",
+                        "nullable": true,
+                        "example": 100.12
+                    },
+                    "dimensionPercentage": {
+                        "type": "number",
+                        "description": "Percentage posted to this dimension combination. Alternative to TotalAmount.",
+                        "format": "double",
+                        "nullable": true,
+                        "example": null
+                    },
+                    "costCenter": {
+                        "maxLength": 20,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "CostCenter dimension value",
+                        "nullable": true,
+                        "example": "CC1"
+                    },
+                    "costType": {
+                        "maxLength": 20,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "CostType dimension value",
+                        "nullable": true,
+                        "example": "CT1"
+                    },
+                    "project": {
+                        "maxLength": 20,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Project dimension value",
+                        "nullable": true,
+                        "example": "P1"
+                    },
+                    "projectType": {
+                        "maxLength": 20,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "ProjectType dimension value",
+                        "nullable": true,
+                        "example": "PT1"
+                    }
+                },
+                "additionalProperties": false,
+                "description": "Voucher detail dimensions with dimension amount"
+            },
+            "VoucherDetailOtherRowCreate": {
+                "required": [
+                    "value"
+                ],
+                "type": "object",
+                "properties": {
+                    "key": {
+                        "maxLength": 100,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Key",
+                        "nullable": true,
+                        "example": "Registration number"
+                    },
+                    "value": {
+                        "maxLength": 2000,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Value",
+                        "example": "ABC-123"
+                    }
+                },
+                "additionalProperties": false,
+                "description": "VoucherDetail key-value rows row where only value is required."
+            },
+            "VoucherDetailPaymentCreate": {
+                "type": "object",
+                "properties": {
+                    "paymentDate": {
+                        "type": "string",
+                        "description": "Payment date.",
+                        "format": "date",
+                        "nullable": true,
+                        "example": "2024-01-14"
+                    },
+                    "amount": {
+                        "type": "number",
+                        "description": "Payment amount",
+                        "format": "double",
+                        "nullable": true,
+                        "example": 123.1
+                    }
+                },
+                "additionalProperties": false,
+                "description": "Vouchers invoices payment dates with payment amounts."
+            },
+            "VoucherDetailRowCreate": {
+                "type": "object",
+                "properties": {
+                    "description": {
+                        "maxLength": 100,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "For example a product name in invoice product row.",
+                        "nullable": true,
+                        "example": "95 octane gasoline"
+                    },
+                    "vatIncludedAmount": {
+                        "type": "number",
+                        "description": "Vat included amount of the row.",
+                        "format": "double",
+                        "nullable": true,
+                        "example": 123.1
+                    },
+                    "vatAmount": {
+                        "type": "number",
+                        "description": "Vat amount of the row.",
+                        "format": "double",
+                        "nullable": true,
+                        "example": 12.31
+                    },
+                    "vatPercentage": {
+                        "type": "number",
+                        "description": "Vat percentage",
+                        "format": "double",
+                        "nullable": true,
+                        "example": 10
+                    }
+                },
+                "additionalProperties": false,
+                "description": "VoucherDetailRow"
+            },
+            "VoucherPagedResultOut": {
+                "type": "object",
+                "properties": {
+                    "currentPage": {
+                        "type": "integer",
+                        "description": "Current page",
+                        "format": "int32"
+                    },
+                    "pageCount": {
+                        "type": "integer",
+                        "description": "Total number of pages",
+                        "format": "int32"
+                    },
+                    "pageSize": {
+                        "type": "integer",
+                        "description": "Size of one page",
+                        "format": "int32"
+                    },
+                    "rowCount": {
+                        "type": "integer",
+                        "description": "Total row count",
+                        "format": "int32"
+                    },
+                    "results": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/VoucherReadOut"
+                        },
+                        "description": "Results",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false,
+                "description": "Result of paged query"
+            },
+            "VoucherReadOut": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "Postings identifier.         \r\nIn most cases should be left null. \r\nCan be provided when creating a new voucher or left null, in which case the system will generate a new ID.",
+                        "format": "uuid",
+                        "nullable": true,
+                        "example": null
+                    },
+                    "category": {
+                        "type": "string",
+                        "description": "Voucher category",
+                        "nullable": true,
+                        "example": "Recurrent"
+                    },
+                    "voucherDate": {
+                        "type": "string",
+                        "description": "Voucher date",
+                        "format": "date",
+                        "nullable": true,
+                        "example": "2021-11-29"
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Voucher description",
+                        "nullable": true,
+                        "example": "Invoice 123457"
+                    },
+                    "voucherState": {
+                        "type": "string",
+                        "description": "State of the voucher:\r\nDraft,\r\nAccepted,\r\nLocked,\r\nDeleted",
+                        "nullable": true,
+                        "example": "Draft"
+                    },
+                    "voucherNumber": {
+                        "type": "string",
+                        "description": "Voucher number",
+                        "nullable": true,
+                        "example": "94-92-2021"
+                    },
+                    "invoiceNumber": {
+                        "type": "string",
+                        "description": "Invoice number for invoice type of vouchers",
+                        "nullable": true,
+                        "example": "123457"
+                    },
+                    "referenceNumber": {
+                        "type": "string",
+                        "description": "Payment reference number for invoice type of vouchers",
+                        "nullable": true,
+                        "example": "5536456641"
+                    },
+                    "vatIncludedAmount": {
+                        "type": "number",
+                        "description": "Net value of the voucher.",
+                        "format": "double",
+                        "nullable": true,
+                        "example": 124
+                    },
+                    "vatExcludedAmount": {
+                        "type": "number",
+                        "description": "Gross value of the voucher.",
+                        "format": "double",
+                        "nullable": true,
+                        "example": 100
+                    },
+                    "vatAmount": {
+                        "type": "number",
+                        "description": "Vat amount",
+                        "format": "double",
+                        "nullable": true,
+                        "example": 24
+                    },
+                    "correctionForVoucherId": {
+                        "type": "string",
+                        "description": "Points to the invalidated or corrected voucher, undefined by default.",
+                        "format": "uuid",
+                        "nullable": true
+                    },
+                    "origin": {
+                        "type": "string",
+                        "description": "Origin of the voucher.",
+                        "nullable": true
+                    },
+                    "concern": {
+                        "type": "integer",
+                        "description": "Organization's parent company organization number",
+                        "format": "int32",
+                        "nullable": true,
+                        "example": 66
+                    },
+                    "customerComment": {
+                        "type": "string",
+                        "description": "Comment from the customer.",
+                        "nullable": true
+                    },
+                    "createdDateUtc": {
+                        "type": "string",
+                        "description": "Date and time when the voucher is last saved (Created or Updated).",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "updatedDateUtc": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "approvedDateUtc": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "lockedDateUtc": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "deletedDateUtc": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "postings": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PostingReadOut"
+                        },
+                        "nullable": true
+                    },
+                    "rowVersion": {
+                        "type": "string",
+                        "format": "byte",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            }
+        },
+        "securitySchemes": {
+            "apiKeyHeader": {
+                "type": "apiKey",
+                "name": "Ocp-Apim-Subscription-Key",
+                "in": "header"
+            },
+            "apiKeyQuery": {
+                "type": "apiKey",
+                "name": "subscription-key",
+                "in": "query"
+            }
+        }
+    },
+    "security": [
+        {
+            "apiKeyHeader": []
+        },
+        {
+            "apiKeyQuery": []
+        }
+    ],
+    "tags": [
+        {
+            "name": "AccountBalances",
+            "description": "Contains endpoints for fetching bookkeeping account balances."
+        },
+        {
+            "name": "GeneralLedgerEvents",
+            "description": "Contains group of endpoints for fetching general ledger events (vouchers postings) for reporting purposes."
+        },
+        {
+            "name": "Vouchers",
+            "description": "Contains group of endpoints for Creating, Updating and Deleting vouchers"
+        },
+        {
+            "name": "ChartOfAccounts",
+            "description": "Contains group of endpoints for chart of accounts related information."
+        }
+    ]
+}
