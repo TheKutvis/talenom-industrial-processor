@@ -1,0 +1,114 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Talenom Industrial Processor 1.0\n"
+"Report-Msgid-Bugs-To: developers@talenom.fi\n"
+"POT-Creation-Date: 2025-11-06T14:54:57.269Z\n"
+"PO-Revision-Date: 2025-11-06T14:54:57.278Z\n"
+"Last-Translator: Automated <no-reply@talenom.fi>\n"
+"Language-Team: English\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "app.title"
+msgstr "Talenom General Ledger"
+
+msgid "app.subtitle"
+msgstr "Industrial File Processor"
+
+msgid "app.version"
+msgstr "v1.0 Industrial"
+
+msgid "app.description"
+msgstr ""
+"Industrial-grade file processing with advanced data transformation "
+"capabilities"
+
+msgid "nav.main"
+msgstr "Main Processor"
+
+msgid "nav.myclub"
+msgstr "Myclub-transformer"
+
+msgid "nav.jatkoPasi"
+msgstr "Jatko-PASI"
+
+msgid "nav.accountConfig"
+msgstr "Account Config"
+
+msgid "nav.backToDashboard"
+msgstr "← Back to Dashboard"
+
+msgid "navigation.mainProcessor"
+msgstr "Main Processor"
+
+msgid "navigation.myclubTransformer"
+msgstr "Myclub-transformer"
+
+msgid "navigation.jatkoPasi"
+msgstr "Jatko-PASI"
+
+msgid "navigation.accountConfig"
+msgstr "Account Config"
+
+msgid "navigation.backToDashboard"
+msgstr "← Back to Dashboard"
+
+msgid "buttons.selectFiles"
+msgstr "Select Files"
+
+msgid "buttons.processFiles"
+msgstr "Process Files"
+
+msgid "buttons.uploadFiles"
+msgstr "Upload Files"
+
+msgid "buttons.downloadResult"
+msgstr "Download Result"
+
+msgid "buttons.exportExcel"
+msgstr "Export Excel"
+
+msgid "buttons.close"
+msgstr "Close"
+
+msgid "buttons.retry"
+msgstr "Retry"
+
+msgid "buttons.reset"
+msgstr "Reset"
+
+msgid "status.ready"
+msgstr "Ready"
+
+msgid "status.processing"
+msgstr "Processing"
+
+msgid "status.completed"
+msgstr "Completed"
+
+msgid "status.failed"
+msgstr "Failed"
+
+msgid "status.uploading"
+msgstr "Uploading"
+
+msgid "status.downloading"
+msgstr "Downloading"
+
+msgid "status.connecting"
+msgstr "Connecting..."
+
+msgid "status.connected"
+msgstr "Connected"
+
+msgid "time.processingTime"
+msgstr "Processing Time"
+
+msgid "time.uploadTime"
+msgstr "Upload Time"
+
+msgid "time.completedAt"
+msgstr "Completed At"

@@ -560,6 +560,8 @@
             }
         }
     </style>
+    <!-- Include i18n client -->
+    <script src="/i18n-client.js"></script>
 </head>
 <body>
     <!-- Header -->
@@ -567,21 +569,21 @@
         <div class="header-content">
             <div class="logo">
                 <div class="logo-icon">🏗️</div>
-                <span>Myclub-transformer</span>
+                <span data-i18n="myclub.title">Myclub-transformer</span>
             </div>
             <div class="header-controls">
                 <div class="nav-links">
-                    <a href="/" class="nav-link">🏭 Main Processor</a>
-                    <a href="/esimerkkiseura" class="nav-link active">🏗️ Myclub-transformer</a>
-                    <a href="/jatko-pasi" class="nav-link">🔗 Jatko-PASI</a>
-                    <a href="/account-config" class="nav-link">🔧 Account Config</a>
+                    <a href="/" class="nav-link" data-i18n="nav.main">🏭 Main Processor</a>
+                    <a href="/esimerkkiseura" class="nav-link active" data-i18n="nav.myclub">🏗️ Myclub-transformer</a>
+                    <a href="/jatko-pasi" class="nav-link" data-i18n="nav.jatkoPasi">🔗 Jatko-PASI</a>
+                    <a href="/account-config" class="nav-link" data-i18n="nav.accountConfig">🔧 Account Config</a>
                 </div>
                 <div class="language-selector">
                     <button class="btn btn-lang active" data-lang="en">🇬🇧 EN</button>
                     <button class="btn btn-lang" data-lang="fi">🇫🇮 FI</button>
                     <button class="btn btn-lang" data-lang="sv">🇸🇪 SV</button>
                 </div>
-                <div class="version-badge">v1.0 Industrial</div>
+                <div class="version-badge" data-i18n="app.version">v1.0 Industrial</div>
             </div>
         </div>
     </header>
@@ -594,7 +596,7 @@
                             <div class="section-title">
                 <div class="title-icon">📊</div>
                 <div class="title-text">
-                    📊 <span>Myclub-transformer Excel Processor</span>
+                    📊 <span data-i18n="myclub.processor">Myclub-transformer Excel Processor</span>
                 </div>
             </div>
             <div class="section-subtitle">
@@ -605,48 +607,48 @@
                             <div id="status" class="status info">
                 <span class="status-icon">⚡</span>
                 <div class="status-content">
-                    <span>System ready - Waiting for Myclub Excel file</span>
+                    <span data-i18n="myclub.ready">System ready - Waiting for Myclub Excel file</span>
                 </div>
             </div>
 
                 <form id="fileUploadForm">
                     <div class="file-upload-area" id="fileUploadArea">
                         <div class="upload-icon">📊</div>
-                        <div class="upload-text">Drag & drop Myclub Excel file here</div>
-                        <div class="upload-subtext">or click to browse • Supports XLS, XLSX files</div>
+                        <div class="upload-text" data-i18n="myclub.dragDrop">Drag & drop Myclub Excel file here</div>
+                        <div class="upload-subtext" data-i18n="myclub.supportedFormats">or click to browse • Supports XLS, XLSX files</div>
                         <input type="file" id="fileInput" name="file" accept=".xlsx,.xls" style="display: none;">
                     </div>
                 </form>
 
                 <div class="btn-group">
                     <button class="btn btn-secondary" id="browseFileBtn">
-                        📂 <span>Browse Files</span>
+                        📂 <span data-i18n="buttons.browse">Browse Files</span>
                     </button>
                     <button class="btn btn-primary" id="processFileBtn" disabled>
-                        ⚡ <span>Process Excel File</span>
+                        ⚡ <span data-i18n="myclub.processButton">Process Excel File</span>
                     </button>
                 </div>
             </div>
 
             <!-- Results Panel -->
             <div class="results-panel">
-                <h3 class="panel-title">🔍 <span>Processing Results & Logs</span></h3>
+                <h3 class="panel-title">🔍 <span data-i18n="results.title">Processing Results & Logs</span></h3>
                 
                 <div class="results-summary" id="resultsSummary" style="display: none;">
                     <div class="summary-item">
-                        <span class="summary-label">File processed:</span>
+                        <span class="summary-label" data-i18n="results.file">File processed:</span>
                         <span class="summary-value" id="fileName">-</span>
                     </div>
                     <div class="summary-item">
-                        <span class="summary-label">Sheets processed:</span>
+                        <span class="summary-label" data-i18n="myclub.results.sheets">Sheets processed:</span>
                         <span class="summary-value" id="sheetCount">0</span>
                     </div>
                     <div class="summary-item">
-                        <span class="summary-label">Vouchers created:</span>
+                        <span class="summary-label" data-i18n="myclub.results.vouchers">Vouchers created:</span>
                         <span class="summary-value" id="voucherCount">0</span>
                     </div>
                     <div class="summary-item">
-                        <span class="summary-label">Processing time:</span>
+                        <span class="summary-label" data-i18n="results.time">Processing time:</span>
                         <span class="summary-value" id="processingTime">-</span>
                     </div>
                     <div class="summary-item">
@@ -681,6 +683,9 @@
 
     <script>
         let processedJsonData = null;
+
+        // Initialize i18n client
+        const i18nClient = new I18nClient();
 
         // Bulldozer sound effect function
         function playBuldozerSound() {
@@ -1048,8 +1053,18 @@
                 log('📊 Excel download initiated', 'success');
             });
 
-            log('🏗️ Myclub-transformer Excel Processor ready', 'success');
-            log('Supported sheets: Kirjanpito, Erittely', 'info');
+            // Set up language switching
+            document.querySelectorAll('.btn-lang').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    await i18nClient.changeLanguage(this.dataset.lang);
+                });
+            });
+
+            // Initialize i18n and set up the interface
+            i18nClient.init().then(() => {
+                log('🏗️ Myclub-transformer Excel Processor ready', 'success');
+                log('Supported sheets: Kirjanpito, Erittely', 'info');
+            });
         });
     </script>
 </body>

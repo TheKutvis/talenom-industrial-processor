@@ -1,0 +1,119 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Talenom Industrial Processor 1.0\n"
+"Report-Msgid-Bugs-To: developers@talenom.fi\n"
+"POT-Creation-Date: 2025-11-06T14:54:57.286Z\n"
+"PO-Revision-Date: 2025-11-06T14:54:57.286Z\n"
+"Last-Translator: Automated <no-reply@talenom.fi>\n"
+"Language-Team: Finnish\n"
+"Language: fi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "upload.title"
+msgstr "Tiedostokäsittelyasema"
+
+msgid "upload.subtitle"
+msgstr ""
+"Lataa ja käsittele CSV- tai Excel-tiedostoja, jotka sisältävät "
+"pääkirjatietoja"
+
+msgid "upload.description"
+msgstr ""
+"Teollisuustason käsittelijämme jäsentää tietosi ja valmistaa ne "
+"integrointia varten"
+
+msgid "upload.dragDrop"
+msgstr "Raahaa tiedostot tähän tai klikkaa selataksesi"
+
+msgid "upload.fileSelected"
+msgstr "Tiedosto valittu: {{fileName}}"
+
+msgid "upload.filesSelected"
+msgstr "{{count}} tiedostoa valittu"
+
+msgid "upload.selectFile"
+msgstr "Valitse tiedosto"
+
+msgid "upload.fileTypes"
+msgstr "Tuetut formaatit: CSV, Excel (.xlsx, .xls)"
+
+msgid "upload.maxSize"
+msgstr "Maksimi tiedostokoko: {{size}}MB"
+
+msgid "processing.analyzing"
+msgstr "Analysoidaan tiedostorakennetta..."
+
+msgid "processing.parsing"
+msgstr "Jäsennetään datarivejä..."
+
+msgid "processing.validating"
+msgstr "Validoidaan datan eheys..."
+
+msgid "processing.transforming"
+msgstr "Muunnetaan tilikarttatiedot..."
+
+msgid "processing.generating"
+msgstr "Luodaan tulosmuotoa..."
+
+msgid "processing.finalizing"
+msgstr "Viimeistellään tulokset..."
+
+msgid "processing.withPrecision"
+msgstr "Käsitellään teollisella tarkkuudella..."
+
+msgid "results.title"
+msgstr "Käsittelyn tulokset"
+
+msgid "results.success"
+msgstr "✅ Käsittely suoritettu onnistuneesti!"
+
+msgid "results.error"
+msgstr "❌ Käsittely epäonnistui"
+
+msgid "results.networkError"
+msgstr "❌ Verkkovirhe"
+
+msgid "results.fileName"
+msgstr "Tiedoston nimi"
+
+msgid "results.totalRecords"
+msgstr "Rivejä yhteensä"
+
+msgid "results.processedRecords"
+msgstr "Käsiteltyjä rivejä"
+
+msgid "results.outputFile"
+msgstr "Tulostiedosto"
+
+msgid "results.dataPreview"
+msgstr "Datan esikatselu"
+
+msgid "fileStatus.validationPassed"
+msgstr "✅ Tiedoston validointi onnistui"
+
+msgid "fileStatus.validationFailed"
+msgstr "❌ Tiedoston validointi epäonnistui"
+
+msgid "fileStatus.ready"
+msgstr "✅ Valmis käsittelyyn: {{count}} tiedostoa ladattu"
+
+msgid "fileStatus.missing"
+msgstr "⚠️ Vaadittuja tiedostoja puuttuu"
+
+msgid "fileStatus.invalidType"
+msgstr "❌ Virheellinen tiedostotyyppi"
+
+msgid "fileStatus.tooLarge"
+msgstr "❌ Tiedosto liian suuri"
+
+msgid "loading.spinner"
+msgstr "Ladataan..."
+
+msgid "loading.patience"
+msgstr "Odota hetki kun käsittelemme tiedostojasi"
+
+msgid "loading.industrial"
+msgstr "Teolliset järjestelmät toiminnassa..."

@@ -1,0 +1,109 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Talenom Industrial Processor 1.0\n"
+"Report-Msgid-Bugs-To: developers@talenom.fi\n"
+"POT-Creation-Date: 2025-11-06T14:54:57.285Z\n"
+"PO-Revision-Date: 2025-11-06T14:54:57.285Z\n"
+"Last-Translator: Automated <no-reply@talenom.fi>\n"
+"Language-Team: English\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "validation.fileTypeInvalid"
+msgstr "Invalid file type. Only {{allowedTypes}} files are supported"
+
+msgid "validation.fileSizeExceeded"
+msgstr "File size exceeds maximum limit of {{maxSize}}MB"
+
+msgid "validation.fileNotFound"
+msgstr "File not found or could not be read"
+
+msgid "validation.emptyFile"
+msgstr "File is empty or contains no valid data"
+
+msgid "validation.corruptedFile"
+msgstr "File appears to be corrupted or unreadable"
+
+msgid "processing.failed"
+msgstr "File processing failed"
+
+msgid "processing.timeout"
+msgstr "Processing timeout - file too large or complex"
+
+msgid "processing.memoryError"
+msgstr "Insufficient memory to process file"
+
+msgid "processing.formatError"
+msgstr "Unsupported file format or structure"
+
+msgid "processing.parsingError"
+msgstr "Error parsing file content"
+
+msgid "network.connectionFailed"
+msgstr "Failed to connect to server"
+
+msgid "network.timeoutError"
+msgstr "Request timeout - please try again"
+
+msgid "network.serverError"
+msgstr "Internal server error occurred"
+
+msgid "network.unauthorized"
+msgstr "Authentication failed - check credentials"
+
+msgid "network.forbidden"
+msgstr "Access denied - insufficient permissions"
+
+msgid "account.mappingNotFound"
+msgstr "Account mapping not found"
+
+msgid "account.invalidAccountNumber"
+msgstr "Invalid account number format"
+
+msgid "account.duplicateMapping"
+msgstr "Account mapping already exists"
+
+msgid "account.mappingFailed"
+msgstr "Failed to apply account mapping"
+
+msgid "jatkoPasi.missingFiles"
+msgstr "Missing required files: {{missingTypes}}"
+
+msgid "jatkoPasi.noTireFile"
+msgstr "Tire POIS file not found (44841_tire*_POIS*)"
+
+msgid "jatkoPasi.noPasiFile"
+msgstr "POLO PASI file not found (44841TPM*_POLO_PASI*)"
+
+msgid "jatkoPasi.processingFailed"
+msgstr "Jatko-PASI processing failed"
+
+msgid "jatkoPasi.noMatchingData"
+msgstr "No matching data found between files"
+
+msgid "myclub.invalidFormat"
+msgstr "Invalid Myclub/Esimerkkiseura format"
+
+msgid "myclub.noSheetsFound"
+msgstr "No valid data sheets found"
+
+msgid "myclub.transformationFailed"
+msgstr "Data transformation failed"
+
+msgid "myclub.accountMappingError"
+msgstr "Account mapping transformation failed"
+
+msgid "general.unknownError"
+msgstr "An unknown error occurred"
+
+msgid "general.operationCancelled"
+msgstr "Operation was cancelled"
+
+msgid "general.invalidRequest"
+msgstr "Invalid request parameters"
+
+msgid "general.serviceUnavailable"
+msgstr "Service temporarily unavailable"

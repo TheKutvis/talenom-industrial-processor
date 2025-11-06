@@ -1,0 +1,117 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Talenom Industrial Processor 1.0\n"
+"Report-Msgid-Bugs-To: developers@talenom.fi\n"
+"POT-Creation-Date: 2025-11-06T14:54:57.289Z\n"
+"PO-Revision-Date: 2025-11-06T14:54:57.289Z\n"
+"Last-Translator: Automated <no-reply@talenom.fi>\n"
+"Language-Team: Swedish\n"
+"Language: sv\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "upload.title"
+msgstr "Filbehandlingsstation"
+
+msgid "upload.subtitle"
+msgstr "Ladda upp och behandla CSV- eller Excel-filer med huvudboksdata"
+
+msgid "upload.description"
+msgstr ""
+"Vår industriella processor kommer att analysera din data och förbereda den "
+"för integration"
+
+msgid "upload.dragDrop"
+msgstr "Dra och släpp filer här eller klicka för att bläddra"
+
+msgid "upload.fileSelected"
+msgstr "Fil vald: {{fileName}}"
+
+msgid "upload.filesSelected"
+msgstr "{{count}} filer valda"
+
+msgid "upload.selectFile"
+msgstr "Välj fil"
+
+msgid "upload.fileTypes"
+msgstr "Stödda format: CSV, Excel (.xlsx, .xls)"
+
+msgid "upload.maxSize"
+msgstr "Maximal filstorlek: {{size}}MB"
+
+msgid "processing.analyzing"
+msgstr "Analyserar filstruktur..."
+
+msgid "processing.parsing"
+msgstr "Tolkar datarader..."
+
+msgid "processing.validating"
+msgstr "Validerar dataintegritet..."
+
+msgid "processing.transforming"
+msgstr "Omvandlar kontomappningar..."
+
+msgid "processing.generating"
+msgstr "Genererar utdataformat..."
+
+msgid "processing.finalizing"
+msgstr "Slutför resultat..."
+
+msgid "processing.withPrecision"
+msgstr "Behandlar med industriell precision..."
+
+msgid "results.title"
+msgstr "Behandlingsresultat"
+
+msgid "results.success"
+msgstr "✅ Behandling slutförd framgångsrikt!"
+
+msgid "results.error"
+msgstr "❌ Behandling misslyckades"
+
+msgid "results.networkError"
+msgstr "❌ Nätverksfel"
+
+msgid "results.fileName"
+msgstr "Filnamn"
+
+msgid "results.totalRecords"
+msgstr "Totalt antal poster"
+
+msgid "results.processedRecords"
+msgstr "Behandlade poster"
+
+msgid "results.outputFile"
+msgstr "Utdatafil"
+
+msgid "results.dataPreview"
+msgstr "Dataförhandsgranskning"
+
+msgid "fileStatus.validationPassed"
+msgstr "✅ Filvalidering lyckades"
+
+msgid "fileStatus.validationFailed"
+msgstr "❌ Filvalidering misslyckades"
+
+msgid "fileStatus.ready"
+msgstr "✅ Redo att behandla: {{count}} filer uppladdade"
+
+msgid "fileStatus.missing"
+msgstr "⚠️ Obligatoriska filer saknas"
+
+msgid "fileStatus.invalidType"
+msgstr "❌ Ogiltig filtyp"
+
+msgid "fileStatus.tooLarge"
+msgstr "❌ Filen är för stor"
+
+msgid "loading.spinner"
+msgstr "Laddar..."
+
+msgid "loading.patience"
+msgstr "Vänta medan vi behandlar dina filer"
+
+msgid "loading.industrial"
+msgstr "Industriella system i drift..."

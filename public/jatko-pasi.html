@@ -480,6 +480,8 @@
             }
         }
     </style>
+    <!-- Include i18n client -->
+    <script src="/i18n-client.js"></script>
 </head>
 <body>
     <!-- Header -->
@@ -487,16 +489,21 @@
         <div class="header-content">
             <div class="logo">
                 <div class="logo-icon">🔗</div>
-                <span>Jatko-PASI</span>
+                <span data-i18n="jatkoPasi.title">Jatko-PASI</span>
             </div>
             <div class="header-controls">
                 <div class="nav-links">
-                    <a href="/" class="nav-link">🏭 Main Processor</a>
-                    <a href="/esimerkkiseura" class="nav-link">🏗️ Myclub-transformer</a>
-                    <a href="/jatko-pasi" class="nav-link active">🔗 Jatko-PASI</a>
-                    <a href="/account-config" class="nav-link">🔧 Account Config</a>
+                    <a href="/" class="nav-link" data-i18n="nav.main">🏭 Main Processor</a>
+                    <a href="/esimerkkiseura" class="nav-link" data-i18n="nav.myclub">🏗️ Myclub-transformer</a>
+                    <a href="/jatko-pasi" class="nav-link active" data-i18n="nav.jatkoPasi">🔗 Jatko-PASI</a>
+                    <a href="/account-config" class="nav-link" data-i18n="nav.accountConfig">🔧 Account Config</a>
                 </div>
-                <div class="version-badge">v1.0 Industrial</div>
+                <div class="language-selector">
+                    <button class="btn btn-lang active" data-lang="en">🇬🇧 EN</button>
+                    <button class="btn btn-lang" data-lang="fi">🇫🇮 FI</button>
+                    <button class="btn btn-lang" data-lang="sv">🇸🇪 SV</button>
+                </div>
+                <div class="version-badge" data-i18n="app.version">v1.0 Industrial</div>
             </div>
         </div>
     </header>
@@ -507,15 +514,15 @@
             <!-- Page Title -->
             <div class="page-title">
                 <span class="emoji">🔗</span>
-                <h1>Jatko-PASI</h1>
-                <p>Industrial Data Merger - Combining tire POIS and POLO PASI files with precision</p>
+                <h1 data-i18n="jatkoPasi.title">Jatko-PASI</h1>
+                <p data-i18n="jatkoPasi.description">Industrial Data Merger - Combining tire POIS and POLO PASI files with precision</p>
             </div>
 
             <!-- Info Section -->
             <div class="info-section">
-                <h3>🔧 How Jatko-PASI Works</h3>
+                <h3 data-i18n="jatkoPasi.howItWorks">🔧 How Jatko-PASI Works</h3>
                 <ul>
-                    <li>Reads data from files containing "44841_tire" and "_POIS" in the name</li>
+                    <li data-i18n="jatkoPasi.step1">Reads data from files containing "44841_tire" and "_POIS" in the name</li>
                     <li>Extracts numbers that appear after ";;;" in those files</li>
                     <li>Finds files containing "44841TPM" and "_POLO_PASI" in the name</li>
                     <li>Merges the data by matching IDs and appending tire numbers to PASI rows</li>
@@ -557,6 +564,8 @@
     </main>
 
     <script>
+        // Initialize i18n client
+        const i18nClient = new I18nClient();
         // Industrial logging system
         function log(message, type = 'info') {
             const timestamp = new Date().toLocaleTimeString();
@@ -819,9 +828,18 @@
             }
         });
 
-        // Initialize logging
-        log('🔗 Jatko-PASI Industrial Data Merger initialized', 'info');
-        log('🏭 Industrial sound system armed and ready', 'debug');
+        // Set up language switching
+        document.querySelectorAll('.btn-lang').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                await i18nClient.changeLanguage(this.dataset.lang);
+            });
+        });
+
+        // Initialize i18n and set up the interface
+        i18nClient.init().then(() => {
+            log('🔗 Jatko-PASI Industrial Data Merger initialized', 'info');
+            log('🏭 Industrial sound system armed and ready', 'debug');
+        });
     </script>
 </body>
 </html>

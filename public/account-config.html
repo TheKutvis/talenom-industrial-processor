@@ -653,6 +653,8 @@
             }
         }
     </style>
+    <!-- Include i18n client -->
+    <script src="/i18n-client.js"></script>
 </head>
 <body>
     <!-- Header -->
@@ -660,21 +662,21 @@
         <div class="header-content">
             <div class="logo">
                 <div class="logo-icon">🔧</div>
-                <span>Account Configuration</span>
+                <span data-i18n="accountConfig.title">Account Configuration</span>
             </div>
             <div class="header-controls">
                 <div class="nav-links">
-                    <a href="/" class="nav-link">🏭 Main Processor</a>
-                    <a href="/esimerkkiseura" class="nav-link">🏗️ Myclub-transformer</a>
-                    <a href="/jatko-pasi" class="nav-link">🔗 Jatko-PASI</a>
-                    <a href="/account-config" class="nav-link active">🔧 Account Config</a>
+                    <a href="/" class="nav-link" data-i18n="nav.main">🏭 Main Processor</a>
+                    <a href="/esimerkkiseura" class="nav-link" data-i18n="nav.myclub">🏗️ Myclub-transformer</a>
+                    <a href="/jatko-pasi" class="nav-link" data-i18n="nav.jatkoPasi">🔗 Jatko-PASI</a>
+                    <a href="/account-config" class="nav-link active" data-i18n="nav.accountConfig">🔧 Account Config</a>
                 </div>
                 <div class="language-selector">
                     <button class="btn btn-lang active" data-lang="en">🇬🇧 EN</button>
                     <button class="btn btn-lang" data-lang="fi">🇫🇮 FI</button>
                     <button class="btn btn-lang" data-lang="sv">🇸🇪 SV</button>
                 </div>
-                <div class="version-badge">v1.0 Industrial</div>
+                <div class="version-badge" data-i18n="app.version">v1.0 Industrial</div>
             </div>
         </div>
     </header>
@@ -770,6 +772,8 @@
     </main>
 
     <script>
+        // Initialize i18n client
+        const i18nClient = new I18nClient();
         let currentMappings = {
             main: {},
             esimerkkiseura: {}
@@ -1148,6 +1152,18 @@
                 statusEl.className = `import-status ${type}`;
             }
         }
+
+            // Set up language switching
+            document.querySelectorAll('.btn-lang').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    await i18nClient.changeLanguage(this.dataset.lang);
+                });
+            });
+
+            // Initialize i18n system
+            i18nClient.init().then(() => {
+                console.log('Account Configuration system initialized with i18n');
+            });
 
         // Functions are now attached via event listeners in DOMContentLoaded
         console.log('All functions defined successfully');

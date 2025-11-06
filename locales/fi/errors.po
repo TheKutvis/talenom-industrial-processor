@@ -1,0 +1,109 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Talenom Industrial Processor 1.0\n"
+"Report-Msgid-Bugs-To: developers@talenom.fi\n"
+"POT-Creation-Date: 2025-11-06T14:54:57.288Z\n"
+"PO-Revision-Date: 2025-11-06T14:54:57.288Z\n"
+"Last-Translator: Automated <no-reply@talenom.fi>\n"
+"Language-Team: Finnish\n"
+"Language: fi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "validation.fileTypeInvalid"
+msgstr "Virheellinen tiedostotyyppi. Vain {{allowedTypes}} tiedostot ovat tuettuja"
+
+msgid "validation.fileSizeExceeded"
+msgstr "Tiedostokoko ylittää maksimirajan {{maxSize}}MB"
+
+msgid "validation.fileNotFound"
+msgstr "Tiedostoa ei löytynyt tai sitä ei voitu lukea"
+
+msgid "validation.emptyFile"
+msgstr "Tiedosto on tyhjä tai ei sisällä validia dataa"
+
+msgid "validation.corruptedFile"
+msgstr "Tiedosto vaikuttaa korruptoituneelta tai lukukelvottomalta"
+
+msgid "processing.failed"
+msgstr "Tiedoston käsittely epäonnistui"
+
+msgid "processing.timeout"
+msgstr "Käsittelyn aikakatkaisu - tiedosto liian suuri tai monimutkainen"
+
+msgid "processing.memoryError"
+msgstr "Riittämätön muisti tiedoston käsittelyyn"
+
+msgid "processing.formatError"
+msgstr "Tukematon tiedostoformaatti tai rakenne"
+
+msgid "processing.parsingError"
+msgstr "Virhe tiedoston sisällön jäsentämisessä"
+
+msgid "network.connectionFailed"
+msgstr "Yhteyden muodostaminen palvelimeen epäonnistui"
+
+msgid "network.timeoutError"
+msgstr "Pyynnön aikakatkaisu - yritä uudelleen"
+
+msgid "network.serverError"
+msgstr "Sisäinen palvelinvirhe tapahtui"
+
+msgid "network.unauthorized"
+msgstr "Todennus epäonnistui - tarkista tunnukset"
+
+msgid "network.forbidden"
+msgstr "Pääsy kielletty - riittämättömät oikeudet"
+
+msgid "account.mappingNotFound"
+msgstr "Tilin mappausta ei löytynyt"
+
+msgid "account.invalidAccountNumber"
+msgstr "Virheellinen tilinumeron formaatti"
+
+msgid "account.duplicateMapping"
+msgstr "Tilin mappaus on jo olemassa"
+
+msgid "account.mappingFailed"
+msgstr "Tilin mappauksen soveltaminen epäonnistui"
+
+msgid "jatkoPasi.missingFiles"
+msgstr "Vaadittuja tiedostoja puuttuu: {{missingTypes}}"
+
+msgid "jatkoPasi.noTireFile"
+msgstr "Rengas POIS tiedostoa ei löytynyt (44841_tire*_POIS*)"
+
+msgid "jatkoPasi.noPasiFile"
+msgstr "POLO PASI tiedostoa ei löytynyt (44841TPM*_POLO_PASI*)"
+
+msgid "jatkoPasi.processingFailed"
+msgstr "Jatko-PASI käsittely epäonnistui"
+
+msgid "jatkoPasi.noMatchingData"
+msgstr "Tiedostojen välillä ei löytynyt täsmäävää dataa"
+
+msgid "myclub.invalidFormat"
+msgstr "Virheellinen Myclub/Esimerkkiseura formaatti"
+
+msgid "myclub.noSheetsFound"
+msgstr "Valideja datataulukoita ei löytynyt"
+
+msgid "myclub.transformationFailed"
+msgstr "Datan muunnos epäonnistui"
+
+msgid "myclub.accountMappingError"
+msgstr "Tilikarttojen mappausmuunnos epäonnistui"
+
+msgid "general.unknownError"
+msgstr "Tuntematon virhe tapahtui"
+
+msgid "general.operationCancelled"
+msgstr "Toiminto peruutettiin"
+
+msgid "general.invalidRequest"
+msgstr "Virheelliset pyyntöparametrit"
+
+msgid "general.serviceUnavailable"
+msgstr "Palvelu väliaikaisesti pois käytöstä"

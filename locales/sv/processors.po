@@ -1,0 +1,43 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Talenom Industrial Processor 1.0\n"
+"Report-Msgid-Bugs-To: developers@talenom.fi\n"
+"POT-Creation-Date: 2025-11-06T14:54:57.290Z\n"
+"PO-Revision-Date: 2025-11-06T14:54:57.290Z\n"
+"Last-Translator: Automated <no-reply@talenom.fi>\n"
+"Language-Team: Swedish\n"
+"Language: sv\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "main.title"
+msgstr "Huvudbehandlare"
+
+msgid "main.description"
+msgstr "Behandla allmänna CSV- och Excel-filer med industriell precision"
+
+msgid "myclub.title"
+msgstr "Myclub-omvandlare"
+
+msgid "myclub.description"
+msgstr "Konvertera Myclub/Esimerkkiseura Excel-filer till Talenom-format"
+
+msgid "myclub.subtitle"
+msgstr "Industriell Excel-hanterare"
+
+msgid "jatkoPasi.title"
+msgstr "Jatko-PASI"
+
+msgid "jatkoPasi.description"
+msgstr "Industriell datasammanfogare"
+
+msgid "jatkoPasi.subtitle"
+msgstr "Industriell datasammanfogare"
+
+msgid "account.title"
+msgstr "Kontoplankonfiguration"
+
+msgid "account.description"
+msgstr "Hantera kontonummermappningar för dataomvandling"

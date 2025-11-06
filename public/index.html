@@ -631,6 +631,8 @@
             box-shadow: 0 0 8px rgba(255, 109, 46, 0.4);
         }
     </style>
+    <!-- Include i18n client -->
+    <script src="/i18n-client.js"></script>
 </head>
 <body>
     <!-- Header -->
@@ -642,10 +644,10 @@
             </div>
             <div class="header-controls">
                 <div class="nav-links">
-                    <a href="/" class="nav-link active">🏭 Main Processor</a>
-                    <a href="/esimerkkiseura" class="nav-link">🏗️ Myclub-transformer</a>
-                    <a href="/jatko-pasi" class="nav-link">🔗 Jatko-PASI</a>
-                    <a href="/account-config" class="nav-link">🔧 Account Config</a>
+                    <a href="/" class="nav-link active" data-i18n="nav.main">🏭 Main Processor</a>
+                    <a href="/esimerkkiseura" class="nav-link" data-i18n="nav.myclub">🏗️ Myclub-transformer</a>
+                    <a href="/jatko-pasi" class="nav-link" data-i18n="nav.jatkoPasi">🔗 Jatko-PASI</a>
+                    <a href="/account-config" class="nav-link" data-i18n="nav.accountConfig">🔧 Account Config</a>
                 </div>
                 <div class="language-selector">
                     <button class="btn btn-lang active" data-lang="en">🇬🇧 EN</button>
@@ -665,7 +667,7 @@
                 <div class="section-title">
                     📄 <span data-i18n="upload.title">File Processing Station</span>
                 </div>
-                <div class="section-subtitle" data-i18n="upload.subtitle">
+                <div class="section-subtitle" data-i18n="upload.description">
                     Upload and process CSV or Excel files containing general ledger data. 
                     Our industrial-grade processor will parse your data and prepare it for integration.
                 </div>
@@ -678,8 +680,8 @@
                 <form id="fileUploadForm">
                     <div class="file-upload-area" id="fileUploadArea">
                         <div class="upload-icon">📁</div>
-                        <div class="upload-text" data-i18n="upload.dropzone">Drag & drop your file here</div>
-                        <div class="upload-subtext" data-i18n="upload.formats">or click to browse • Supports CSV, XLS, XLSX</div>
+                        <div class="upload-text" data-i18n="upload.dragDrop">Drag & drop your file here</div>
+                        <div class="upload-subtext" data-i18n="upload.supportedFormats">or click to browse • Supports CSV, XLS, XLSX</div>
                         <input type="file" id="fileInput" name="file" accept=".csv,.xlsx,.xls" style="display: none;">
                     </div>
                 </form>
@@ -752,138 +754,10 @@
     </main>
 
     <script>
-        // Internationalization
-        const translations = {
-            en: {
-                'app.title': 'Talenom General Ledger',
-                'app.version': 'v1.0 Industrial',
-                'upload.title': 'File Processing Station',
-                'upload.subtitle': 'Upload Finnish accounting CSV files with columns: Tili, Nimi, Päiväys, Tositelaji, Tosite, ALV-%, ALV(EUR), Debet, Kredit, Selite. Our industrial-grade processor will validate and transform your data for Talenom API integration.',
-                'upload.dropzone': 'Drag & drop your file here',
-                'upload.formats': 'or click to browse • Supports CSV, XLS, XLSX',
-                'buttons.browse': 'Browse Files',
-                'buttons.template': 'Download Template',
-                'buttons.process': 'Process File',
-                'buttons.test': 'Test Connection',
-                'buttons.download': 'Download JSON',
-                'buttons.downloadProcessed': 'Download Processed Template',
-                'buttons.sendToTalenom': 'Send to Talenom',
-                'results.title': 'Processing Results & Logs',
-                'results.file': 'File processed:',
-                'results.records': 'Records found:',
-                'results.time': 'Processing time:',
-                'status.ready': 'System ready - Waiting for file input',
-                'status.loading': 'Processing file through industrial pipeline...',
-                'status.success': 'File processed successfully',
-                'status.error': 'Processing failed',
-                'status.connection': 'Testing server connection...',
-                'messages.fileSelected': 'File loaded - {filename} ready for processing',
-                'messages.connectionSuccess': 'Server connection established - System ready',
-                'messages.connectionFail': 'Connection failed: {error}',
-                'messages.processSuccess': 'File processed - {count} records extracted',
-                'messages.processFail': 'Processing failed: {error}'
-            },
-            fi: {
-                'app.title': 'Talenom Pääkirjamurskain',
-                'app.version': 'v1.0',
-                'upload.title': 'Murskausasema',
-                'upload.subtitle': 'Lataa suomalaisia kirjanpidon CSV-tiedostoja sarakkeilla: Tili, Nimi, Päiväys, Tositelaji, Tosite, ALV-%, ALV(EUR), Debet, Kredit, Selite. Pääkirjamurska validoi ja muuntaa tiedot Talenom API:a varten.',
-                'upload.dropzone': 'Vedä ja pudota tiedosto tähän',
-                'upload.formats': 'tai klikkaa selataksesi • Tukee CSV, XLS, XLSX',
-                'buttons.browse': 'Selaa tiedostoja',
-                'buttons.template': 'Lataa mallitiedosto',
-                'buttons.process': 'Murskaa pääkirja',
-                'buttons.test': 'Testaa yhteys',
-                'buttons.download': 'Lataa JSON',
-                'buttons.downloadProcessed': 'Lataa käsitelty mallitiedosto',
-                'buttons.sendToTalenom': 'Lähetä Talenomiin',
-                'results.title': 'Teknistä liibalaabaa:',
-                'results.file': 'Käsitelty pääkirja:',
-                'results.records': 'Löydetyt tietueet:',
-                'results.time': 'Käsittelyaika:',
-                'status.ready': 'Järjestelmä valmis - Odottaa tiedoston syöttöä',
-                'status.loading': 'Käsitellään tiedostoa murskassa... Pidä sormet etäällä',
-                'status.success': 'Tiedosto murskattu onnistuneesti',
-                'status.error': 'Murskaus epäonnistui',
-                'status.connection': 'Testataan palvelinyhteys...',
-                'messages.fileSelected': 'Tiedosto ladattu - {filename} valmis murskattavaksi',
-                'messages.connectionSuccess': 'Palvelinyhteys muodostettu - murska toimintavalmis',
-                'messages.connectionFail': 'Yhteys epäonnistui: {error}',
-                'messages.processSuccess': 'Tiedosto murskattu - {count} tietuetta purettu',
-                'messages.processFail': 'Murskaus epäonnistui: {error}'
-            },
-            sv: {
-                'app.title': 'Talenom Huvudboksmällare',
-                'app.version': 'v1.0',
-                'upload.title': 'Filbehandlingsstation',
-                'upload.subtitle': 'Ladda upp CSV- eller Excel-huvudböcker. Det kommer att automatiskt bryta ner data och ladda upp den via API till Easor Accounting.',
-                'upload.dropzone': 'Dra och släpp din fil här',
-                'upload.formats': 'eller klicka för att bläddra • Stöder CSV, XLS, XLSX',
-                'buttons.browse': 'Bläddra filer',
-                'buttons.template': 'Ladda ner mall',
-                'buttons.process': 'Bearbeta fil',
-                'buttons.test': 'Testa anslutningen',
-                'buttons.download': 'Ladda ner JSON',
-                'buttons.downloadProcessed': 'Ladda ner bearbetad mall',
-                'buttons.sendToTalenom': 'Skicka till Talenom',
-                'results.title': 'Bearbetningsresultat & Loggar',
-                'results.file': 'Bearbetad fil:',
-                'results.records': 'Hittade poster:',
-                'results.time': 'Bearbetningstid:',
-                'status.ready': 'System redo - väntar på filinmatning',
-                'status.loading': 'Bearbetar fil genom industriell pipeline... Håll bort fingrarna',
-                'status.success': 'Fil processerad!',
-                'status.error': 'Bearbetning misslyckades',
-                'status.connection': 'Testar serveranslutning...',
-                'messages.fileSelected': 'Fil laddad - {filename} redo för bearbetning',
-                'messages.connectionSuccess': 'Serveranslutning etablerad - System redo',
-                'messages.connectionFail': 'Anslutning misslyckades: {error}',
-                'messages.processSuccess': 'Fil bearbetad - {count} poster extraherade',
-                'messages.processFail': 'Bearbetning misslyckades: {error}'
-            }
-        };
-
-        let currentLang = 'en';
         let processedJsonData = null; // Store the processed JSON data for download
 
-        function t(key, params = {}) {
-            let text = translations[currentLang][key] || translations['en'][key] || key;
-            
-            // Replace parameters
-            Object.keys(params).forEach(param => {
-                text = text.replace(new RegExp(`\\{${param}\\}`, 'g'), params[param]);
-            });
-            
-            return text;
-        }
-
-        function updateLanguage(lang) {
-            if (!translations[lang]) return;
-            
-            currentLang = lang;
-            
-            // Update all elements with data-i18n attributes
-            document.querySelectorAll('[data-i18n]').forEach(element => {
-                const key = element.getAttribute('data-i18n');
-                element.textContent = t(key);
-            });
-            
-            // Update language selector
-            document.querySelectorAll('.btn-lang').forEach(btn => {
-                btn.classList.remove('active');
-                if (btn.dataset.lang === lang) {
-                    btn.classList.add('active');
-                }
-            });
-            
-            // Update dynamic content
-            updateStatus('success', t('status.ready'));
-            
-            // Store language preference
-            localStorage.setItem('preferred-language', lang);
-            
-            log(t('messages.connectionSuccess'), 'success');
-        }
+        // Initialize i18n client
+        const i18nClient = new I18nClient();
 
         // Enhanced logging function
         function log(message, type = 'info') {
@@ -1309,7 +1183,7 @@
             // Play test connection sound
             playTestConnectionSound();
             
-            updateStatus('loading', t('status.connection'), '🔍');
+            updateStatus('loading', i18nClient.t('common.connecting'), '🔍');
             updateProgress(25);
             
             try {
@@ -1325,7 +1199,7 @@
                     const result = await response.json();
                     log(`Connection established successfully`, 'success');
                     log(`Server message: ${result.message}`, 'info');
-                    updateStatus('success', t('messages.connectionSuccess'));
+                    updateStatus('success', i18nClient.t('common.connected'));
                     updateProgress(100);
                     
                     setTimeout(() => {
@@ -1340,7 +1214,7 @@
                 // Play critical error sound for connection failures
                 playCriticalErrorSound();
                 
-                updateStatus('error', t('messages.connectionFail', { error: error.message }));
+                updateStatus('error', i18nClient.t('errors.connectionFailed', { error: error.message }));
                 updateProgress(0);
             }
         }
@@ -1352,8 +1226,8 @@
             // Play bulldozer sound effect
             playBuldozerSound();
             
-            log(`� Jackhammer deployed - Target acquired: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`, 'info');
-            updateStatus('loading', t('status.loading'), '�');
+            log(`🔨 Jackhammer deployed - Target acquired: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`, 'info');
+            updateStatus('loading', i18nClient.t('processors.processing'), '🔨');
             hideResultsSummary();
             
             updateProgress(10);
@@ -1383,7 +1257,7 @@
                     log(`🗂️ Data chunks extracted: ${result.rowCount}`, 'success');
                     log(`✅ Structural integrity validated`, 'success');
                     
-                    updateStatus('success', t('messages.processSuccess', { count: result.rowCount }));
+                    updateStatus('success', i18nClient.t('processors.processSuccess', { count: result.rowCount }));
                     showResultsSummary(result.fileName, result.rowCount, processingTime, result.data);
                     
                     // Log sample data
@@ -1399,7 +1273,7 @@
                 // Play critical error sound for processing failures
                 playCriticalErrorSound();
                 
-                updateStatus('error', t('messages.processFail', { error: error.message }));
+                updateStatus('error', i18nClient.t('errors.processingFailed', { error: error.message }));
                 updateProgress(0);
             }
         }
@@ -1481,7 +1355,7 @@
                         <span>Last modified: ${new Date(file.lastModified).toLocaleDateString()}</span>
                     `;
                     
-                    updateStatus('info', t('messages.fileSelected', { filename: file.name }));
+                    updateStatus('info', i18nClient.t('ui.fileSelected', { filename: file.name }));
                     log('File validation: Format supported ✓', 'success');
                 } else {
                     log('File selection cleared', 'warn');
@@ -1590,19 +1464,16 @@
 
             // Set up language switching
             document.querySelectorAll('.btn-lang').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    updateLanguage(this.dataset.lang);
+                btn.addEventListener('click', async function() {
+                    await i18nClient.changeLanguage(this.dataset.lang);
                 });
             });
 
-            // Load saved language or detect browser language
-            const savedLang = localStorage.getItem('preferred-language');
-            const browserLang = navigator.language.split('-')[0];
-            const defaultLang = savedLang || (translations[browserLang] ? browserLang : 'en');
-            updateLanguage(defaultLang);
-
-            log('Industrial File Processor initialized successfully', 'success');
-            log('System status: All subsystems operational', 'info');
+            // Initialize i18n and set up the interface
+            i18nClient.init().then(() => {
+                log('Industrial File Processor initialized successfully', 'success');
+                log('System status: All subsystems operational', 'info');
+            });
         });
     </script>
 </body>

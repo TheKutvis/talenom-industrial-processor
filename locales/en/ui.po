@@ -1,0 +1,117 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Talenom Industrial Processor 1.0\n"
+"Report-Msgid-Bugs-To: developers@talenom.fi\n"
+"POT-Creation-Date: 2025-11-06T14:54:57.282Z\n"
+"PO-Revision-Date: 2025-11-06T14:54:57.282Z\n"
+"Last-Translator: Automated <no-reply@talenom.fi>\n"
+"Language-Team: English\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "upload.title"
+msgstr "File Processing Station"
+
+msgid "upload.subtitle"
+msgstr "Upload and process CSV or Excel files containing general ledger data"
+
+msgid "upload.description"
+msgstr ""
+"Our industrial-grade processor will parse your data and prepare it for "
+"integration"
+
+msgid "upload.dragDrop"
+msgstr "Drag and drop files here or click to browse"
+
+msgid "upload.fileSelected"
+msgstr "File selected: {{fileName}}"
+
+msgid "upload.filesSelected"
+msgstr "{{count}} files selected"
+
+msgid "upload.selectFile"
+msgstr "Select File"
+
+msgid "upload.fileTypes"
+msgstr "Supported formats: CSV, Excel (.xlsx, .xls)"
+
+msgid "upload.maxSize"
+msgstr "Maximum file size: {{size}}MB"
+
+msgid "processing.analyzing"
+msgstr "Analyzing file structure..."
+
+msgid "processing.parsing"
+msgstr "Parsing data rows..."
+
+msgid "processing.validating"
+msgstr "Validating data integrity..."
+
+msgid "processing.transforming"
+msgstr "Transforming account mappings..."
+
+msgid "processing.generating"
+msgstr "Generating output format..."
+
+msgid "processing.finalizing"
+msgstr "Finalizing results..."
+
+msgid "processing.withPrecision"
+msgstr "Processing with industrial precision..."
+
+msgid "results.title"
+msgstr "Processing Results"
+
+msgid "results.success"
+msgstr "✅ Processing Completed Successfully!"
+
+msgid "results.error"
+msgstr "❌ Processing Failed"
+
+msgid "results.networkError"
+msgstr "❌ Network Error"
+
+msgid "results.fileName"
+msgstr "File Name"
+
+msgid "results.totalRecords"
+msgstr "Total Records"
+
+msgid "results.processedRecords"
+msgstr "Processed Records"
+
+msgid "results.outputFile"
+msgstr "Output File"
+
+msgid "results.dataPreview"
+msgstr "Data Preview"
+
+msgid "fileStatus.validationPassed"
+msgstr "✅ File validation passed"
+
+msgid "fileStatus.validationFailed"
+msgstr "❌ File validation failed"
+
+msgid "fileStatus.ready"
+msgstr "✅ Ready to process: {{count}} files uploaded"
+
+msgid "fileStatus.missing"
+msgstr "⚠️ Missing required files"
+
+msgid "fileStatus.invalidType"
+msgstr "❌ Invalid file type"
+
+msgid "fileStatus.tooLarge"
+msgstr "❌ File too large"
+
+msgid "loading.spinner"
+msgstr "Loading..."
+
+msgid "loading.patience"
+msgstr "Please wait while we process your files"
+
+msgid "loading.industrial"
+msgstr "Industrial systems operational..."

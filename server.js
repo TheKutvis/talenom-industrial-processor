@@ -14,6 +14,7 @@ const ApiClient = require('./services/apiClient');
 const logger = require('./utils/logger');
 const AccountMappingService = require('./services/accountMappingService');
 const JatkoPasiProcessor = require('./services/jatkoPasiProcessor');
+const i18nService = require('./services/i18nService');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -177,6 +178,37 @@ const uploadJatkoPasi = multer({
 
 // Initialize API client
 const apiClient = new ApiClient();
+
+// Initialize i18n
+async function initializeI18n() {
+  try {
+    await i18nService.init();
+    logger.info('🌍 Internationalization system initialized');
+    
+    // Add i18n middleware
+    app.use(i18nService.getMiddleware());
+    
+  } catch (error) {
+    logger.error('Failed to initialize i18n:', error);
+  }
+}
+
+// Translation API routes
+app.get('/api/translations/:lng/:ns', (req, res) => {
+  const { lng, ns } = req.params;
+  const i18n = i18nService.getInstance();
+  
+  try {
+    const translations = i18n.getResourceBundle(lng, ns);
+    res.json(translations || {});
+  } catch (error) {
+    logger.error('Error fetching translations:', error);
+    res.status(404).json({ error: 'Translations not found' });
+  }
+});
+
+// Initialize i18n before starting server
+initializeI18n();
 
 // Routes
 

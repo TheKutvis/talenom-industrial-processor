@@ -1,0 +1,91 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Talenom Industrial Processor 1.0\n"
+"Report-Msgid-Bugs-To: developers@talenom.fi\n"
+"POT-Creation-Date: 2025-11-06T14:54:57.286Z\n"
+"PO-Revision-Date: 2025-11-06T14:54:57.286Z\n"
+"Last-Translator: Automated <no-reply@talenom.fi>\n"
+"Language-Team: Finnish\n"
+"Language: fi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "app.title"
+msgstr "Talenom Pääkirja"
+
+msgid "app.subtitle"
+msgstr "Teollinen Tiedostokäsittelijä"
+
+msgid "app.version"
+msgstr "v1.0 Teollinen"
+
+msgid "app.description"
+msgstr "Teollisuustason tiedostokäsittely edistyneillä tiedonmuunnos ominaisuuksilla"
+
+msgid "navigation.mainProcessor"
+msgstr "Pääkäsittelijä"
+
+msgid "navigation.myclubTransformer"
+msgstr "Myclub-muuntaja"
+
+msgid "navigation.jatkoPasi"
+msgstr "Jatko-PASI"
+
+msgid "navigation.accountConfig"
+msgstr "Tilikartta"
+
+msgid "navigation.backToDashboard"
+msgstr "← Takaisin hallintapaneeliin"
+
+msgid "buttons.selectFiles"
+msgstr "Valitse tiedostot"
+
+msgid "buttons.processFiles"
+msgstr "Käsittele tiedostot"
+
+msgid "buttons.uploadFiles"
+msgstr "Lataa tiedostot"
+
+msgid "buttons.downloadResult"
+msgstr "Lataa tulos"
+
+msgid "buttons.exportExcel"
+msgstr "Vie Excel"
+
+msgid "buttons.close"
+msgstr "Sulje"
+
+msgid "buttons.retry"
+msgstr "Yritä uudelleen"
+
+msgid "buttons.reset"
+msgstr "Nollaa"
+
+msgid "status.ready"
+msgstr "Valmis"
+
+msgid "status.processing"
+msgstr "Käsitellään"
+
+msgid "status.completed"
+msgstr "Valmis"
+
+msgid "status.failed"
+msgstr "Epäonnistui"
+
+msgid "status.uploading"
+msgstr "Ladataan"
+
+msgid "status.downloading"
+msgstr "Ladataan"
+
+msgid "time.processingTime"
+msgstr "Käsittelyaika"
+
+msgid "time.uploadTime"
+msgstr "Latausaika"
+
+msgid "time.completedAt"
+msgstr "Valmistunut"

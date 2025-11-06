@@ -1,0 +1,84 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Talenom Industrial Processor 1.0\n"
+"Report-Msgid-Bugs-To: developers@talenom.fi\n"
+"POT-Creation-Date: 2025-11-06T14:54:57.284Z\n"
+"PO-Revision-Date: 2025-11-06T14:54:57.284Z\n"
+"Last-Translator: Automated <no-reply@talenom.fi>\n"
+"Language-Team: English\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "main.title"
+msgstr "Main Processor"
+
+msgid "main.description"
+msgstr "Process general CSV and Excel files with industrial precision"
+
+msgid "myclub.title"
+msgstr "Myclub-transformer"
+
+msgid "myclub.description"
+msgstr "Convert Myclub/Esimerkkiseura Excel files to Talenom format"
+
+msgid "myclub.subtitle"
+msgstr "Industrial Excel Handler"
+
+msgid "myclub.howItWorks.title"
+msgstr "How Myclub-transformer Works"
+
+msgid "jatkoPasi.title"
+msgstr "Jatko-PASI"
+
+msgid "jatkoPasi.description"
+msgstr ""
+"Industrial Data Merger - Combining tire POIS and POLO PASI files with "
+"precision"
+
+msgid "jatkoPasi.subtitle"
+msgstr "Industrial Data Merger"
+
+msgid "jatkoPasi.howItWorks.title"
+msgstr "How Jatko-PASI Works"
+
+msgid "jatkoPasi.fileRequirements.title"
+msgstr "File Requirements"
+
+msgid "jatkoPasi.fileRequirements.tireFile"
+msgstr "Tire POIS file (44841_tire*_POIS*)"
+
+msgid "jatkoPasi.fileRequirements.pasiFile"
+msgstr "POLO PASI file (44841TPM*_POLO_PASI*)"
+
+msgid "jatkoPasi.fileRequirements.format"
+msgstr "CSV format required"
+
+msgid "account.title"
+msgstr "Account Configuration"
+
+msgid "account.description"
+msgstr "Manage account number mappings for data transformation"
+
+msgid "account.mappings.title"
+msgstr "Account Mappings"
+
+msgid "account.mappings.add"
+msgstr "Add New Mapping"
+
+msgid "account.mappings.edit"
+msgstr "Edit Mapping"
+
+msgid "account.mappings.delete"
+msgstr "Delete Mapping"
+
+msgid "account.mappings.sourceAccount"
+msgstr "Source Account"
+
+msgid "account.mappings.targetAccount"
+msgstr "Target Account"
+
+msgid "account.mappings.application"
+msgstr "Application"

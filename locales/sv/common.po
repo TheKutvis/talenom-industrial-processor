@@ -1,0 +1,91 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Talenom Industrial Processor 1.0\n"
+"Report-Msgid-Bugs-To: developers@talenom.fi\n"
+"POT-Creation-Date: 2025-11-06T14:54:57.288Z\n"
+"PO-Revision-Date: 2025-11-06T14:54:57.288Z\n"
+"Last-Translator: Automated <no-reply@talenom.fi>\n"
+"Language-Team: Swedish\n"
+"Language: sv\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "app.title"
+msgstr "Talenom Huvudbok"
+
+msgid "app.subtitle"
+msgstr "Industriell Filbehandlare"
+
+msgid "app.version"
+msgstr "v1.0 Industriell"
+
+msgid "app.description"
+msgstr "Industriell filbehandling med avancerade dataomvandlingsfunktioner"
+
+msgid "navigation.mainProcessor"
+msgstr "Huvudbehandlare"
+
+msgid "navigation.myclubTransformer"
+msgstr "Myclub-omvandlare"
+
+msgid "navigation.jatkoPasi"
+msgstr "Jatko-PASI"
+
+msgid "navigation.accountConfig"
+msgstr "Kontoplan"
+
+msgid "navigation.backToDashboard"
+msgstr "← Tillbaka till instrumentpanelen"
+
+msgid "buttons.selectFiles"
+msgstr "Välj filer"
+
+msgid "buttons.processFiles"
+msgstr "Behandla filer"
+
+msgid "buttons.uploadFiles"
+msgstr "Ladda upp filer"
+
+msgid "buttons.downloadResult"
+msgstr "Ladda ner resultat"
+
+msgid "buttons.exportExcel"
+msgstr "Exportera Excel"
+
+msgid "buttons.close"
+msgstr "Stäng"
+
+msgid "buttons.retry"
+msgstr "Försök igen"
+
+msgid "buttons.reset"
+msgstr "Återställ"
+
+msgid "status.ready"
+msgstr "Redo"
+
+msgid "status.processing"
+msgstr "Behandlar"
+
+msgid "status.completed"
+msgstr "Klar"
+
+msgid "status.failed"
+msgstr "Misslyckades"
+
+msgid "status.uploading"
+msgstr "Laddar upp"
+
+msgid "status.downloading"
+msgstr "Laddar ner"
+
+msgid "time.processingTime"
+msgstr "Behandlingstid"
+
+msgid "time.uploadTime"
+msgstr "Uppladdningstid"
+
+msgid "time.completedAt"
+msgstr "Slutförd"

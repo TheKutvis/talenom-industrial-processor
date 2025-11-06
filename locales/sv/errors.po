@@ -1,0 +1,70 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Talenom Industrial Processor 1.0\n"
+"Report-Msgid-Bugs-To: developers@talenom.fi\n"
+"POT-Creation-Date: 2025-11-06T14:54:57.290Z\n"
+"PO-Revision-Date: 2025-11-06T14:54:57.290Z\n"
+"Last-Translator: Automated <no-reply@talenom.fi>\n"
+"Language-Team: Swedish\n"
+"Language: sv\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "validation.fileTypeInvalid"
+msgstr "Ogiltig filtyp. Endast {{allowedTypes}} filer stöds"
+
+msgid "validation.fileSizeExceeded"
+msgstr "Filstorleken överskrider maxgränsen på {{maxSize}}MB"
+
+msgid "validation.fileNotFound"
+msgstr "Filen hittades inte eller kunde inte läsas"
+
+msgid "validation.emptyFile"
+msgstr "Filen är tom eller innehåller ingen giltig data"
+
+msgid "validation.corruptedFile"
+msgstr "Filen verkar vara skadad eller oläsbar"
+
+msgid "processing.failed"
+msgstr "Filbehandlingen misslyckades"
+
+msgid "processing.timeout"
+msgstr "Behandlingstimeout - filen är för stor eller komplex"
+
+msgid "processing.memoryError"
+msgstr "Otillräckligt minne för att behandla filen"
+
+msgid "processing.formatError"
+msgstr "Ostött filformat eller struktur"
+
+msgid "processing.parsingError"
+msgstr "Fel vid tolkning av filinnehåll"
+
+msgid "network.connectionFailed"
+msgstr "Misslyckades att ansluta till servern"
+
+msgid "network.timeoutError"
+msgstr "Timeout för begäran - försök igen"
+
+msgid "network.serverError"
+msgstr "Internt serverfel inträffade"
+
+msgid "network.unauthorized"
+msgstr "Autentisering misslyckades - kontrollera inloggningsuppgifter"
+
+msgid "network.forbidden"
+msgstr "Åtkomst nekad - otillräckliga behörigheter"
+
+msgid "general.unknownError"
+msgstr "Ett okänt fel inträffade"
+
+msgid "general.operationCancelled"
+msgstr "Operationen avbröts"
+
+msgid "general.invalidRequest"
+msgstr "Ogiltiga förfrågningsparametrar"
+
+msgid "general.serviceUnavailable"
+msgstr "Tjänsten är tillfälligt otillgänglig"
