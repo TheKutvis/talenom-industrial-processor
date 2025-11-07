@@ -76,14 +76,19 @@ class I18nClient {
             return key;
         }
 
-        const [namespace, ...keyParts] = key.split('.');
-        const translationKey = keyParts.join('.');
+        // Handle namespace separator ':'
+        let namespace = 'common';
+        let actualKey = key;
         
-        // Default to 'common' namespace if not specified
-        const ns = this.namespaces.includes(namespace) ? namespace : 'common';
-        const actualKey = this.namespaces.includes(namespace) ? translationKey : key;
+        if (key.includes(':')) {
+            const [ns, keyPart] = key.split(':', 2);
+            if (this.namespaces.includes(ns)) {
+                namespace = ns;
+                actualKey = keyPart;
+            }
+        }
 
-        const translation = this.getNestedTranslation(ns, actualKey);
+        const translation = this.getNestedTranslation(namespace, actualKey);
         
         if (translation) {
             return this.interpolate(translation, options);
@@ -91,7 +96,7 @@ class I18nClient {
 
         // Fallback to English if current language doesn't have translation
         if (this.currentLanguage !== 'en') {
-            const englishTranslation = this.getNestedTranslation(ns, actualKey, 'en');
+            const englishTranslation = this.getNestedTranslation(namespace, actualKey, 'en');
             if (englishTranslation) {
                 this.log(`Using English fallback for key: ${key}`, 'debug');
                 return this.interpolate(englishTranslation, options);

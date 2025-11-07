@@ -773,7 +773,8 @@
 
     <script>
         // Initialize i18n client
-        const i18nClient = new I18nClient();
+        // Use global i18n client (no need to create new instance)
+        const i18nClient = window.i18n;
         let currentMappings = {
             main: {},
             esimerkkiseura: {}

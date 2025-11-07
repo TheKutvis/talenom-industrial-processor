@@ -665,9 +665,9 @@
             <!-- Upload Section -->
             <div class="upload-section">
                 <div class="section-title">
-                    📄 <span data-i18n="upload.title">File Processing Station</span>
+                    📄 <span data-i18n="ui:upload.title">File Processing Station</span>
                 </div>
-                <div class="section-subtitle" data-i18n="upload.description">
+                <div class="section-subtitle" data-i18n="ui:upload.description">
                     Upload and process CSV or Excel files containing general ledger data. 
                     Our industrial-grade processor will parse your data and prepare it for integration.
                 </div>
@@ -680,21 +680,21 @@
                 <form id="fileUploadForm">
                     <div class="file-upload-area" id="fileUploadArea">
                         <div class="upload-icon">📁</div>
-                        <div class="upload-text" data-i18n="upload.dragDrop">Drag & drop your file here</div>
-                        <div class="upload-subtext" data-i18n="upload.supportedFormats">or click to browse • Supports CSV, XLS, XLSX</div>
+                        <div class="upload-text" data-i18n="ui:upload.dragDrop">Drag & drop your file here</div>
+                        <div class="upload-subtext" data-i18n="ui:upload.supportedFormats">or click to browse • Supports CSV, XLS, XLSX</div>
                         <input type="file" id="fileInput" name="file" accept=".csv,.xlsx,.xls" style="display: none;">
                     </div>
                 </form>
 
                 <div class="btn-group">
                     <button class="btn btn-secondary" id="browseFileBtn">
-                        📂 <span data-i18n="buttons.browse">Browse Files</span>
+                        📂 <span data-i18n="buttons.selectFiles">Browse Files</span>
                     </button>
                     <button class="btn btn-success" id="downloadTemplateBtn">
-                        📥 <span data-i18n="buttons.template">Download Template</span>
+                        📥 <span data-i18n="buttons.downloadResult">Download Template</span>
                     </button>
                     <button class="btn btn-primary" id="processFileBtn" disabled>
-                        ⚡ <span data-i18n="buttons.process">Process File</span>
+                        ⚡ <span data-i18n="buttons.processFiles">Process File</span>
                     </button>
                     <button class="btn btn-info" id="testConnectionBtn">
                         🔧 <span data-i18n="buttons.test">Test Connection</span>
@@ -704,19 +704,19 @@
 
             <!-- Results Panel -->
             <div class="results-panel">
-                <h3 class="panel-title">🔍 <span data-i18n="results.title">Processing Results & Logs</span></h3>
+                <h3 class="panel-title">🔍 <span data-i18n="ui:results.title">Processing Results & Logs</span></h3>
                 
                 <div class="results-summary" id="resultsSummary" style="display: none;">
                     <div class="summary-item">
-                        <span class="summary-label" data-i18n="results.file">File processed:</span>
+                        <span class="summary-label" data-i18n="ui:results.fileName">File processed:</span>
                         <span class="summary-value" id="fileName">-</span>
                     </div>
                     <div class="summary-item">
-                        <span class="summary-label" data-i18n="results.records">Records found:</span>
+                        <span class="summary-label" data-i18n="ui:results.totalRecords">Records found:</span>
                         <span class="summary-value" id="recordCount">0</span>
                     </div>
                     <div class="summary-item">
-                        <span class="summary-label" data-i18n="results.time">Processing time:</span>
+                        <span class="summary-label" data-i18n="time.processingTime">Processing time:</span>
                         <span class="summary-value" id="processingTime">-</span>
                     </div>
                     <div class="summary-item">
@@ -1465,12 +1465,12 @@
             // Set up language switching
             document.querySelectorAll('.btn-lang').forEach(btn => {
                 btn.addEventListener('click', async function() {
-                    await i18nClient.changeLanguage(this.dataset.lang);
+                    await window.i18n.changeLanguage(this.dataset.lang);
                 });
             });
 
             // Initialize i18n and set up the interface
-            i18nClient.init().then(() => {
+            window.i18n.init().then(() => {
                 log('Industrial File Processor initialized successfully', 'success');
                 log('System status: All subsystems operational', 'info');
             });

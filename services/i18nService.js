@@ -32,6 +32,7 @@ class I18nService {
         lng: this.defaultLanguage,
         fallbackLng: this.defaultLanguage,
         supportedLngs: this.supportedLanguages,
+        preload: this.supportedLanguages, // Preload all supported languages
         
         // Backend configuration for JSON files
         backend: {

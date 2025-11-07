@@ -24,6 +24,21 @@ msgstr "v1.0 Industriell"
 msgid "app.description"
 msgstr "Industriell filbehandling med avancerade dataomvandlingsfunktioner"
 
+msgid "nav.main"
+msgstr "Huvudbehandlare"
+
+msgid "nav.myclub"
+msgstr "Myclub-omvandlare"
+
+msgid "nav.jatkoPasi"
+msgstr "Jatko-PASI"
+
+msgid "nav.accountConfig"
+msgstr "Kontokonfiguration"
+
+msgid "nav.backToDashboard"
+msgstr "← Tillbaka till instrumentpanel"
+
 msgid "navigation.mainProcessor"
 msgstr "Huvudbehandlare"
 

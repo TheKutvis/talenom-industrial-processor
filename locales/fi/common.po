@@ -24,6 +24,21 @@ msgstr "v1.0 Teollinen"
 msgid "app.description"
 msgstr "Teollisuustason tiedostokäsittely edistyneillä tiedonmuunnos ominaisuuksilla"
 
+msgid "nav.main"
+msgstr "Pääkäsittelijä"
+
+msgid "nav.myclub"
+msgstr "Myclub-muuntaja"
+
+msgid "nav.jatkoPasi"
+msgstr "Jatko-PASI"
+
+msgid "nav.accountConfig"
+msgstr "Tilikartta"
+
+msgid "nav.backToDashboard"
+msgstr "← Takaisin hallintapaneeliin"
+
 msgid "navigation.mainProcessor"
 msgstr "Pääkäsittelijä"
 
