@@ -881,7 +881,61 @@ app.get('/api/download-populated-template', (req, res) => {
     
     // Create workbook and worksheet with formatted data
     const workbook = XLSX.utils.book_new();
-    const worksheet = XLSX.utils.json_to_sheet(formattedData);
+    
+    // Create worksheet using array of arrays for better control over cell types
+    // Header row
+    const headers = ['TILI', 'TOSITE', 'PVM', 'BRUTTO', 'SELITE', 'KP', 'KL', 'PROJ', 'PLAJI', 'AVAIN'];
+    const aoaData = [headers];
+    
+    // Data rows - explicitly convert to array format
+    formattedData.forEach(row => {
+      aoaData.push([
+        row.TILI,      // Will be set as number
+        row.TOSITE,
+        row.PVM,
+        row.BRUTTO,
+        row.SELITE,
+        row.KP,
+        row.KL,
+        row.PROJ,
+        row.PLAJI,
+        row.AVAIN
+      ]);
+    });
+    
+    // Create worksheet from array of arrays with raw: false to ensure proper type handling
+    const worksheet = XLSX.utils.aoa_to_sheet(aoaData, { raw: false, dateNF: 'DD.MM.YYYY' });
+    
+    // Explicitly set TILI column cells as numeric type with Excel's General number format
+    const range = XLSX.utils.decode_range(worksheet['!ref']);
+    let debugCellCount = 0;
+    for (let row = range.s.r + 1; row <= range.e.r; row++) {
+      const cellAddress = XLSX.utils.encode_cell({ r: row, c: 0 }); // Column A (TILI)
+      const cell = worksheet[cellAddress];
+      if (cell) {
+        // Debug log first few cells
+        if (debugCellCount < 3) {
+          logger.info(`TILI cell ${cellAddress} before:`, { v: cell.v, t: cell.t, z: cell.z, w: cell.w, s: cell.s });
+        }
+        
+        // Ensure it's a number type
+        const numValue = typeof cell.v === 'number' ? cell.v : parseInt(String(cell.v), 10);
+        if (!isNaN(numValue)) {
+          cell.v = numValue;
+          cell.t = 'n';
+          // Use Excel's General format (no specific format code = General)
+          delete cell.z;
+          delete cell.w;
+          // Set basic number style
+          cell.s = { numFmt: 0 }; // 0 = General format in Excel
+        }
+        
+        if (debugCellCount < 3) {
+          logger.info(`TILI cell ${cellAddress} after:`, { v: cell.v, t: cell.t, z: cell.z, w: cell.w, s: cell.s });
+          debugCellCount++;
+        }
+      }
+    }
     
     // Set column widths optimized for the new format (KONSYR removed)
     const columnWidths = [
@@ -901,8 +955,14 @@ app.get('/api/download-populated-template', (req, res) => {
     // Add the worksheet to the workbook
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Kirjanpitodata');
     
-    // Generate Excel file buffer
-    const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+    // Generate Excel file buffer with cellStyles enabled for number formatting
+    const buffer = XLSX.write(workbook, { 
+      type: 'buffer', 
+      bookType: 'xlsx',
+      cellStyles: true,   // Required for cell.s property
+      bookSST: true,      // Use shared strings table
+      compression: false  // Cleaner XML output
+    });
     
     // Set response headers for file download
     res.setHeader('Content-Disposition', `attachment; filename="${lastProcessedFileName}"`);

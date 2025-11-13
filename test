@@ -1,0 +1,50 @@
+    */
+    // eslint-disable-next-line @typescript-eslint/require-await
+    public async validateImportFile(): Promise<void> {
+        this.fileImportsImport.clearFileData();
+        this.currentStatus = "";
+        if (!this.fileToImport) {
+            return;
+        }
+
+        if (isNil(this.fileToImport[0])) {
+            this.fileImportsImport.clearFileData();
+            this.clearFileInput();
+            return;
+        }
+
+        const file = this.fileToImport[0];
+        const fileExtension = file.name.split(".").pop();
+        if (!this.allowedFileExtensions.includes(fileExtension)) {
+            this.clearFileInput();
+            this.fileFormatErrorText = this.i18n.tr("file-import:file-format-not-allowed", {
+                fileFormat: fileExtension,
+            });
+            return;
+        }
+
+        try {
+            this.fileImportsImport.progressPercentage = 0;
+            this.clearMessages();
+            this.setIsInProgress(true);
+            this.fileImportsImport.filename = file.name;
+            const reader = new FileReader();
+            reader.onloadend = async () => {
+                this.fileImportsImport.base64Data = window.btoa(reader.result as string);
+                const response = await this.services.fileImportService.validateFileImport(this.fileImportsImport);
+                if (response.isSuccess) {
+                    this.fileImportsImport.fileId = response.data;
+                } else {
+                    this.setIsInProgress(false);
+                    this.alertErrorMessage = `${this.i18n.tr("file-import:file-validation-failed")}: ${
+                        response.data.message
+                    }`;
+                }
+            };
+            reader.readAsBinaryString(file);
+        } catch (error) {
+            console.log("importFileData failed: ", error);
+            this.alertErrorMessage = `${this.i18n.tr("file-import:file-validation-failed")}: ${error}`;
+            this.clearFileInput();
+        }
+    }
