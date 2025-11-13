@@ -536,6 +536,93 @@ function transformToTalenomFormat(rawData) {
   return vouchers;
 }
 
+// Transform Maestro Excel data to Talenom format
+function transformMaestroToTalenom(rawData) {
+  const transformedData = [];
+  
+  logger.info(`Transforming ${rawData.length} Maestro records to Talenom format`);
+  
+  rawData.forEach((row, index) => {
+    // Log the structure of each row for debugging (first 3 rows only)
+    if (index < 3) {
+      console.log(`Maestro Row ${index}:`, JSON.stringify(row, null, 2));
+    }
+    
+    // Extract and map columns from Maestro format
+    // TOSITE -> TOSITE (voucher number)
+    const tosite = String(row['TOSITE'] || row['Tosite'] || '').trim();
+    
+    // Päiväys -> PVM (date)
+    const pvm = String(row['Päiväys'] || row['PÄIVÄYS'] || row['PVM'] || '').trim();
+    
+    // Vientiselite -> SELITE (description), use TOSITE as fallback if empty
+    let selite = String(row['Vientiselite'] || row['VIENTISELITE'] || row['SELITE'] || '').trim();
+    if (!selite) {
+      selite = tosite; // Use TOSITE as fallback when VIENTISELITE is empty
+    }
+    
+    // TUPA -> KP (cost center)
+    const kp = String(row['TUPA'] || row['Tupa'] || row['KP'] || '').trim();
+    
+    // DEBET & KREDIT -> BRUTTO (calculate as debet - kredit)
+    const debetStr = String(row['DEBET'] || row['Debet'] || '0').replace(',', '.').replace(/\s/g, '');
+    const kreditStr = String(row['KREDIT'] || row['Kredit'] || '0').replace(',', '.').replace(/\s/g, '');
+    const debet = parseFloat(debetStr) || 0;
+    const kredit = parseFloat(kreditStr) || 0;
+    const brutto = debet - kredit;
+    
+    // ALKUSALDO -> Also mapped to BRUTTO (if DEBET/KREDIT not available)
+    const alkusaldoStr = String(row['ALKUSALDO'] || row['Alkusaldo'] || '0').replace(',', '.').replace(/\s/g, '');
+    const alkusaldo = parseFloat(alkusaldoStr) || 0;
+    
+    // Use ALKUSALDO for BRUTTO if DEBET/KREDIT are both zero
+    const finalBrutto = (debet === 0 && kredit === 0 && alkusaldo !== 0) ? alkusaldo : brutto;
+    
+    // Get TILI (account number) - not mentioned in requirements but needed
+    const tili = String(row['TILI'] || row['Tili'] || row['TILINUMERO'] || '').trim();
+    
+    // Log parsed values for first 3 rows
+    if (index < 3) {
+      console.log(`Parsed Maestro values for row ${index}:`, {
+        tosite,
+        pvm,
+        selite,
+        tili,
+        debet,
+        kredit,
+        alkusaldo,
+        brutto: finalBrutto,
+        kp
+      });
+    }
+    
+    // Create simplified format matching the Excel output format
+    const transformedRow = {
+      'TILI': tili,
+      'TOSITE': tosite,
+      'PVM': pvm,
+      'BRUTTO': finalBrutto,
+      'SELITE': selite,
+      'KP': kp,
+      'KL': '', // Cost type - not in Maestro data
+      'PROJ': '', // Project - not in Maestro data
+      'PROJL': '', // Project type - not in Maestro data
+      'VASTAP': '' // Match key - not in Maestro data
+    };
+    
+    transformedData.push(transformedRow);
+  });
+  
+  logger.info(`Transformed ${transformedData.length} Maestro records`);
+  
+  // Log a sample of the output
+  if (transformedData.length > 0) {
+    logger.info('Sample Maestro output:', JSON.stringify(transformedData[0], null, 2));
+  }
+  
+  return transformedData;
+}
+
 // Upload and parse CSV/Excel files
 app.post('/api/upload-file', upload.single('file'), async (req, res) => {
   logger.info('Upload request received');
@@ -619,6 +706,100 @@ app.post('/api/upload-file', upload.single('file'), async (req, res) => {
   }
 });
 
+// Upload and parse Maestro Excel files
+app.post('/api/upload-maestro', upload.single('file'), async (req, res) => {
+  logger.info('Maestro upload request received');
+  logger.info('Request headers:', JSON.stringify(req.headers));
+  logger.info('Request file:', req.file ? 'File received' : 'No file');
+  
+  try {
+    if (!req.file) {
+      logger.error('No file in request');
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: 'No file uploaded'
+      });
+    }
+
+    const buffer = req.file.buffer;
+    const originalName = req.file.originalname;
+    let data = [];
+
+    logger.info(`Processing Maestro file: ${originalName}`);
+
+    // Parse Excel from buffer
+    if (originalName.endsWith('.xlsx') || originalName.endsWith('.xls')) {
+      const workbook = XLSX.read(buffer, { type: 'buffer' });
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      
+      // Get raw data
+      data = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
+      
+      logger.info(`Maestro file parsed - ${data.length} rows found`);
+      logger.info(`First few rows:`, JSON.stringify(data.slice(0, 5), null, 2));
+      
+      // Convert to objects with proper headers
+      if (data.length > 0) {
+        const headers = data[0]; // First row as headers
+        const rows = data.slice(1); // Rest as data
+        
+        data = rows.map(row => {
+          const obj = {};
+          headers.forEach((header, index) => {
+            obj[header] = row[index] || '';
+          });
+          return obj;
+        }).filter(row => {
+          // Filter out empty rows
+          return Object.values(row).some(val => val !== '');
+        });
+      }
+    } else {
+      return res.status(400).json({
+        error: 'Invalid file type',
+        message: 'Maestro format requires Excel files (.xls or .xlsx)'
+      });
+    }
+
+    logger.info(`Processed ${data.length} valid Maestro records`);
+
+    // Transform Maestro data to Talenom format
+    const transformedData = transformMaestroToTalenom(data);
+    
+    // Store processed data for template download
+    lastProcessedData = data;
+    lastTransformedData = transformedData;
+    lastProcessedFileName = originalName.replace(/\.[^/.]+$/, '') + '_maestro_processed.xlsx';
+
+    res.json({
+      success: true,
+      data: transformedData,
+      rawData: data,
+      fileName: originalName,
+      rowCount: transformedData.length,
+      timestamp: new Date().toISOString(),
+      hasProcessedTemplate: true,
+      format: 'maestro'
+    });
+
+  } catch (error) {
+    // Clean up file if it exists
+    if (req.file && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
+    
+    logger.error('Error processing Maestro file:', error);
+    
+    res.status(500).json({
+      success: false,
+      error: 'Failed to process Maestro file',
+      message: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 // Download populated template endpoint
 app.get('/api/download-populated-template', (req, res) => {
   try {
@@ -632,59 +813,60 @@ app.get('/api/download-populated-template', (req, res) => {
       });
     }
     
-    // Transform data to the new Finnish accounting format using JSON data as primary source
-    const formattedData = lastTransformedData.map((transformedRow, index) => {
-      // Get corresponding raw data for BRUTTO calculation
-      const rawRow = lastProcessedData[index];
-      const debet = parseFloat(String(rawRow['Debet'] || '0').replace(',', '.')) || 0;
-      const kredit = parseFloat(String(rawRow['Kredit'] || '0').replace(',', '.')) || 0;
-      const brutto = debet - kredit;
-      
-      // Extract data from JSON structure
-      const accountingEntry = transformedRow.postings && transformedRow.postings[0];
-      const voucherDetail = transformedRow.voucherDetail;
-      const dimension = voucherDetail && voucherDetail.dimensions && voucherDetail.dimensions[0];
-      
-      // Log the structure for debugging (first row only)
-      if (index === 0) {
-        logger.info('Sample JSON structure for Excel mapping:', {
-          accountingEntry: accountingEntry ? {
-            accountNumber: accountingEntry.accountNumber,
-            costCenter: accountingEntry.costCenter,
-            costType: accountingEntry.costType,
-            project: accountingEntry.project,
-            projectType: accountingEntry.projectType,
-            matchKey: accountingEntry.matchKey
-          } : null,
-          voucherInfo: {
-            voucherNumber: transformedRow.voucherNumber,
-            voucherDate: transformedRow.voucherDate,
-            description: transformedRow.description,
-            invoiceNumber: transformedRow.invoiceNumber
-          },
-          dimension: dimension ? {
-            costCenter: dimension.costCenter,
-            costType: dimension.costType,
-            project: dimension.project,
-            projectType: dimension.projectType
-          } : null
-        });
-      }
-      
-      return {
-        'TILI': String(accountingEntry?.accountNumber || '').trim(),
-        'TOSITE': String(transformedRow.voucherNumber || transformedRow.invoiceNumber || transformedRow.referenceNumber || '').trim(),
-        'PVM': String(transformedRow.voucherDate || '').trim(),
-        'BRUTTO': brutto,
-        'SELITE': String(transformedRow.description || '').trim(),
-        'KP': String(accountingEntry?.costCenter || dimension?.costCenter || '').trim(),
-        'KL': String(accountingEntry?.costType || dimension?.costType || '').trim(),
-        'PROJ': String(accountingEntry?.project || dimension?.project || '').trim(),
-        'PLAJI': String(accountingEntry?.projectType || dimension?.projectType || '').trim(),
-        'AVAIN': String(accountingEntry?.matchKey || '').trim(),
-        'KONSYR': '' // Empty as requested
-      };
-    });
+    // Check if this is Maestro format (simple flat objects) or old JSON format
+    const isMaestroFormat = lastTransformedData[0] && lastTransformedData[0].TILI !== undefined;
+    
+    let formattedData;
+    
+    if (isMaestroFormat) {
+      // Maestro format: data is already in the correct format
+      logger.info('Processing Maestro format data for Excel export');
+      formattedData = lastTransformedData.map((row) => {
+        // Ensure all fields are properly formatted
+        return {
+          'TILI': String(row.TILI || '').trim(),
+          'TOSITE': String(row.TOSITE || '').trim(),
+          'PVM': String(row.PVM || '').trim(),
+          'BRUTTO': row.BRUTTO || 0,
+          'SELITE': String(row.SELITE || '').trim(),
+          'KP': String(row.KP || '').trim(),
+          'KL': String(row.KL || '').trim(),
+          'PROJ': String(row.PROJ || '').trim(),
+          'PLAJI': String(row.PLAJI || '').trim(),
+          'AVAIN': String(row.AVAIN || '').trim(),
+          'KONSYR': '' // Empty as requested
+        };
+      });
+    } else {
+      // Old JSON format: extract from voucher structure
+      logger.info('Processing JSON format data for Excel export');
+      formattedData = lastTransformedData.map((transformedRow, index) => {
+        // Get corresponding raw data for BRUTTO calculation
+        const rawRow = lastProcessedData[index];
+        const debet = parseFloat(String(rawRow['Debet'] || '0').replace(',', '.')) || 0;
+        const kredit = parseFloat(String(rawRow['Kredit'] || '0').replace(',', '.')) || 0;
+        const brutto = debet - kredit;
+        
+        // Extract data from JSON structure
+        const accountingEntry = transformedRow.postings && transformedRow.postings[0];
+        const voucherDetail = transformedRow.voucherDetail;
+        const dimension = voucherDetail && voucherDetail.dimensions && voucherDetail.dimensions[0];
+        
+        return {
+          'TILI': String(accountingEntry?.accountNumber || '').trim(),
+          'TOSITE': String(transformedRow.voucherNumber || transformedRow.invoiceNumber || transformedRow.referenceNumber || '').trim(),
+          'PVM': String(transformedRow.voucherDate || '').trim(),
+          'BRUTTO': brutto,
+          'SELITE': String(transformedRow.description || '').trim(),
+          'KP': String(accountingEntry?.costCenter || dimension?.costCenter || '').trim(),
+          'KL': String(accountingEntry?.costType || dimension?.costType || '').trim(),
+          'PROJ': String(accountingEntry?.project || dimension?.project || '').trim(),
+          'PLAJI': String(accountingEntry?.projectType || dimension?.projectType || '').trim(),
+          'AVAIN': String(accountingEntry?.matchKey || '').trim(),
+          'KONSYR': '' // Empty as requested
+        };
+      });
+    }
     
     // Create workbook and worksheet with formatted data
     const workbook = XLSX.utils.book_new();

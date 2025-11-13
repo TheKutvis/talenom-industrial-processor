@@ -415,6 +415,57 @@
             margin-top: 25px;
         }
 
+        .format-selector-container {
+            margin: 25px 0;
+            padding: 20px;
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            border: 1px solid var(--border-primary);
+        }
+
+        .format-selector-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .format-selector {
+            margin-top: 0;
+        }
+
+        .btn-format {
+            flex: 1;
+            min-width: 120px;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-format.active {
+            background: var(--gradient-primary);
+            color: white;
+            border-color: var(--accent-primary);
+            box-shadow: 0 4px 15px rgba(255, 109, 46, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn-format:not(.active) {
+            background: var(--bg-surface);
+            color: var(--text-secondary);
+            border-color: var(--border-secondary);
+        }
+
+        .btn-format:not(.active):hover {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border-color: var(--border-accent);
+            transform: translateY(-1px);
+        }
+
         .file-upload-area {
             border: 2px dashed var(--border-accent);
             border-radius: 16px;
@@ -668,6 +719,21 @@
                 <div class="section-subtitle" data-i18n="upload.subtitle">
                     Upload and process CSV or Excel files containing general ledger data. 
                     Our industrial-grade processor will parse your data and prepare it for integration.
+                </div>
+
+                <!-- File Format Selector -->
+                <div class="format-selector-container">
+                    <label class="format-selector-label">
+                        <span>📋 Select File Format:</span>
+                    </label>
+                    <div class="btn-group format-selector">
+                        <button class="btn btn-format active" data-format="csv" type="button">
+                            📊 CSV
+                        </button>
+                        <button class="btn btn-format" data-format="maestro" type="button">
+                            🎼 Maestro
+                        </button>
+                    </div>
                 </div>
 
                 <div id="status" class="status info">
@@ -1346,14 +1412,15 @@
         }
 
         // Enhanced file upload with industrial processing
-        async function uploadFile(file) {
+        async function uploadFile(file, format = 'csv') {
             const startTime = Date.now();
             
             // Play bulldozer sound effect
             playBuldozerSound();
             
-            log(`� Jackhammer deployed - Target acquired: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`, 'info');
-            updateStatus('loading', t('status.loading'), '�');
+            log(`🔨 Jackhammer deployed - Target acquired: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`, 'info');
+            log(`📋 Processing format: ${format.toUpperCase()}`, 'info');
+            updateStatus('loading', `Processing ${format.toUpperCase()} file...`, '🔄');
             hideResultsSummary();
             
             updateProgress(10);
@@ -1361,12 +1428,16 @@
 
             const formData = new FormData();
             formData.append('file', file);
+            formData.append('format', format);
 
             try {
                 updateProgress(25);
-                log('�� Jackhammer breaking through concrete data...', 'info');
+                log('🔨 Jackhammer breaking through concrete data...', 'info');
                 
-                const response = await fetch('/api/upload-file', {
+                // Choose endpoint based on format
+                const endpoint = format === 'maestro' ? '/api/upload-maestro' : '/api/upload-file';
+                
+                const response = await fetch(endpoint, {
                     method: 'POST',
                     body: formData
                 });
@@ -1408,12 +1479,45 @@
         document.addEventListener('DOMContentLoaded', function() {
             log('Page loaded, initializing...');
 
+            // Track selected file format
+            let selectedFormat = 'csv';
+
             // Debug: Check if file input exists at startup
             const initialFileInput = document.getElementById('fileInput');
             log(`Initial file input check - found: ${!!initialFileInput}`);
             if (initialFileInput) {
                 log(`Initial file input - ID: ${initialFileInput.id}, type: ${initialFileInput.type}`);
             }
+
+            // Format selector buttons
+            document.querySelectorAll('.btn-format').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    document.querySelectorAll('.btn-format').forEach(b => b.classList.remove('active'));
+                    
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    // Update selected format
+                    selectedFormat = this.dataset.format;
+                    
+                    log(`📋 File format changed to: ${selectedFormat.toUpperCase()}`, 'info');
+                    
+                    // Update file input accept attribute based on format
+                    const fileInput = document.getElementById('fileInput');
+                    if (selectedFormat === 'csv') {
+                        fileInput.accept = '.csv';
+                        updateStatus('info', 'CSV format selected - Please upload a CSV file');
+                    } else if (selectedFormat === 'maestro') {
+                        fileInput.accept = '.xls,.xlsx';
+                        updateStatus('info', 'Maestro format selected - Please upload an Excel file from Maestro system');
+                    }
+                    
+                    // Clear any previously selected file
+                    fileInput.value = '';
+                    document.getElementById('processFileBtn').disabled = true;
+                });
+            });
 
             // Test connection button
             document.getElementById('testConnectionBtn').addEventListener('click', testConnection);
@@ -1497,8 +1601,8 @@
                 const fileInput = document.getElementById('fileInput');
                 const file = fileInput ? fileInput.files[0] : null;
                 if (file) {
-                    log(`Processing file: ${file.name}`);
-                    uploadFile(file);
+                    log(`Processing file: ${file.name} with format: ${selectedFormat}`);
+                    uploadFile(file, selectedFormat);
                 } else {
                     log('No file selected for processing - file object is null/undefined');
                 }
@@ -1509,7 +1613,7 @@
                 e.preventDefault();
                 const file = document.getElementById('fileInput').files[0];
                 if (file) {
-                    uploadFile(file);
+                    uploadFile(file, selectedFormat);
                 }
             });
 
@@ -1525,8 +1629,8 @@
                     
                     const file = fileInput ? fileInput.files[0] : null;
                     if (file) {
-                        log(`Processing file via delegation: ${file.name}`);
-                        uploadFile(file);
+                        log(`Processing file via delegation: ${file.name} with format: ${selectedFormat}`);
+                        uploadFile(file, selectedFormat);
                     } else {
                         log('No file selected for processing (delegation) - file object is null/undefined');
                         log(`[Delegation] File input value: ${fileInput ? fileInput.value : 'N/A'}`);
