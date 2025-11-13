@@ -578,13 +578,17 @@ function transformMaestroToTalenom(rawData) {
     // Use ALKUSALDO for BRUTTO if DEBET/KREDIT are both zero
     const finalBrutto = (debet === 0 && kredit === 0 && alkusaldo !== 0) ? alkusaldo : brutto;
     
-    // Get TILI (account number) - not mentioned in requirements but needed
-    const tili = String(row['TILI'] || row['Tili'] || row['TILINUMERO'] || '').trim();
+    // Get TILI (account number) - parse as number to ensure Excel treats it as numeric
+    const tiliStr = String(row['TILI'] || row['Tili'] || row['TILINUMERO'] || '').trim();
+    const tili = parseInt(tiliStr, 10) || tiliStr; // Convert to number if possible
+    
+    // Generate sequential TOSITE numbers (HI-1, HI-2, HI-3, etc.)
+    const generatedTosite = `HI-${index + 1}`;
     
     // Log parsed values for first 3 rows
     if (index < 3) {
       console.log(`Parsed Maestro values for row ${index}:`, {
-        tosite,
+        generatedTosite,
         pvm,
         selite,
         tili,
@@ -599,15 +603,16 @@ function transformMaestroToTalenom(rawData) {
     // Create simplified format matching the Excel output format
     const transformedRow = {
       'TILI': tili,
-      'TOSITE': tosite,
+      'TOSITE': generatedTosite,
       'PVM': pvm,
       'BRUTTO': finalBrutto,
       'SELITE': selite,
       'KP': kp,
       'KL': '', // Cost type - not in Maestro data
       'PROJ': '', // Project - not in Maestro data
-      'PROJL': '', // Project type - not in Maestro data
-      'VASTAP': '' // Match key - not in Maestro data
+      'PLAJI': '', // Project type - not in Maestro data
+      'AVAIN': '' // Match key - not in Maestro data
+      // KONSYR removed as not needed
     };
     
     transformedData.push(transformedRow);
@@ -822,9 +827,11 @@ app.get('/api/download-populated-template', (req, res) => {
       // Maestro format: data is already in the correct format
       logger.info('Processing Maestro format data for Excel export');
       formattedData = lastTransformedData.map((row) => {
-        // Ensure all fields are properly formatted
+        // Ensure TILI is a number, not a string
+        const tili = typeof row.TILI === 'number' ? row.TILI : (parseInt(row.TILI, 10) || row.TILI);
+        
         return {
-          'TILI': String(row.TILI || '').trim(),
+          'TILI': tili,
           'TOSITE': String(row.TOSITE || '').trim(),
           'PVM': String(row.PVM || '').trim(),
           'BRUTTO': row.BRUTTO || 0,
@@ -833,8 +840,8 @@ app.get('/api/download-populated-template', (req, res) => {
           'KL': String(row.KL || '').trim(),
           'PROJ': String(row.PROJ || '').trim(),
           'PLAJI': String(row.PLAJI || '').trim(),
-          'AVAIN': String(row.AVAIN || '').trim(),
-          'KONSYR': '' // Empty as requested
+          'AVAIN': String(row.AVAIN || '').trim()
+          // KONSYR removed - not needed
         };
       });
     } else {
@@ -852,8 +859,12 @@ app.get('/api/download-populated-template', (req, res) => {
         const voucherDetail = transformedRow.voucherDetail;
         const dimension = voucherDetail && voucherDetail.dimensions && voucherDetail.dimensions[0];
         
+        // Parse account number as integer
+        const accountNumberStr = String(accountingEntry?.accountNumber || '').trim();
+        const tili = parseInt(accountNumberStr, 10) || accountNumberStr;
+        
         return {
-          'TILI': String(accountingEntry?.accountNumber || '').trim(),
+          'TILI': tili,
           'TOSITE': String(transformedRow.voucherNumber || transformedRow.invoiceNumber || transformedRow.referenceNumber || '').trim(),
           'PVM': String(transformedRow.voucherDate || '').trim(),
           'BRUTTO': brutto,
@@ -862,8 +873,8 @@ app.get('/api/download-populated-template', (req, res) => {
           'KL': String(accountingEntry?.costType || dimension?.costType || '').trim(),
           'PROJ': String(accountingEntry?.project || dimension?.project || '').trim(),
           'PLAJI': String(accountingEntry?.projectType || dimension?.projectType || '').trim(),
-          'AVAIN': String(accountingEntry?.matchKey || '').trim(),
-          'KONSYR': '' // Empty as requested
+          'AVAIN': String(accountingEntry?.matchKey || '').trim()
+          // KONSYR removed - not needed
         };
       });
     }
@@ -872,7 +883,7 @@ app.get('/api/download-populated-template', (req, res) => {
     const workbook = XLSX.utils.book_new();
     const worksheet = XLSX.utils.json_to_sheet(formattedData);
     
-    // Set column widths optimized for the new format
+    // Set column widths optimized for the new format (KONSYR removed)
     const columnWidths = [
       { wch: 8 },   // TILI
       { wch: 12 },  // TOSITE
@@ -883,8 +894,7 @@ app.get('/api/download-populated-template', (req, res) => {
       { wch: 12 },  // KL
       { wch: 15 },  // PROJ
       { wch: 15 },  // PLAJI
-      { wch: 20 },  // AVAIN
-      { wch: 10 }   // KONSYR
+      { wch: 20 }   // AVAIN
     ];
     worksheet['!cols'] = columnWidths;
     
