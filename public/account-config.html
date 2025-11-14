@@ -99,8 +99,8 @@
             padding: 0;
             position: sticky;
             top: 0;
-            z-index: 1000;
-            box-shadow: var(--shadow-lg);
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(26, 26, 26, 0.1);
         }
 
         .header-content {
@@ -115,21 +115,22 @@
         .logo {
             display: flex;
             align-items: center;
-            gap: 12px;
-            font-size: 22px;
+            gap: 15px;
+            font-size: 24px;
             font-weight: 700;
             color: var(--text-primary);
         }
 
         .logo-icon {
+            width: 45px;
+            height: 45px;
             background: var(--gradient-primary);
-            border-radius: 12px;
-            width: 40px;
-            height: 40px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 22px;
+            box-shadow: var(--shadow-sm);
         }
 
         .header-controls {
@@ -141,23 +142,25 @@
         .nav-links {
             display: flex;
             gap: 15px;
+            align-items: center;
         }
 
         .nav-link {
             color: var(--text-secondary);
             text-decoration: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            transition: all 0.3s ease;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
             font-weight: 500;
+            font-size: 14px;
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
         .nav-link:hover {
-            color: var(--accent-primary);
-            background: var(--bg-tertiary);
+            background: var(--bg-surface);
+            color: var(--text-primary);
         }
 
         .nav-link.active {
@@ -188,6 +191,8 @@
             padding: 4px;
             border-radius: 8px;
             border: 1px solid var(--border-accent);
+            width: 250.717px;
+            flex-shrink: 0;
         }
 
         .btn-lang {
@@ -208,20 +213,22 @@
         }
 
         .btn-lang.active {
-            background: var(--gradient-accent);
-            color: var(--color-light);
+            background: var(--color-button);
+            color: var(--color-background);
             box-shadow: var(--shadow-sm);
         }
 
         .version-badge {
-            background: var(--gradient-accent);
-            color: var(--color-light);
+            background: var(--color-button);
+            color: var(--color-background);
             padding: 6px 16px;
             border-radius: 20px;
             font-size: 12px;
             font-weight: 600;
             border: none;
             box-shadow: var(--shadow-sm);
+            width: 125.383px;
+            text-align: center;
         }
 
         .main-container {
@@ -232,14 +239,27 @@
 
         /* Workflow Guide Banner */
         .workflow-banner {
-            background: linear-gradient(135deg, rgba(156, 254, 117, 0.12), rgba(156, 254, 117, 0.08));
-            border: 2px solid var(--color-effect);
+            background: var(--bg-card);
+            border: 2px solid var(--border-primary);
             border-radius: 12px;
             padding: 20px 30px;
             margin-bottom: 30px;
             display: flex;
             align-items: center;
             gap: 20px;
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .workflow-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--color-effect);
         }
 
         .workflow-banner-icon {
@@ -263,8 +283,8 @@
         .workflow-next-step {
             margin-left: auto;
             padding: 12px 24px;
-            background: var(--gradient-accent);
-            color: var(--color-light);
+            background: var(--color-button);
+            color: var(--color-background);
             text-decoration: none;
             border-radius: 8px;
             font-weight: 600;
@@ -272,11 +292,14 @@
             transition: all 0.2s ease;
             box-shadow: var(--shadow-md);
             white-space: nowrap;
+            border: 2px solid var(--color-button);
         }
 
         .workflow-next-step:hover {
             box-shadow: var(--shadow-lg);
             transform: translateY(-2px);
+            background: var(--color-dark);
+            border-color: var(--color-effect);
         }
 
         .content-grid {
@@ -304,16 +327,7 @@
             left: 0;
             right: 0;
             height: 4px;
-            background: var(--gradient-accent);
-            box-shadow: 0 2px 8px rgba(255, 109, 46, 0.3);
-        }        .content-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: var(--gradient-primary);
+            background: var(--color-effect);
         }
 
         .section-title {
@@ -353,11 +367,11 @@
         .app-section {
             background: var(--bg-card);
             border: 1px solid var(--border-primary);
-            border-radius: 20px;
-            padding: 30px;
+            border-radius: 16px;
+            padding: 40px;
             box-shadow: var(--shadow-lg);
             position: relative;
-            overflow: visible;
+            overflow: hidden;
         }
 
         .app-section::before {
@@ -367,7 +381,7 @@
             left: 0;
             right: 0;
             height: 4px;
-            background: var(--gradient-primary);
+            background: var(--color-effect);
         }
 
         .app-section h2 {
@@ -473,37 +487,42 @@
         }
 
         .btn-secondary {
-            background: var(--bg-surface);
-            border: 1px solid var(--border-accent);
-            color: var(--text-primary);
+            background: var(--color-button);
+            border: 2px solid var(--color-button);
+            color: var(--color-background);
         }
 
         .btn-secondary:hover {
-            background: var(--bg-tertiary);
-            border-color: var(--accent-secondary);
+            background: var(--color-dark);
+            border-color: var(--color-effect);
         }
 
         .btn-success {
-            background: linear-gradient(135deg, #28a745, #20c997);
-            color: white;
+            background: var(--color-button);
+            color: var(--color-background);
             box-shadow: var(--shadow-md);
+            border: 2px solid var(--color-button);
         }
 
         .btn-success:hover {
             transform: translateY(-2px);
             box-shadow: var(--shadow-lg);
-            background: linear-gradient(135deg, #218838, #17a2b8);
+            background: var(--color-dark);
+            border-color: var(--color-effect);
         }
 
         .btn-danger {
-            background: linear-gradient(135deg, var(--accent-danger), #c53030);
-            color: white;
+            background: var(--color-button);
+            color: var(--color-background);
+            border: 2px solid var(--color-button);
             box-shadow: var(--shadow-md);
         }
 
         .btn-danger:hover {
             transform: translateY(-2px);
             box-shadow: var(--shadow-lg);
+            background: var(--color-dark);
+            border-color: var(--color-effect);
         }
 
         .btn-info {
@@ -749,10 +768,10 @@
             </div>
             <div class="header-controls">
                 <div class="nav-links">
-                    <a href="/account-config" class="nav-link active">
+                    <a href="/" class="nav-link active">
                         <span class="step-badge">1</span> 🔧 Account Transformer
                     </a>
-                    <a href="/" class="nav-link">
+                    <a href="/processor" class="nav-link">
                         <span class="step-badge">2</span> � Main Processor
                     </a>
                 </div>
@@ -775,7 +794,7 @@
                 <h3>Step 1: Configure Account Mappings</h3>
                 <p>Set up account transformations here. When you're done, proceed to the Main Processor to upload and process your files.</p>
             </div>
-            <a href="/" class="workflow-next-step">
+            <a href="/processor" class="workflow-next-step">
                 Next: Main Processor →
             </a>
         </div>

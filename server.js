@@ -49,6 +49,34 @@ app.use(cors());
 app.use(morgan('combined', { stream: { write: message => logger.info(message.trim()) } }));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+// Define routes BEFORE static middleware to prevent index.html from being served automatically
+// Serve the main application (now Account Transformer)
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'account-config.html'));
+});
+
+// Serve the processor page
+app.get('/processor', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Serve the Esimerkkiseura sub-application
+app.get('/esimerkkiseura', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'esimerkkiseura.html'));
+});
+
+// Serve the Jatko-PASI processor
+app.get('/jatko-pasi', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'jatko-pasi.html'));
+});
+
+// Keep old route for backwards compatibility
+app.get('/account-config', (req, res) => {
+  res.redirect('/');
+});
+
+// Static files - placed AFTER route definitions
 app.use(express.static('public'));
 
 // Serve audio files from root directory
@@ -63,21 +91,6 @@ app.use(express.static(__dirname, {
     }
   }
 }));
-
-// Serve the main application
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// Serve the Esimerkkiseura sub-application
-app.get('/esimerkkiseura', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'esimerkkiseura.html'));
-});
-
-// Serve the Jatko-PASI processor
-app.get('/jatko-pasi', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'jatko-pasi.html'));
-});
 
 // File upload configuration
 const storage = multer.memoryStorage();
@@ -179,11 +192,6 @@ const uploadJatkoPasi = multer({
 const apiClient = new ApiClient();
 
 // Routes
-
-// Serve main page
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
 
 // Serve original page for backup
 app.get('/original', (req, res) => {
@@ -1473,11 +1481,6 @@ app.get('/api/debug-oauth', async (req, res) => {
 const accountMappingService = new AccountMappingService();
 
 // Account Mapping Configuration Endpoints
-
-// Serve account configuration page
-app.get('/account-config', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'account-config.html'));
-});
 
 // Get all account mappings and status
 app.get('/api/account-mappings', async (req, res) => {

@@ -101,7 +101,7 @@
             position: sticky;
             top: 0;
             z-index: 100;
-            box-shadow: var(--shadow-md);
+            box-shadow: 0 2px 8px rgba(26, 26, 26, 0.1);
         }
 
         .header-content {
@@ -171,6 +171,8 @@
             padding: 4px;
             border-radius: 8px;
             border: 1px solid var(--border-accent);
+            width: 250.717px;
+            flex-shrink: 0;
         }
 
         .btn-lang {
@@ -191,8 +193,8 @@
         }
 
         .btn-lang.active {
-            background: var(--gradient-accent);
-            color: var(--color-light);
+            background: var(--color-button);
+            color: var(--color-background);
             box-shadow: var(--shadow-sm);
         }
 
@@ -218,14 +220,16 @@
         }
 
         .version-badge {
-            background: var(--gradient-accent);
-            color: var(--color-light);
+            background: var(--color-button);
+            color: var(--color-background);
             padding: 6px 16px;
             border-radius: 20px;
             font-size: 12px;
             font-weight: 600;
             border: none;
             box-shadow: var(--shadow-sm);
+            width: 125.383px;
+            text-align: center;
         }
 
         .main-container {
@@ -330,8 +334,7 @@
             left: 0;
             right: 0;
             height: 4px;
-            background: var(--gradient-accent);
-            box-shadow: 0 2px 8px rgba(255, 109, 46, 0.3);
+            background: var(--color-effect);
         }
 
         .results-panel {
@@ -345,6 +348,17 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
+        }
+
+        .results-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--color-effect);
+            z-index: 1;
         }
 
         @media (max-width: 1024px) {
@@ -792,10 +806,10 @@
             </div>
             <div class="header-controls">
                 <div class="nav-links">
-                    <a href="/account-config" class="nav-link active">
+                    <a href="/" class="nav-link">
                         <span class="step-badge">1</span> 🔧 Account Transformer
                     </a>
-                    <a href="/" class="nav-link">
+                    <a href="/processor" class="nav-link active">
                         <span class="step-badge">2</span> 📊 Main Processor
                     </a>
                 </div>
@@ -804,7 +818,7 @@
                     <button class="btn btn-lang" data-lang="fi">🇫🇮 FI</button>
                     <button class="btn btn-lang" data-lang="sv">🇸🇪 SV</button>
                 </div>
-                <div class="version-badge" data-i18n="app.version">v1.0 Easor Edition</div>
+                <div class="version-badge">v1.0 Easor Edition</div>
             </div>
         </div>
     </header>
