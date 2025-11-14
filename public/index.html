@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🏭 Talenom General Ledger - Industrial File Processor</title>
+    <title>⚡ Easor - Accounting File Processor</title>
     <style>
         * {
             margin: 0;
@@ -132,6 +132,9 @@
             transition: all 0.2s ease;
             font-weight: 500;
             font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .nav-link:hover {
@@ -142,6 +145,22 @@
         .nav-link.active {
             background: var(--gradient-accent);
             color: var(--color-light);
+        }
+
+        .step-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .nav-link.active .step-badge {
+            background: rgba(255, 255, 255, 0.3);
         }
 
         .language-selector {
@@ -212,6 +231,78 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 40px 30px;
+        }
+
+        /* Workflow Guide Styles */
+        .workflow-guide {
+            background: linear-gradient(135deg, rgba(255, 109, 46, 0.1), rgba(130, 59, 255, 0.1));
+            border: 2px solid var(--border-accent);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .workflow-guide-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .workflow-step {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: var(--bg-card);
+            padding: 15px 25px;
+            border-radius: 10px;
+            border: 1px solid var(--border-accent);
+            min-width: 280px;
+        }
+
+        .workflow-step-number {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--color-light);
+            flex-shrink: 0;
+        }
+
+        .workflow-step-info h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0 0 4px 0;
+        }
+
+        .workflow-step-info p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        .workflow-arrow {
+            font-size: 28px;
+            color: var(--accent-primary);
+            font-weight: 700;
+        }
+
+        @media (max-width: 768px) {
+            .workflow-arrow {
+                display: none;
+            }
+            
+            .workflow-step {
+                min-width: 100%;
+            }
         }
 
         .content-grid {
@@ -688,28 +779,51 @@
     <header class="header">
         <div class="header-content">
             <div class="logo">
-                <div class="logo-icon">🏭</div>
-                <span data-i18n="app.title">Talenom General Ledger</span>
+                <div class="logo-icon">⚡</div>
+                <span data-i18n="app.title">Easor - Accounting File Processor</span>
             </div>
             <div class="header-controls">
                 <div class="nav-links">
-                    <a href="/" class="nav-link active">🏭 Main Processor</a>
-                    <a href="/esimerkkiseura" class="nav-link">🏗️ Myclub-transformer</a>
-                    <a href="/jatko-pasi" class="nav-link">🔗 Jatko-PASI</a>
-                    <a href="/account-config" class="nav-link">🔧 Account Config</a>
+                    <a href="/account-config" class="nav-link active">
+                        <span class="step-badge">1</span> 🔧 Account Transformer
+                    </a>
+                    <a href="/" class="nav-link">
+                        <span class="step-badge">2</span> 📊 Main Processor
+                    </a>
                 </div>
                 <div class="language-selector">
                     <button class="btn btn-lang active" data-lang="en">🇬🇧 EN</button>
                     <button class="btn btn-lang" data-lang="fi">🇫🇮 FI</button>
                     <button class="btn btn-lang" data-lang="sv">🇸🇪 SV</button>
                 </div>
-                <div class="version-badge" data-i18n="app.version">v1.0 Industrial</div>
+                <div class="version-badge" data-i18n="app.version">v1.0 Easor Edition</div>
             </div>
         </div>
     </header>
 
     <!-- Main Content -->
     <main class="main-container">
+        <!-- Workflow Guide Banner -->
+        <div class="workflow-guide">
+            <div class="workflow-guide-content">
+                <div class="workflow-step">
+                    <div class="workflow-step-number">1</div>
+                    <div class="workflow-step-info">
+                        <h3>Account Transformer</h3>
+                        <p>First, configure account mappings if needed</p>
+                    </div>
+                </div>
+                <div class="workflow-arrow">→</div>
+                <div class="workflow-step">
+                    <div class="workflow-step-number">2</div>
+                    <div class="workflow-step-info">
+                        <h3>Main Processor</h3>
+                        <p>Then, process your accounting files</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="content-grid">
             <!-- Upload Section -->
             <div class="upload-section">

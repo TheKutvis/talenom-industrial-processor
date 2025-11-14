@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔧 Account Mapping Configuration - Talenom GL</title>
+    <title>⚡ Account Transformer - Easor</title>
     <style>
         * {
             margin: 0;
@@ -149,6 +149,9 @@
             border-radius: 8px;
             transition: all 0.3s ease;
             font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .nav-link:hover {
@@ -159,6 +162,22 @@
         .nav-link.active {
             background: var(--gradient-accent);
             color: var(--color-light);
+        }
+
+        .step-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .nav-link.active .step-badge {
+            background: rgba(255, 255, 255, 0.3);
         }
 
         .language-selector {
@@ -208,6 +227,55 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 40px 30px;
+        }
+
+        /* Workflow Guide Banner */
+        .workflow-banner {
+            background: linear-gradient(135deg, rgba(255, 109, 46, 0.15), rgba(130, 59, 255, 0.15));
+            border: 2px solid var(--color-orange);
+            border-radius: 12px;
+            padding: 20px 30px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .workflow-banner-icon {
+            font-size: 32px;
+            flex-shrink: 0;
+        }
+
+        .workflow-banner-content h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0 0 8px 0;
+        }
+
+        .workflow-banner-content p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        .workflow-next-step {
+            margin-left: auto;
+            padding: 12px 24px;
+            background: var(--gradient-accent);
+            color: var(--color-light);
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-md);
+            white-space: nowrap;
+        }
+
+        .workflow-next-step:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
         }
 
         .content-grid {
@@ -659,35 +727,49 @@
     <header class="header">
         <div class="header-content">
             <div class="logo">
-                <div class="logo-icon">🔧</div>
-                <span>Account Configuration</span>
+                <div class="logo-icon">⚡</div>
+                <span>Easor - Account Transformer</span>
             </div>
             <div class="header-controls">
                 <div class="nav-links">
-                    <a href="/" class="nav-link">🏭 Main Processor</a>
-                    <a href="/esimerkkiseura" class="nav-link">🏗️ Myclub-transformer</a>
-                    <a href="/jatko-pasi" class="nav-link">🔗 Jatko-PASI</a>
-                    <a href="/account-config" class="nav-link active">🔧 Account Config</a>
+                    <a href="/account-config" class="nav-link active">
+                        <span class="step-badge">1</span> 🔧 Account Transformer
+                    </a>
+                    <a href="/" class="nav-link">
+                        <span class="step-badge">2</span> � Main Processor
+                    </a>
                 </div>
                 <div class="language-selector">
                     <button class="btn btn-lang active" data-lang="en">🇬🇧 EN</button>
                     <button class="btn btn-lang" data-lang="fi">🇫🇮 FI</button>
                     <button class="btn btn-lang" data-lang="sv">🇸🇪 SV</button>
                 </div>
-                <div class="version-badge">v1.0 Industrial</div>
+                <div class="version-badge">v1.0 Easor Edition</div>
             </div>
         </div>
     </header>
 
     <!-- Main Content -->
     <main class="main-container">
+        <!-- Workflow Banner -->
+        <div class="workflow-banner">
+            <div class="workflow-banner-icon">1️⃣</div>
+            <div class="workflow-banner-content">
+                <h3>Step 1: Configure Account Mappings</h3>
+                <p>Set up account transformations here. When you're done, proceed to the Main Processor to upload and process your files.</p>
+            </div>
+            <a href="/" class="workflow-next-step">
+                Next: Main Processor →
+            </a>
+        </div>
+
         <div class="content-grid">
             <div class="content-section">
             <div class="section-title">
                 📊 Configuration Status
             </div>
             <div class="section-subtitle">
-                Overview of account mapping configurations for both applications
+                Manage account number transformations for your accounting files
             </div>
             <div id="statusInfo">
                 <div class="status-item">
