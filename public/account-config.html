@@ -17,7 +17,7 @@
             --color-button: #242424;
             --color-effect: #9CFE75;
             --color-light: #FAFAF2;
-            --color-dark: #242424;
+            --color-dark: #1A1A1A;
             
             /* Theme Variables */
             --bg-primary: var(--color-background);
@@ -26,25 +26,25 @@
             --bg-surface: #F5F5ED;
             --bg-card: #FFFFFF;
             
-            --text-primary: var(--color-dark);
-            --text-secondary: #505050;
-            --text-muted: #808080;
-            --text-accent: var(--color-effect);
+            --text-primary: #1A1A1A;
+            --text-secondary: #3A3A3A;
+            --text-muted: #6A6A6A;
+            --text-accent: #2A2A2A;
             
             --accent-primary: var(--color-effect);
             --accent-secondary: var(--color-effect);
-            --accent-warning: #FFB84D;
-            --accent-danger: #FF6B6B;
+            --accent-warning: #FF9500;
+            --accent-danger: #FF3B30;
             --accent-info: var(--color-effect);
             
-            --border-primary: #D0D0C8;
-            --border-secondary: #E0E0D8;
-            --border-accent: #9CFE75;
+            --border-primary: #C0C0B8;
+            --border-secondary: #D8D8D0;
+            --border-accent: var(--color-effect);
             
-            --shadow-sm: 0 1px 3px 0 rgba(36, 36, 36, 0.08);
-            --shadow-md: 0 4px 6px -1px rgba(36, 36, 36, 0.1);
-            --shadow-lg: 0 10px 15px -3px rgba(36, 36, 36, 0.12);
-            --shadow-xl: 0 20px 25px -5px rgba(36, 36, 36, 0.15);
+            --shadow-sm: 0 1px 3px 0 rgba(26, 26, 26, 0.12);
+            --shadow-md: 0 4px 6px -1px rgba(26, 26, 26, 0.15);
+            --shadow-lg: 0 10px 15px -3px rgba(26, 26, 26, 0.18);
+            --shadow-xl: 0 20px 25px -5px rgba(26, 26, 26, 0.20);
             
             --gradient-primary: linear-gradient(135deg, var(--color-effect), var(--color-button));
             --gradient-surface: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
@@ -93,9 +93,9 @@
 
         /* Header bar */
         .header {
-            background: rgba(18, 32, 47, 0.95);
+            background: var(--color-background);
             backdrop-filter: blur(10px);
-            border-bottom: 2px solid var(--color-orange);
+            border-bottom: 2px solid var(--color-effect);
             padding: 0;
             position: sticky;
             top: 0;
@@ -232,8 +232,8 @@
 
         /* Workflow Guide Banner */
         .workflow-banner {
-            background: linear-gradient(135deg, rgba(255, 109, 46, 0.15), rgba(130, 59, 255, 0.15));
-            border: 2px solid var(--color-orange);
+            background: linear-gradient(135deg, rgba(156, 254, 117, 0.12), rgba(156, 254, 117, 0.08));
+            border: 2px solid var(--color-effect);
             border-radius: 12px;
             padding: 20px 30px;
             margin-bottom: 30px;
@@ -332,9 +332,22 @@
 
         .app-sections {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr;
             gap: 30px;
             margin-bottom: 30px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Hide Myclub section for Easor */
+        .app-sections .app-section:nth-child(2) {
+            display: none;
+        }
+
+        /* Hide Myclub status item */
+        #statusInfo .status-item:nth-child(2) {
+            display: none;
         }
 
         .app-section {
@@ -446,14 +459,17 @@
         }
 
         .btn-primary {
-            background: var(--gradient-primary);
-            color: white;
+            background: var(--color-button);
+            color: var(--color-background);
             box-shadow: var(--shadow-md);
+            border: 2px solid var(--color-button);
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
             box-shadow: var(--shadow-lg);
+            background: var(--color-dark);
+            border-color: var(--color-effect);
         }
 
         .btn-secondary {
