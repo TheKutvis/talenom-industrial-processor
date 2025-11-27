@@ -579,7 +579,11 @@ function transformMaestroToTalenom(rawData) {
     const finalBrutto = (debet === 0 && kredit === 0 && alkusaldo !== 0) ? alkusaldo : brutto;
     
     // Get TILI (account number) - parse as number to ensure Excel treats it as numeric
-    const tiliStr = String(row['TILI'] || row['Tili'] || row['TILINUMERO'] || '').trim();
+    let tiliStr = String(row['TILI'] || row['Tili'] || row['TILINUMERO'] || '').trim();
+    
+    // Apply account mapping for main application
+    tiliStr = accountMappingService.mapAccount('main', tiliStr);
+    
     const tili = parseInt(tiliStr, 10) || tiliStr; // Convert to number if possible
     
     // Generate sequential TOSITE numbers (HI-1, HI-2, HI-3, etc.)
