@@ -979,29 +979,26 @@
             progressFill.style.width = `${percentage}%`;
         }
 
-        function showResultsSummary(fileName, recordCount, processingTime, jsonData = null) {
+        function showResultsSummary(fileName, recordCount, processingTime, hasProcessedTemplate = false) {
             const summary = document.getElementById('resultsSummary');
             document.getElementById('fileName').textContent = fileName;
             document.getElementById('recordCount').textContent = recordCount;
             document.getElementById('processingTime').textContent = processingTime;
             
-            // Show download buttons if we have JSON data
+            // Hide JSON download button (not sending full data anymore)
+            // But show template download button if template is available
             const downloadBtn = document.getElementById('downloadJsonBtn');
             const downloadTemplateBtn = document.getElementById('downloadPopulatedTemplateBtn');
-            log(`Download button element found: ${!!downloadBtn}`, 'debug');
-            log(`Template download button element found: ${!!downloadTemplateBtn}`, 'debug');
-            log(`JSON data available: ${!!jsonData}, records: ${jsonData ? jsonData.length : 0}`, 'debug');
             
-            if (jsonData) {
-                processedJsonData = jsonData;
-                downloadBtn.style.display = 'inline-flex';
+            downloadBtn.style.display = 'none'; // JSON download no longer available
+            
+            if (hasProcessedTemplate) {
                 downloadTemplateBtn.style.display = 'inline-flex';
-                log('Both download buttons shown', 'success');
+                log('Template download button shown', 'success');
             } else {
-                downloadBtn.style.display = 'none';
                 downloadTemplateBtn.style.display = 'none';
-                log('Download buttons hidden - no JSON data', 'info');
             }
+            
             updateSendToTalenomButton();
             summary.style.display = 'block';
             updateProgress(100);
@@ -1462,13 +1459,13 @@
                     log(`🗂️ Data chunks extracted: ${result.rowCount}`, 'success');
                     log(`✅ Structural integrity validated`, 'success');
                     
-                    updateStatus('success', t('messages.processSuccess', { count: result.rowCount }));
-                    showResultsSummary(result.fileName, result.rowCount, processingTime, result.data);
-                    
-                    // Log sample data
-                    if (result.data && result.data.length > 0) {
-                        log(`Sample record: ${JSON.stringify(result.data[0], null, 2)}`, 'debug');
+                    // Log summary information
+                    if (result.summary) {
+                        log(`📊 Summary: ${result.summary.firstRow} → ${result.summary.lastRow}, Total: €${result.summary.totalAmount}`, 'info');
                     }
+                    
+                    updateStatus('success', t('messages.processSuccess', { count: result.rowCount }));
+                    showResultsSummary(result.fileName, result.rowCount, processingTime, result.hasProcessedTemplate);
                 } else {
                     throw new Error(result.error || result.message || 'Jackhammer malfunction detected');
                 }

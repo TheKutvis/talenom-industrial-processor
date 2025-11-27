@@ -399,8 +399,10 @@ function transformToTalenomFormat(rawData, csvType = 'regular') {
   logger.info(`Transforming ${rawData.length} records with CSV type: ${csvType}`);
   
   rawData.forEach((row, index) => {
-    // Debug: Log the structure of each row
-    console.log(`Row ${index}:`, JSON.stringify(row, null, 2));
+    // Log only first 3 and last row for debugging
+    if (index < 3 || index === rawData.length - 1) {
+      logger.info(`Sample row ${index}:`, JSON.stringify(row, null, 2));
+    }
     
     // Extract data based on CSV type
     let accountNumber, description, date, debitAmount, creditAmount, vatAmount, vatPercentage, referenceNumber, costCenter;
@@ -458,18 +460,16 @@ function transformToTalenomFormat(rawData, csvType = 'regular') {
     const netAmount = Math.max(debitAmount, creditAmount);
     const vatIncludedAmount = netAmount + vatAmount;
     
-    console.log(`Parsed values for row ${index}:`, {
-      accountNumber,
-      description,
-      date,
-      debitAmount,
-      creditAmount,
-      netAmount,
-      vatAmount,
-      vatPercentage,
-      referenceNumber,
-      costCenter
-    });
+    // Log only first 3 and last row for debugging
+    if (index < 3 || index === rawData.length - 1) {
+      logger.info(`Parsed values for row ${index}:`, {
+        accountNumber,
+        description: description.substring(0, 50),
+        date,
+        netAmount,
+        vatAmount
+      });
+    }
     
     // Create Talenom voucher format
     const voucher = {
@@ -806,15 +806,21 @@ app.post('/api/upload-file', upload.single('file'), async (req, res) => {
     lastTransformedData = transformedData; // Store transformed JSON data
     lastProcessedFileName = originalName.replace(/\.[^/.]+$/, '') + '_processed.xlsx';
 
+    logger.info(`Successfully processed ${transformedData.length} records (${csvType} format)`);
+
+    // Send minimal response - don't send full data arrays to reduce response size
     res.json({
       success: true,
-      data: transformedData,
-      rawData: data, // Keep original for debugging
       fileName: originalName,
       rowCount: transformedData.length,
       timestamp: new Date().toISOString(),
-      hasProcessedTemplate: true, // Indicate template is available
-      csvType: csvType
+      hasProcessedTemplate: true,
+      csvType: csvType,
+      summary: {
+        firstRow: transformedData[0]?.voucherDate || null,
+        lastRow: transformedData[transformedData.length - 1]?.voucherDate || null,
+        totalAmount: transformedData.reduce((sum, v) => sum + (v.vatIncludedAmount || 0), 0).toFixed(2)
+      }
     });
 
   } catch (error) {
