@@ -986,20 +986,22 @@
             document.getElementById('processingTime').textContent = processingTime;
             
             // Hide JSON download button (not sending full data anymore)
-            // But show template download button if template is available
+            // But show template download and Send to Talenom buttons if template is available
             const downloadBtn = document.getElementById('downloadJsonBtn');
             const downloadTemplateBtn = document.getElementById('downloadPopulatedTemplateBtn');
+            const sendToTalenomBtn = document.getElementById('sendToTalenomBtn');
             
             downloadBtn.style.display = 'none'; // JSON download no longer available
             
             if (hasProcessedTemplate) {
                 downloadTemplateBtn.style.display = 'inline-flex';
-                log('Template download button shown', 'success');
+                sendToTalenomBtn.style.display = 'inline-flex';
+                log('Template download and Send to Talenom buttons shown', 'success');
             } else {
                 downloadTemplateBtn.style.display = 'none';
+                sendToTalenomBtn.style.display = 'none';
             }
             
-            updateSendToTalenomButton();
             summary.style.display = 'block';
             updateProgress(100);
         }
@@ -1666,11 +1668,6 @@
 
             // Send to Talenom button
             document.getElementById('sendToTalenomBtn').addEventListener('click', async function() {
-                if (!processedJsonData) {
-                    log('No processed JSON data to send', 'error');
-                    updateStatus('error', 'No processed data to send');
-                    return;
-                }
                 let organizationNumber = prompt('Enter organization number for Talenom API:');
                 if (!organizationNumber) {
                     log('Organization number input cancelled', 'warn');
@@ -1678,14 +1675,15 @@
                 }
                 updateStatus('loading', 'Sending data to Talenom...');
                 try {
+                    // Send request without voucherData - server will use lastTransformedData
                     const response = await fetch('/api/send-to-talenom', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ organizationNumber, voucherData: processedJsonData })
+                        body: JSON.stringify({ organizationNumber })
                     });
                     const result = await response.json();
                     if (response.ok && result.success) {
-                        log('Vouchers sent to Talenom successfully', 'success');
+                        log(`Vouchers sent to Talenom successfully (${result.vouchersCount} vouchers)`, 'success');
                         updateStatus('success', 'Vouchers sent to Talenom successfully');
                         playCrowdYaySound(); // Play success sound only when successfully sent to Talenom
                     } else {

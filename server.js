@@ -1504,25 +1504,34 @@ app.post('/api/send-to-talenom', async (req, res) => {
       });
     }
     
-    if (!voucherData || !Array.isArray(voucherData) || voucherData.length === 0) {
-      return res.status(400).json({
-        success: false,
-        error: 'Voucher data is required and must be a non-empty array'
-      });
+    // Use provided voucherData or fall back to lastTransformedData
+    let dataToSend = voucherData;
+    
+    if (!dataToSend || !Array.isArray(dataToSend) || dataToSend.length === 0) {
+      // Try to use server-side stored data
+      if (lastTransformedData && lastTransformedData.length > 0) {
+        dataToSend = lastTransformedData;
+        logger.info('Using server-side stored transformed data');
+      } else {
+        return res.status(400).json({
+          success: false,
+          error: 'No voucher data available. Please process a file first.'
+        });
+      }
     }
     
-    logger.info(`Sending ${voucherData.length} vouchers to Talenom for organization: ${organizationNumber}`);
+    logger.info(`Sending ${dataToSend.length} vouchers to Talenom for organization: ${organizationNumber}`);
     
     // Initialize API client
     const ApiClient = require('./services/apiClient');
     const apiClient = new ApiClient();
     
     // Send vouchers to Talenom
-    const result = await apiClient.sendVouchers(organizationNumber, voucherData);
+    const result = await apiClient.sendVouchers(organizationNumber, dataToSend);
     
     logger.info('Vouchers sent to Talenom successfully', {
       organizationNumber,
-      vouchersCount: voucherData.length,
+      vouchersCount: dataToSend.length,
       result
     });
     
@@ -1530,7 +1539,7 @@ app.post('/api/send-to-talenom', async (req, res) => {
       success: true,
       message: 'Vouchers sent to Talenom successfully',
       organizationNumber,
-      vouchersCount: voucherData.length,
+      vouchersCount: dataToSend.length,
       result
     });
     
