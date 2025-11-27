@@ -733,6 +733,9 @@
                         <button class="btn btn-format" data-format="maestro" type="button">
                             🎼 Maestro
                         </button>
+                        <button class="btn btn-format" data-format="netvisor" type="button">
+                            🌐 Netvisor-CSV
+                        </button>
                     </div>
                 </div>
 
@@ -1436,6 +1439,11 @@
                 
                 // Choose endpoint based on format
                 const endpoint = format === 'maestro' ? '/api/upload-maestro' : '/api/upload-file';
+                
+                // Add format to formData for backend processing
+                if (format === 'netvisor') {
+                    formData.append('csvType', 'netvisor');
+                }
                 
                 const response = await fetch(endpoint, {
                     method: 'POST',

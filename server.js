@@ -325,12 +325,30 @@ app.post('/api/chart-of-accounts', async (req, res) => {
 });
 
 // Validate CSV data structure for Finnish accounting format
-function validateAccountingData(rawData) {
+function validateAccountingData(rawData, csvType = 'regular') {
   if (!Array.isArray(rawData) || rawData.length === 0) {
     throw new Error('No data found in file');
   }
 
-  // Expected Finnish accounting columns
+  // For Netvisor, we already filtered the data, so just do basic validation
+  if (csvType === 'netvisor') {
+    logger.info('Validating Netvisor CSV data');
+    if (rawData.length === 0) {
+      throw new Error('No valid data rows found in Netvisor CSV after filtering headers and summaries');
+    }
+    
+    // Check that we have some columns
+    const firstRow = rawData[0];
+    const columnCount = Object.keys(firstRow).length;
+    if (columnCount < 5) {
+      throw new Error('Netvisor CSV appears to have insufficient columns');
+    }
+    
+    logger.info(`Netvisor validation passed: ${rawData.length} rows, ${columnCount} columns`);
+    return true;
+  }
+
+  // Expected Finnish accounting columns for regular CSV
   const requiredColumns = ['Tili', 'Nimi', 'Päiväys', 'Tositelaji', 'Tosite', 'ALV-%', 'ALV(EUR)', 'Debet', 'Kredit', 'Selite'];
   const optionalColumns = ['ALV-tunnus', 'Saldo', 'Kustannuspaikat'];
   
@@ -375,36 +393,66 @@ function validateAccountingData(rawData) {
 }
 
 // Transform CSV/Excel data to Talenom voucher format
-function transformToTalenomFormat(rawData) {
+function transformToTalenomFormat(rawData, csvType = 'regular') {
   const vouchers = [];
+  
+  logger.info(`Transforming ${rawData.length} records with CSV type: ${csvType}`);
   
   rawData.forEach((row, index) => {
     // Debug: Log the structure of each row
     console.log(`Row ${index}:`, JSON.stringify(row, null, 2));
     
-    // Extract data directly from CSV columns (csv-parser handles semicolon separation)
-    let accountNumber = String(row['Tili'] || '1000').trim();
-    const description = String(row['Selite'] || 'Transaction').trim();
-    const date = String(row['Päiväys'] || new Date().toISOString().split('T')[0]).trim();
+    // Extract data based on CSV type
+    let accountNumber, description, date, debitAmount, creditAmount, vatAmount, vatPercentage, referenceNumber, costCenter;
     
-    // Apply account mapping for main application
-    accountNumber = accountMappingService.mapAccount('main', accountNumber);
-    
-    // Handle Finnish decimal format (comma instead of dot) and clean string values
-    const debitStr = String(row['Debet'] || '0').replace(',', '.').replace('-', '0');
-    const creditStr = String(row['Kredit'] || '0').replace(',', '.').replace('-', '0');
-    const vatAmountStr = String(row['ALV(EUR)'] || '0').replace(',', '.');
-    
-    const debitAmount = parseFloat(debitStr) || 0;
-    const creditAmount = parseFloat(creditStr) || 0;
-    const vatAmount = parseFloat(vatAmountStr) || 0;
-    
-    // Parse VAT percentage (remove % sign and handle Finnish decimal format)
-    const vatPercentageStr = String(row['ALV-%'] || '0').replace('%', '').replace(' ', '').replace(',', '.');
-    const vatPercentage = parseFloat(vatPercentageStr) || 0;
-    
-    const referenceNumber = String(row['Tosite'] || `REF${String(index + 1).padStart(3, '0')}`).trim();
-    const costCenter = String(row['Kustannuspaikat'] || '').trim();
+    if (csvType === 'netvisor') {
+      // Netvisor CSV format (koneluettava) - separate columns: Tili, Nimi, Päiväys, Tositelaji, Tosite, ALV-%, ALV(EUR), ALV-tunnus, Debet, Kredit, Saldo, Selite, Kustannuspaikat
+      accountNumber = String(row['Tili'] || '1000').trim();
+      description = String(row['Selite'] || row['Nimi'] || 'Transaction').trim();
+      date = String(row['Päiväys'] || new Date().toISOString().split('T')[0]).trim();
+      
+      // Apply account mapping for main application
+      accountNumber = accountMappingService.mapAccount('main', accountNumber);
+      
+      // Handle Finnish decimal format
+      const debitStr = String(row['Debet'] || '0').replace(',', '.').replace('-', '0').trim();
+      const creditStr = String(row['Kredit'] || '0').replace(',', '.').replace('-', '0').trim();
+      const vatAmountStr = String(row['ALV(EUR)'] || '0').replace(',', '.').trim();
+      
+      debitAmount = parseFloat(debitStr) || 0;
+      creditAmount = parseFloat(creditStr) || 0;
+      vatAmount = parseFloat(vatAmountStr) || 0;
+      
+      const vatPercentageStr = String(row['ALV-%'] || '0').replace('%', '').replace(' ', '').replace(',', '.').trim();
+      vatPercentage = parseFloat(vatPercentageStr) || 0;
+      
+      referenceNumber = String(row['Tosite'] || `REF${String(index + 1).padStart(3, '0')}`).trim();
+      costCenter = String(row['Kustannuspaikat'] || '').trim();
+    } else {
+      // Regular CSV format
+      accountNumber = String(row['Tili'] || '1000').trim();
+      description = String(row['Selite'] || 'Transaction').trim();
+      date = String(row['Päiväys'] || new Date().toISOString().split('T')[0]).trim();
+      
+      // Apply account mapping for main application
+      accountNumber = accountMappingService.mapAccount('main', accountNumber);
+      
+      // Handle Finnish decimal format (comma instead of dot) and clean string values
+      const debitStr = String(row['Debet'] || '0').replace(',', '.').replace('-', '0');
+      const creditStr = String(row['Kredit'] || '0').replace(',', '.').replace('-', '0');
+      const vatAmountStr = String(row['ALV(EUR)'] || '0').replace(',', '.');
+      
+      debitAmount = parseFloat(debitStr) || 0;
+      creditAmount = parseFloat(creditStr) || 0;
+      vatAmount = parseFloat(vatAmountStr) || 0;
+      
+      // Parse VAT percentage (remove % sign and handle Finnish decimal format)
+      const vatPercentageStr = String(row['ALV-%'] || '0').replace('%', '').replace(' ', '').replace(',', '.');
+      vatPercentage = parseFloat(vatPercentageStr) || 0;
+      
+      referenceNumber = String(row['Tosite'] || `REF${String(index + 1).padStart(3, '0')}`).trim();
+      costCenter = String(row['Kustannuspaikat'] || '').trim();
+    }
     
     // Calculate amounts - use the larger of debit/credit as the main amount
     const netAmount = Math.max(debitAmount, creditAmount);
@@ -638,6 +686,10 @@ app.post('/api/upload-file', upload.single('file'), async (req, res) => {
   logger.info('Request headers:', JSON.stringify(req.headers));
   logger.info('Request file:', req.file ? 'File received' : 'No file');
   
+  // Check for CSV type parameter (netvisor, regular, etc.)
+  const csvType = req.body.csvType || 'regular';
+  logger.info(`CSV Type: ${csvType}`);
+  
   try {
     if (!req.file) {
       logger.error('No file in request');
@@ -651,24 +703,90 @@ app.post('/api/upload-file', upload.single('file'), async (req, res) => {
     const originalName = req.file.originalname;
     let data = [];
 
-    logger.info(`Processing uploaded file: ${originalName}`);
+    logger.info(`Processing uploaded file: ${originalName} (type: ${csvType})`);
 
     if (originalName.endsWith('.csv')) {
-      // Parse CSV with semicolon separator (Finnish CSV format)
-      const csvString = buffer.toString('utf8');
-      data = await new Promise((resolve, reject) => {
-        const results = [];
-        const Readable = require('stream').Readable;
-        const csvStream = new Readable();
-        csvStream.push(csvString);
-        csvStream.push(null);
+      // Handle Netvisor format - skip first 4 header rows
+      if (csvType === 'netvisor') {
+        logger.info('Processing Netvisor CSV format');
         
-        csvStream
-          .pipe(csv({ separator: ';' }))
-          .on('data', (row) => results.push(row))
-          .on('end', () => resolve(results))
-          .on('error', reject);
-      });
+        // Netvisor files are typically in Latin-1 encoding
+        const csvString = buffer.toString('latin1');
+        
+        // Netvisor koneluettava format has 4 header rows before the actual column names
+        // Row 1-4: Company name, empty, date range, empty
+        // Row 5: Column headers (Tili;Nimi;Päiväys;...)
+        // Row 6+: Data
+        const lines = csvString.split('\n');
+        
+        // Find the header row (should be row 5, index 4)
+        let headerRowIndex = -1;
+        for (let i = 0; i < Math.min(10, lines.length); i++) {
+          if (lines[i].includes('Tili;') && (lines[i].includes('Päiväys') || lines[i].includes('Paiv'))) {
+            headerRowIndex = i;
+            logger.info(`Found Netvisor header row at line ${i + 1}`);
+            break;
+          }
+        }
+        
+        if (headerRowIndex === -1) {
+          throw new Error('Could not find Netvisor data headers (looking for Tili;Päiväys columns)');
+        }
+        
+        // Get data lines after the header
+        const dataLines = lines.slice(headerRowIndex + 1).filter(line => {
+          // Filter out empty lines and summary rows
+          const trimmed = line.trim();
+          return trimmed && 
+                 !trimmed.startsWith('Yhteensä') && 
+                 !trimmed.includes(';Yhteensä;') &&
+                 !trimmed.match(/^;+$/);
+        });
+        
+        // Reconstruct CSV with proper headers
+        const cleanedCsv = [lines[headerRowIndex], ...dataLines].join('\n');
+        
+        logger.info(`Netvisor CSV: Found ${dataLines.length} data lines after header`);
+        
+        data = await new Promise((resolve, reject) => {
+          const results = [];
+          const Readable = require('stream').Readable;
+          const csvStream = new Readable();
+          csvStream.push(cleanedCsv);
+          csvStream.push(null);
+          
+          csvStream
+            .pipe(csv({ separator: ';' }))
+            .on('data', (row) => {
+              // Skip rows without valid account number
+              const tili = String(row['Tili'] || '').trim();
+              if (tili && !tili.includes('Yhteensä')) {
+                results.push(row);
+              }
+            })
+            .on('end', () => resolve(results))
+            .on('error', reject);
+        });
+        
+        logger.info(`Netvisor CSV parsed: ${data.length} valid data rows`);
+      } else {
+        // Regular CSV or Maestro - parse normally with UTF-8
+        const csvString = buffer.toString('utf8');
+        let rawResults = await new Promise((resolve, reject) => {
+          const results = [];
+          const Readable = require('stream').Readable;
+          const csvStream = new Readable();
+          csvStream.push(csvString);
+          csvStream.push(null);
+          
+          csvStream
+            .pipe(csv({ separator: ';' }))
+            .on('data', (row) => results.push(row))
+            .on('end', () => resolve(results))
+            .on('error', reject);
+        });
+        data = rawResults;
+      }
     } else if (originalName.endsWith('.xlsx') || originalName.endsWith('.xls')) {
       // Parse Excel from buffer
       const workbook = XLSX.read(buffer, { type: 'buffer' });
@@ -678,10 +796,10 @@ app.post('/api/upload-file', upload.single('file'), async (req, res) => {
     }
 
     // Validate that the data contains proper Finnish accounting structure
-    validateAccountingData(data);
+    validateAccountingData(data, csvType);
 
     // Transform data to Talenom format
-    const transformedData = transformToTalenomFormat(data);
+    const transformedData = transformToTalenomFormat(data, csvType);
     
     // Store processed data for template download
     lastProcessedData = data; // Store original data in template format
@@ -695,7 +813,8 @@ app.post('/api/upload-file', upload.single('file'), async (req, res) => {
       fileName: originalName,
       rowCount: transformedData.length,
       timestamp: new Date().toISOString(),
-      hasProcessedTemplate: true // Indicate template is available
+      hasProcessedTemplate: true, // Indicate template is available
+      csvType: csvType
     });
 
   } catch (error) {
