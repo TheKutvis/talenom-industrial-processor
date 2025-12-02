@@ -4,288 +4,59 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🏭 Talenom General Ledger - Industrial File Processor</title>
+    <link rel="stylesheet" href="unified-styles.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            /* Industrial Dark Theme - Enhanced */
-            --bg-primary: #0a0e13;
-            --bg-secondary: #151a21;
-            --bg-tertiary: #1e252e;
-            --bg-surface: #2d3748;
-            --bg-card: #1a202c;
-            
-            --text-primary: #e2e8f0;
-            --text-secondary: #a0aec0;
-            --text-muted: #718096;
-            --text-accent: #63b3ed;
-            
-            --accent-primary: #48bb78;
-            --accent-secondary: #4299e1;
-            --accent-warning: #ed8936;
-            --accent-danger: #f56565;
-            --accent-info: #38b2ac;
-            
-            --border-primary: #2d3748;
-            --border-secondary: #1a202c;
-            --border-accent: #4a5568;
-            
-            --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.4);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.6);
-            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.7);
-            
-            --gradient-primary: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            --gradient-surface: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', 'Roboto', sans-serif;
-            background: var(--gradient-surface);
-            background-attachment: fixed;
-            color: var(--text-primary);
-            min-height: 100vh;
-            line-height: 1.6;
-            padding: 0;
-            position: relative;
-            overflow-x: hidden;
-        }
-
-        /* Industrial background pattern */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                radial-gradient(circle at 1px 1px, rgba(255,255,255,0.03) 1px, transparent 0);
-            background-size: 20px 20px;
-            pointer-events: none;
-            z-index: -1;
-        }
-
-        /* Header bar */
-        .header {
-            background: rgba(21, 26, 33, 0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--border-accent);
-            padding: 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: var(--shadow-md);
-        }
-
-        .header-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        .logo-icon {
-            width: 45px;
-            height: 45px;
-            background: var(--gradient-primary);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .version-badge {
-            background: var(--bg-surface);
-            color: var(--text-accent);
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 500;
-            border: 1px solid var(--border-accent);
-        }
-
-        .main-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 40px 30px;
-        }
-
-        .content-grid {
-            display: grid;
-            grid-template-columns: 1fr 400px;
-            gap: 30px;
-            align-items: start;
-        }
-
-        .upload-section {
-            background: var(--bg-card);
-            border: 1px solid var(--border-primary);
-            border-radius: 16px;
-            padding: 40px;
-            box-shadow: var(--shadow-lg);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .upload-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: var(--gradient-primary);
-        }
-
-        .results-panel {
-            background: var(--bg-card);
-            border: 1px solid var(--border-primary);
-            border-radius: 16px;
-            box-shadow: var(--shadow-lg);
-            position: sticky;
-            top: 120px;
-            max-height: calc(100vh - 140px);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        @media (max-width: 1024px) {
-            .content-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-            
-            .results-panel {
-                position: relative;
-                top: auto;
-                max-height: 500px;
-            }
-        }
-
-        .section-title {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .section-subtitle {
-            color: var(--text-secondary);
-            margin-bottom: 30px;
-            font-size: 16px;
-            line-height: 1.5;
-        }
-
-        .panel-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--text-primary);
-            padding: 20px 25px;
-            border-bottom: 1px solid var(--border-primary);
+        /* Page-specific styles - File upload interface components (same as index.html) */
+        
+        /* Format selector container */
+        .format-selector-container {
+            margin: 25px 0;
+            padding: 20px;
             background: var(--bg-tertiary);
-            margin: 0;
-            border-radius: 16px 16px 0 0;
+            border-radius: 12px;
+            border: 1px solid var(--border-primary);
         }
 
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 14px 28px;
-            border: none;
-            border-radius: 10px;
-            font-weight: 600;
+        .format-selector-label {
+            display: block;
             font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            text-decoration: none;
-            font-family: inherit;
-            position: relative;
-            overflow: hidden;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-            transition: left 0.5s ease;
+        .btn-format {
+            flex: 1;
+            min-width: 120px;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s ease;
         }
 
-        .btn:hover::before {
-            left: 100%;
-        }
-
-        .btn-primary {
+        .btn-format.active {
             background: var(--gradient-primary);
             color: white;
-            box-shadow: var(--shadow-md);
-        }
-
-        .btn-primary:hover {
+            border-color: var(--accent-primary);
+            box-shadow: 0 4px 15px rgba(255, 109, 46, 0.3);
             transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
         }
 
-        .btn-secondary {
+        .btn-format:not(.active) {
             background: var(--bg-surface);
-            border: 1px solid var(--border-accent);
+            color: var(--text-secondary);
+            border-color: var(--border-secondary);
+        }
+
+        .btn-format:not(.active):hover {
+            background: var(--bg-card);
             color: var(--text-primary);
-        }
-
-        .btn-secondary:hover {
-            background: var(--bg-tertiary);
-            border-color: var(--accent-secondary);
-        }
-
-        .btn-info {
-            background: var(--accent-info);
-            color: white;
-        }
-
-        .btn-info:hover {
-            background: #319795;
+            border-color: var(--border-accent);
             transform: translateY(-1px);
         }
 
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none !important;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-top: 25px;
-        }
-
+        /* File upload drop zone */
         .file-upload-area {
             border: 2px dashed var(--border-accent);
             border-radius: 16px;
@@ -312,10 +83,10 @@
         }
 
         .file-upload-area:hover {
-            border-color: var(--accent-secondary);
+            border-color: var(--color-orange);
             background: var(--bg-surface);
             transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
+            box-shadow: 0 8px 25px rgba(255, 109, 46, 0.2);
         }
 
         .file-upload-area:hover::before {
@@ -323,15 +94,17 @@
         }
 
         .file-upload-area.drag-over {
-            border-color: var(--accent-primary);
-            background: rgba(72, 187, 120, 0.1);
+            border-color: var(--color-purple);
+            background: rgba(130, 59, 255, 0.1);
             transform: scale(1.02);
+            box-shadow: 0 8px 25px rgba(130, 59, 255, 0.2);
         }
 
         .file-upload-area.file-selected {
-            border-color: var(--accent-primary);
-            background: rgba(72, 187, 120, 0.1);
+            border-color: var(--color-orange);
+            background: rgba(255, 109, 46, 0.1);
             border-style: solid;
+            box-shadow: 0 4px 15px rgba(255, 109, 46, 0.15);
         }
 
         .upload-icon {
@@ -361,63 +134,32 @@
             gap: 12px;
             margin-top: 15px;
             padding: 12px 20px;
-            background: rgba(72, 187, 120, 0.2);
+            background: rgba(255, 109, 46, 0.2);
+            border: 1px solid rgba(255, 109, 46, 0.3);
             border-radius: 8px;
-            color: var(--accent-primary);
+            color: var(--color-orange);
             font-weight: 500;
         }
 
-        .form-input {
-            padding: 12px 16px;
-            background: var(--bg-tertiary);
+        /* Results panel components */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+            align-items: start;
+        }
+
+        .results-panel {
+            background: var(--bg-card);
             border: 1px solid var(--border-primary);
-            border-radius: 8px;
-            color: var(--text-primary);
-            width: 100%;
-            margin: 10px 0;
-        }
-
-        .status {
-            padding: 16px 20px;
-            margin: 20px 0;
-            border-radius: 12px;
-            font-weight: 500;
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            position: sticky;
+            top: 120px;
+            max-height: calc(100vh - 140px);
+            overflow: hidden;
             display: flex;
-            align-items: center;
-            gap: 12px;
-            border-left: 4px solid;
-            animation: slideIn 0.3s ease-out;
-        }
-
-        .status.success {
-            background: rgba(72, 187, 120, 0.15);
-            border-left-color: var(--accent-primary);
-            color: var(--accent-primary);
-        }
-
-        .status.error {
-            background: rgba(245, 101, 101, 0.15);
-            border-left-color: var(--accent-danger);
-            color: var(--accent-danger);
-        }
-
-        .status.info {
-            background: rgba(66, 153, 225, 0.15);
-            border-left-color: var(--accent-secondary);
-            color: var(--accent-secondary);
-        }
-
-        .status-icon {
-            font-size: 18px;
-        }
-
-        @keyframes slideIn {
-            from { transform: translateX(-20px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        .hidden {
-            display: none;
+            flex-direction: column;
         }
 
         .log-container {
@@ -467,6 +209,12 @@
             font-size: 14px;
         }
 
+        .summary-item .btn {
+            padding: 10px 20px;
+            font-size: 12px;
+            margin-left: auto;
+        }
+
         .summary-label {
             color: var(--text-secondary);
         }
@@ -487,9 +235,34 @@
 
         .progress-fill {
             height: 100%;
-            background: var(--gradient-primary);
+            background: var(--gradient-accent);
             width: 0%;
             transition: width 0.3s ease;
+            box-shadow: 0 0 8px rgba(255, 109, 46, 0.4);
+        }
+
+        /* Responsive layout for file upload page */
+        @media (max-width: 1024px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .results-panel {
+                position: relative;
+                top: auto;
+                max-height: 500px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .file-upload-area {
+                padding: 40px 25px;
+            }
+            
+            .upload-icon {
+                font-size: 36px;
+            }
         }
     </style>
 </head>

@@ -4,258 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🔧 Account Mapping Configuration - Talenom GL</title>
+    <link rel="stylesheet" href="unified-styles.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            /* Custom Color Palette */
-            --color-orange: #ff6d2e;
-            --color-light: #fafafa;
-            --color-dark: #12202f;
-            --color-purple: #823bff;
-            
-            /* Theme Variables */
-            --bg-primary: var(--color-dark);
-            --bg-secondary: #0f1a26;
-            --bg-tertiary: #1a2937;
-            --bg-surface: #223344;
-            --bg-card: #182533;
-            
-            --text-primary: var(--color-light);
-            --text-secondary: #b8c4d0;
-            --text-muted: #8a96a3;
-            --text-accent: var(--color-purple);
-            
-            --accent-primary: var(--color-orange);
-            --accent-secondary: var(--color-purple);
-            --accent-warning: #ffab2e;
-            --accent-danger: #ff4757;
-            --accent-info: var(--color-purple);
-            
-            --border-primary: #2a3a4a;
-            --border-secondary: var(--bg-tertiary);
-            --border-accent: #3a4a5a;
-            
-            --shadow-sm: 0 1px 3px 0 rgba(18, 32, 47, 0.4);
-            --shadow-md: 0 4px 6px -1px rgba(18, 32, 47, 0.5);
-            --shadow-lg: 0 10px 15px -3px rgba(18, 32, 47, 0.6);
-            --shadow-xl: 0 20px 25px -5px rgba(18, 32, 47, 0.7);
-            
-            --gradient-primary: linear-gradient(135deg, var(--color-orange), var(--color-purple));
-            --gradient-surface: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
-            --gradient-accent: linear-gradient(45deg, var(--color-orange), var(--color-purple));
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', 'Roboto', sans-serif;
-            background: var(--gradient-surface);
-            background-attachment: fixed;
-            color: var(--text-primary);
-            min-height: 100vh;
-            line-height: 1.6;
-            padding: 0;
-            position: relative;
-            overflow-x: hidden;
-        }
-
-        /* Industrial background pattern */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                radial-gradient(circle at 1px 1px, rgba(255, 109, 46, 0.08) 1px, transparent 0);
-            background-size: 20px 20px;
-            pointer-events: none;
-            z-index: -1;
-        }
-
-        /* Additional accent background */
-        body::after {
-            content: '';
-            position: fixed;
-            top: 0;
-            right: 0;
-            width: 200px;
-            height: 200px;
-            background: radial-gradient(circle, rgba(130, 59, 255, 0.1) 0%, transparent 70%);
-            pointer-events: none;
-            z-index: -1;
-        }
-
-        /* Header bar */
-        .header {
-            background: rgba(18, 32, 47, 0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 2px solid var(--color-orange);
-            padding: 0;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            box-shadow: var(--shadow-lg);
-        }
-
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px 30px;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 22px;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        .logo-icon {
-            background: var(--gradient-primary);
-            border-radius: 12px;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-        }
-
-        .header-controls {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 15px;
-        }
-
-        .nav-link {
-            color: var(--text-secondary);
-            text-decoration: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            font-weight: 500;
-        }
-
-        .nav-link:hover {
-            color: var(--accent-primary);
-            background: var(--bg-tertiary);
-        }
-
-        .nav-link.active {
-            background: var(--gradient-accent);
-            color: var(--color-light);
-        }
-
-        .language-selector {
-            display: flex;
-            gap: 4px;
-            background: var(--bg-tertiary);
-            padding: 4px;
-            border-radius: 8px;
-            border: 1px solid var(--border-accent);
-        }
-
-        .btn-lang {
-            padding: 6px 12px;
-            background: transparent;
-            border: none;
-            color: var(--text-secondary);
-            font-size: 12px;
-            font-weight: 500;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .btn-lang:hover {
-            background: var(--bg-surface);
-            color: var(--text-primary);
-        }
-
-        .btn-lang.active {
-            background: var(--gradient-accent);
-            color: var(--color-light);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .version-badge {
-            background: var(--gradient-accent);
-            color: var(--color-light);
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            border: none;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .main-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 40px 30px;
-        }
-
-        .content-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 30px;
-            align-items: start;
-        }
-
-        .content-section {
-            background: var(--bg-card);
-            border: 1px solid var(--border-primary);
-            border-radius: 16px;
-            padding: 35px;
-            box-shadow: var(--shadow-lg);
-            margin-bottom: 30px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .content-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: var(--gradient-primary);
-            box-shadow: 0 2px 8px rgba(255, 109, 46, 0.25);
-        }
-
-        .section-title {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .section-subtitle {
-            color: var(--text-secondary);
-            margin-bottom: 25px;
-            font-size: 15px;
-            line-height: 1.6;
-        }
-
+        /* Page-specific styles - Account mapping interface */
+        
+        /* App sections grid layout */
         .app-sections {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -263,52 +16,7 @@
             margin-bottom: 30px;
         }
 
-        .app-section {
-            background: var(--bg-card);
-            border: 1px solid var(--border-primary);
-            border-radius: 16px;
-            padding: 32px;
-            box-shadow: var(--shadow-md);
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .app-section:hover {
-            box-shadow: var(--shadow-lg);
-            transform: translateY(-2px);
-        }
-
-        .app-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: var(--gradient-primary);
-            box-shadow: 0 2px 8px rgba(255, 109, 46, 0.25);
-        }
-
-        .app-section h2 {
-            color: var(--text-primary);
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .app-icon {
-            font-size: 22px;
-        }
-
-        .app-section p {
-            color: var(--text-secondary);
-            margin-bottom: 25px;
-        }
-
+        /* Mapping forms layout */
         .mapping-form {
             display: flex;
             flex-direction: column;
@@ -327,203 +35,7 @@
             justify-content: center;
         }
 
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .form-group label {
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: var(--text-primary);
-            font-size: 14px;
-        }
-
-        .form-group input {
-            padding: 12px 16px;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-primary);
-            border-radius: 8px;
-            color: var(--text-primary);
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 0 3px rgba(255, 109, 46, 0.1);
-        }
-
-        .form-group input::placeholder {
-            color: var(--text-muted);
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 14px 28px;
-            border: none;
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            text-decoration: none;
-            font-family: inherit;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-            transition: left 0.5s ease;
-        }
-
-        .btn:hover::before {
-            left: 100%;
-        }
-
-        .btn-primary {
-            background: var(--gradient-primary);
-            color: white;
-            box-shadow: var(--shadow-md);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .btn-secondary {
-            background: var(--bg-surface);
-            border: 1px solid var(--border-accent);
-            color: var(--text-primary);
-        }
-
-        .btn-secondary:hover {
-            background: var(--bg-tertiary);
-            border-color: var(--accent-secondary);
-        }
-
-        .btn-success {
-            background: linear-gradient(135deg, #28a745, #20c997);
-            color: white;
-            box-shadow: var(--shadow-md);
-        }
-
-        .btn-success:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-            background: linear-gradient(135deg, #218838, #17a2b8);
-        }
-
-        .btn-danger {
-            background: linear-gradient(135deg, var(--accent-danger), #c53030);
-            color: white;
-            box-shadow: var(--shadow-md);
-        }
-
-        .btn-danger:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .btn-info {
-            background: var(--accent-info);
-            color: white;
-        }
-
-        .btn-info:hover {
-            background: #319795;
-            transform: translateY(-1px);
-        }
-
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none !important;
-        }
-
-        .mappings-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            background: var(--bg-tertiary);
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .mappings-table th,
-        .mappings-table td {
-            padding: 16px;
-            text-align: left;
-            border-bottom: 1px solid var(--border-primary);
-        }
-
-        .mappings-table th {
-            background: var(--bg-surface);
-            font-weight: 600;
-            color: var(--text-primary);
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .mappings-table td {
-            color: var(--text-secondary);
-        }
-
-        .mappings-table tr:hover {
-            background: var(--bg-surface);
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 50px 20px;
-            color: var(--text-muted);
-        }
-
-        .empty-state-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
-            opacity: 0.6;
-        }
-
-        .status-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 0;
-            border-bottom: 1px solid var(--border-primary);
-            transition: all 0.2s ease;
-        }
-
-        .status-item:hover {
-            padding-left: 8px;
-            background: var(--bg-surface);
-            margin: 0 -8px;
-            padding-right: 8px;
-            border-radius: 8px;
-        }
-
-        .status-item:last-child {
-            border-bottom: none;
-        }
-
-        .status-label {
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-
+        /* Status value with gradient text */
         .status-value {
             font-weight: 700;
             font-size: 15px;
@@ -533,52 +45,12 @@
             background-clip: text;
         }
 
-        .message {
-            padding: 16px 20px;
-            border-radius: 12px;
-            margin-bottom: 25px;
-            font-weight: 500;
-            display: none;
-            align-items: center;
-            gap: 12px;
-            border-left: 4px solid;
-            animation: slideIn 0.3s ease-out;
-        }
-
-        .message.success {
-            background: rgba(72, 187, 120, 0.15);
-            border-left-color: #48bb78;
-            color: #48bb78;
-        }
-
-        .message.error {
-            background: rgba(245, 101, 101, 0.15);
-            border-left-color: var(--accent-danger);
-            color: var(--accent-danger);
-        }
-
-        @keyframes slideIn {
-            from { transform: translateX(-20px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
+        /* Actions grid for management section */
         .actions {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 16px;
             width: 100%;
-        }
-        
-        .btn-group {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-        
-        .btn-group .btn {
-            flex: 1;
-            min-width: 140px;
-            justify-content: center;
         }
         
         .excel-controls {
@@ -631,59 +103,25 @@
             border: 1px solid rgba(59, 130, 246, 0.3);
         }
 
+        /* Responsive */
         @media (max-width: 1024px) {
-            .content-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-            
             .app-sections {
                 grid-template-columns: 1fr;
             }
             
-            .mapping-form {
+            .mapping-form-inputs {
                 grid-template-columns: 1fr;
-                gap: 10px;
             }
         }
 
         @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-                gap: 15px;
-                padding: 15px 20px;
-            }
-            
-            .header-controls {
-                width: 100%;
-                justify-content: space-between;
-            }
-            
-            .main-container {
-                padding: 20px 15px;
-            }
-            
-            .content-section,
-            .app-section {
-                padding: 25px 20px;
-            }
-            
             .actions {
-                padding: 0 20px;
+                grid-template-columns: 1fr;
             }
             
+            .excel-controls,
             .btn-group {
                 flex-direction: column;
-                width: 100%;
-            }
-            
-            .btn {
-                justify-content: center;
-                width: 100%;
-            }
-            
-            .mapping-form {
-                gap: 15px;
             }
         }
     </style>
