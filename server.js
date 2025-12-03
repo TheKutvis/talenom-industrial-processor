@@ -8,7 +8,24 @@ const csv = require('csv-parser');
 const XLSX = require('xlsx');
 const fs = require('fs');
 const path = require('path');
-require('dotenv').config();
+
+// Determine if running as packaged executable
+const isPackaged = typeof process.pkg !== 'undefined';
+const appRoot = isPackaged ? path.dirname(process.execPath) : __dirname;
+
+// Load .env from the executable directory when packaged
+if (isPackaged) {
+  const envPath = path.join(appRoot, '.env');
+  if (fs.existsSync(envPath)) {
+    require('dotenv').config({ path: envPath });
+    console.log('Loaded .env from:', envPath);
+  } else {
+    console.warn('WARNING: .env file not found at:', envPath);
+    console.warn('Please create a .env file with your configuration.');
+  }
+} else {
+  require('dotenv').config();
+}
 
 const ApiClient = require('./services/apiClient');
 const logger = require('./utils/logger');
@@ -1388,7 +1405,7 @@ app.post('/api/process-jatko-pasi', uploadJatkoPasi.array('files'), async (req, 
     logger.info(`Jatko-PASI processing started with ${req.files.length} files`);
 
     // Create a temporary workspace directory
-    const workspaceDir = path.join(__dirname, 'temp', `jatko-pasi-${Date.now()}`);
+    const workspaceDir = path.join(appRoot, 'temp', `jatko-pasi-${Date.now()}`);
     fs.mkdirSync(workspaceDir, { recursive: true });
 
     try {
@@ -1452,7 +1469,7 @@ app.get('/api/download-jatko-pasi-result/:filename', (req, res) => {
     logger.info(`Jatko-PASI download request for: ${filename}`);
     
     // Find the file in temp directories
-    const tempDir = path.join(__dirname, 'temp');
+    const tempDir = path.join(appRoot, 'temp');
     if (!fs.existsSync(tempDir)) {
       return res.status(404).json({
         success: false,
@@ -1992,10 +2009,14 @@ app.use((req, res) => {
 });
 
 // Create temp directory for Jatko-PASI processing
-const tempDir = path.join(__dirname, 'temp');
+const tempDir = path.join(appRoot, 'temp');
 if (!fs.existsSync(tempDir)) {
-  fs.mkdirSync(tempDir, { recursive: true });
-  logger.info('Created temp directory for file processing');
+  try {
+    fs.mkdirSync(tempDir, { recursive: true });
+    logger.info('Created temp directory for file processing');
+  } catch (error) {
+    logger.warn('Could not create temp directory:', error.message);
+  }
 }
 
 // Start server

@@ -15,7 +15,13 @@ const logger = winston.createLogger({
     ]
 });
 
-const CONFIG_FILE = path.join(__dirname, '..', 'config', 'account-mappings.json');
+// Determine if running as packaged executable
+const isPackaged = typeof process.pkg !== 'undefined';
+
+// Use executable directory for config when packaged, otherwise use project directory
+const CONFIG_FILE = isPackaged 
+    ? path.join(path.dirname(process.execPath), 'config', 'account-mappings.json')
+    : path.join(__dirname, '..', 'config', 'account-mappings.json');
 
 /**
  * Account Mapping Service
@@ -38,7 +44,12 @@ class AccountMappingService {
             // Ensure config directory exists
             const configDir = path.dirname(CONFIG_FILE);
             if (!fs.existsSync(configDir)) {
-                fs.mkdirSync(configDir, { recursive: true });
+                try {
+                    fs.mkdirSync(configDir, { recursive: true });
+                } catch (mkdirError) {
+                    logger.warn('Could not create config directory, using default mappings:', mkdirError.message);
+                    return; // Continue with default empty mappings
+                }
             }
 
             // Load existing mappings if file exists
@@ -47,9 +58,13 @@ class AccountMappingService {
                 this.mappings = JSON.parse(data);
                 logger.info('Account mappings loaded from configuration file');
             } else {
-                // Create default configuration
-                this.saveMappings();
-                logger.info('Created default account mappings configuration');
+                // Try to create default configuration
+                try {
+                    this.saveMappings();
+                    logger.info('Created default account mappings configuration');
+                } catch (saveError) {
+                    logger.warn('Could not save default mappings, using in-memory mappings:', saveError.message);
+                }
             }
         } catch (error) {
             logger.error('Error loading account mappings:', error);
