@@ -126,6 +126,7 @@ temp/
 *.csv
 *.xlsx
 *.json
+*.zip
 !package.json
 !package-lock.json
 !config/*.json

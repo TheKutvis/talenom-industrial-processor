@@ -68,11 +68,13 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Serve static files - use path from packaged executable when needed
+// Disable index.html auto-serving so we can control the root route
 const publicPath = path.join(__dirname, 'public');
-app.use(express.static(publicPath));
+app.use(express.static(publicPath, { index: false }));
 
 // Serve audio files from root directory
 app.use(express.static(__dirname, {
+  index: false,
   setHeaders: (res, path) => {
     if (path.endsWith('.wav')) {
       res.setHeader('Content-Type', 'audio/wav');
@@ -89,8 +91,8 @@ app.get('/general-ledger', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Serve the Esimerkkiseura sub-application
-app.get('/esimerkkiseura', (req, res) => {
+// Serve the Myclub processor
+app.get('/myclub-processor', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'esimerkkiseura.html'));
 });
 
