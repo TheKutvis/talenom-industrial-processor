@@ -66,7 +66,10 @@ app.use(cors());
 app.use(morgan('combined', { stream: { write: message => logger.info(message.trim()) } }));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
-app.use(express.static('public'));
+
+// Serve static files - use path from packaged executable when needed
+const publicPath = path.join(__dirname, 'public');
+app.use(express.static(publicPath));
 
 // Serve audio files from root directory
 app.use(express.static(__dirname, {
@@ -81,8 +84,8 @@ app.use(express.static(__dirname, {
   }
 }));
 
-// Serve the main application
-app.get('/', (req, res) => {
+// Serve the General Ledger application
+app.get('/general-ledger', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
@@ -197,9 +200,9 @@ const apiClient = new ApiClient();
 
 // Routes
 
-// Serve main page
+// Serve landing page
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, 'public', 'landing.html'));
 });
 
 // Serve original page for backup
