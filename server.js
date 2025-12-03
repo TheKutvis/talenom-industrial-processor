@@ -1259,7 +1259,12 @@ app.post('/api/upload-esimerkkiseura', uploadEsimerkkiseura.single('file'), asyn
 
     // Store processed data globally for download
     lastProcessedJsonData = result.vouchers;
-    lastProcessedFileName = `esimerkkiseura_processed_${originalname.replace(/\.[^/.]+$/, '')}_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.xlsx`;
+    
+    // Generate filename: originalname_processed_DD.MM.YYYY.xlsx
+    const today = new Date();
+    const dateStr = `${String(today.getDate()).padStart(2, '0')}.${String(today.getMonth() + 1).padStart(2, '0')}.${today.getFullYear()}`;
+    const baseFileName = originalname.replace(/\.[^/.]+$/, ''); // Remove extension
+    lastProcessedFileName = `${baseFileName}_processed_${dateStr}.xlsx`;
 
     const processingTime = Date.now() - startTime;
     
@@ -1278,12 +1283,11 @@ app.post('/api/upload-esimerkkiseura', uploadEsimerkkiseura.single('file'), asyn
         const excelBuffer = generateEsimerkkiseuraExcel(result.vouchers, originalname);
         
         // Set response headers for Excel download
-        const excelFileName = `esimerkkiseura_processed_${originalname.replace(/\.[^/.]+$/, '')}_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.xlsx`;
-        res.setHeader('Content-Disposition', `attachment; filename="${excelFileName}"`);
+        res.setHeader('Content-Disposition', `attachment; filename="${lastProcessedFileName}"`);
         res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         res.setHeader('Content-Length', excelBuffer.length);
         
-        logger.info(`Esimerkkiseura Excel file generated: ${excelFileName}`);
+        logger.info(`Esimerkkiseura Excel file generated: ${lastProcessedFileName}`);
         return res.send(excelBuffer);
         
       } catch (excelError) {

@@ -380,8 +380,12 @@ function generateEsimerkkiseuraExcel(vouchers, originalFileName) {
                     }
                 }
                 
+                // Parse TILI (account number) as number to ensure Excel treats it as numeric
+                let tiliStr = String(row.accountNumber || '').trim();
+                const tili = parseInt(tiliStr, 10) || tiliStr; // Convert to number if possible
+                
                 const excelRow = [
-                    row.accountNumber || '',                    // TILI
+                    tili,                                      // TILI (as number)
                     voucher.voucherNumber || '',               // TOSITE
                     formattedDate,                             // PVM
                     brutto,                                    // BRUTTO
@@ -396,8 +400,28 @@ function generateEsimerkkiseuraExcel(vouchers, originalFileName) {
             });
         });
         
-        // Create worksheet
-        const worksheet = XLSX.utils.aoa_to_sheet(excelData);
+        // Create worksheet from array of arrays with raw: false to ensure proper type handling
+        const worksheet = XLSX.utils.aoa_to_sheet(excelData, { raw: false });
+        
+        // Explicitly set TILI column cells as numeric type with Excel's General number format
+        const range = XLSX.utils.decode_range(worksheet['!ref']);
+        for (let row = range.s.r + 1; row <= range.e.r; row++) {
+            const cellAddress = XLSX.utils.encode_cell({ r: row, c: 0 }); // Column A (TILI)
+            const cell = worksheet[cellAddress];
+            if (cell) {
+                // Ensure it's a number type
+                const numValue = typeof cell.v === 'number' ? cell.v : parseInt(String(cell.v), 10);
+                if (!isNaN(numValue)) {
+                    cell.v = numValue;
+                    cell.t = 'n';
+                    // Use Excel's General format (no specific format code = General)
+                    delete cell.z;
+                    delete cell.w;
+                    // Set basic number style
+                    cell.s = { numFmt: 0 }; // 0 = General format in Excel
+                }
+            }
+        }
         
         // Set column widths matching main application
         const columnWidths = [
@@ -417,8 +441,14 @@ function generateEsimerkkiseuraExcel(vouchers, originalFileName) {
         // Add the worksheet to the workbook
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Kirjanpitodata');
         
-        // Generate Excel file buffer
-        const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+        // Generate Excel file buffer with cellStyles enabled
+        const buffer = XLSX.write(workbook, { 
+            type: 'buffer', 
+            bookType: 'xlsx',
+            cellStyles: true,   // Required for cell.s property to work
+            bookSST: true,      // Use shared strings table
+            compression: false  // Cleaner XML output
+        });
         
         return buffer;
         
