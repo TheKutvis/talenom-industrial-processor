@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🏭 Talenom General Ledger - Industrial File Processor</title>
+    <title>Talenom Toolbox - GL</title>
     <link rel="stylesheet" href="unified-styles.css">
     <style>
         /* Page-specific styles - File upload interface components */
@@ -407,7 +407,7 @@
         // Internationalization
         const translations = {
             en: {
-                'app.title': 'Talenom General Ledger',
+                'app.title': 'Talenom Toolbox',
                 'app.version': 'v1.0 Industrial',
                 'upload.title': 'File Processing Station',
                 'upload.subtitle': 'Upload Finnish accounting CSV files with columns: Tili, Nimi, Päiväys, Tositelaji, Tosite, ALV-%, ALV(EUR), Debet, Kredit, Selite. Our industrial-grade processor will validate and transform your data for Talenom API integration.',
@@ -436,7 +436,7 @@
                 'messages.processFail': 'Processing failed: {error}'
             },
             fi: {
-                'app.title': 'Talenom Pääkirjamurskain',
+                'app.title': 'Talenom Toolbox',
                 'app.version': 'v1.0',
                 'upload.title': 'Murskausasema',
                 'upload.subtitle': 'Lataa suomalaisia kirjanpidon CSV-tiedostoja sarakkeilla: Tili, Nimi, Päiväys, Tositelaji, Tosite, ALV-%, ALV(EUR), Debet, Kredit, Selite. Pääkirjamurska validoi ja muuntaa tiedot Talenom API:a varten.',
@@ -465,7 +465,7 @@
                 'messages.processFail': 'Murskaus epäonnistui: {error}'
             },
             sv: {
-                'app.title': 'Talenom Huvudboksmällare',
+                'app.title': 'Talenom Toolbox',
                 'app.version': 'v1.0',
                 'upload.title': 'Filbehandlingsstation',
                 'upload.subtitle': 'Ladda upp CSV- eller Excel-huvudböcker. Det kommer att automatiskt bryta ner data och ladda upp den via API till Easor Accounting.',
@@ -1295,5 +1295,6 @@
             log('System status: All subsystems operational', 'info');
         });
     </script>
+    <script src="version.js"></script>
 </body>
 </html>

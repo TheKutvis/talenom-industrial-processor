@@ -6,21 +6,31 @@ const logger = require('../utils/logger');
  * @param {Array} rawData - Raw data from Excel file
  * @param {string} sheetName - Name of the processed sheet
  * @param {Object} accountMappingService - Account mapping service instance
+ * @param {string} customSelite - Custom SELITE text to use for all rows (optional)
+ * @param {string} customTosite - Custom TOSITE text to use for all rows (optional)
  * @returns {Array} - Transformed voucher data
  */
-function transformEsimerkkiseuraToTalenomFormat(rawData, sheetName = 'Unknown', accountMappingService = null) {
+function transformEsimerkkiseuraToTalenomFormat(rawData, sheetName = 'Unknown', accountMappingService = null, customSelite = '', customTosite = '') {
     logger.info(`Transforming Esimerkkiseura data from sheet: ${sheetName}`);
+    if (customSelite) {
+        logger.info(`Using custom SELITE: "${customSelite}"`);
+    }
+    if (customTosite) {
+        logger.info(`Using custom TOSITE: "${customTosite}"`);
+    }
     
     const vouchers = [];
     const groupedTransactions = new Map();
     
     // Filter out empty rows and header row
     const validData = rawData.filter(row => {
-        return row['Debet-tili'] && 
-               row['Debet-tili'] !== 'Debet-tili' && 
-               row['Arvo'] && 
-               row['Arvo'] !== 'Arvo' &&
-               row['Arvo'] !== '';
+        // Row must have either Debet-tili or Kredit-tili, and must have an Arvo
+        const hasAccount = (row['Debet-tili'] && row['Debet-tili'] !== 'Debet-tili') || 
+                          (row['Kredit-tili'] && row['Kredit-tili'] !== 'Kredit-tili');
+        const hasValue = row['Arvo'] && 
+                        row['Arvo'] !== 'Arvo' &&
+                        row['Arvo'] !== '';
+        return hasAccount && hasValue;
     });
     
     logger.info(`Processing ${validData.length} valid transactions`);
@@ -44,13 +54,15 @@ function transformEsimerkkiseuraToTalenomFormat(rawData, sheetName = 'Unknown', 
     
     // Convert grouped transactions to Talenom voucher format
     groupedTransactions.forEach((group, key) => {
-        const voucher = createTalenomVoucherFromEsimerkkiseura(group, accountMappingService);
+        const voucher = createTalenomVoucherFromEsimerkkiseura(group, accountMappingService, customSelite, customTosite);
         if (voucher) {
             vouchers.push(voucher);
+        } else {
+            logger.warn(`Failed to create voucher for group: ${key}`);
         }
     });
     
-    logger.info(`Created ${vouchers.length} vouchers from Esimerkkiseura data`);
+    logger.info(`Created ${vouchers.length} vouchers from ${groupedTransactions.size} transaction groups`);
     return vouchers;
 }
 
@@ -84,11 +96,16 @@ function parseExcelDate(excelDate) {
  * Create a Talenom voucher from grouped Esimerkkiseura transactions
  * @param {object} group - Grouped transaction data
  * @param {Object} accountMappingService - Account mapping service instance
+ * @param {string} customSelite - Custom SELITE text to use for all rows (optional)
+ * @param {string} customTosite - Custom TOSITE text to use for all rows (optional)
  * @returns {object} - Talenom voucher object
  */
-function createTalenomVoucherFromEsimerkkiseura(group, accountMappingService = null) {
+function createTalenomVoucherFromEsimerkkiseura(group, accountMappingService = null, customSelite = '', customTosite = '') {
     try {
         const { invoiceNumber, date, transactions } = group;
+        
+        // Determine voucher number to use
+        const voucherNumber = customTosite || invoiceNumber;
         
         // Calculate totals and create entries
         const voucherRows = [];
@@ -98,6 +115,10 @@ function createTalenomVoucherFromEsimerkkiseura(group, accountMappingService = n
         transactions.forEach((transaction, index) => {
             const amount = parseFloat(transaction['Arvo']) || 0;
             const vatPercent = parseFloat(transaction['Alv %']) || 0;
+            
+            // Determine description to use
+            const originalDescription = transaction['Nimike'] || transaction['Rivin tyyppi'] || `Debit ${voucherNumber}`;
+            const description = customSelite || originalDescription;
             
             // Create debit entry
             if (transaction['Debet-tili']) {
@@ -115,10 +136,10 @@ function createTalenomVoucherFromEsimerkkiseura(group, accountMappingService = n
                     creditAmount: 0,
                     vatPercent: vatPercent,
                     vatAmount: amount * (vatPercent / 100),
-                    description: transaction['Nimike'] || transaction['Rivin tyyppi'] || `Debit ${invoiceNumber}`,
+                    description: description,
                     projectCode: transaction['Projekti'] || transaction['PROJEKTI'] || '',
                     groupCode: transaction['Ryhmä'] || transaction['RYHMÄ'] || '',
-                    invoiceNumber: invoiceNumber,
+                    invoiceNumber: voucherNumber,
                     rowType: transaction['Rivin tyyppi'] || 'Lasku'
                 };
                 voucherRows.push(debitRow);
@@ -141,10 +162,10 @@ function createTalenomVoucherFromEsimerkkiseura(group, accountMappingService = n
                     creditAmount: amount,
                     vatPercent: vatPercent,
                     vatAmount: amount * (vatPercent / 100),
-                    description: transaction['Nimike'] || transaction['Rivin tyyppi'] || `Credit ${invoiceNumber}`,
+                    description: description,
                     projectCode: transaction['Projekti'] || transaction['PROJEKTI'] || '',
                     groupCode: transaction['Ryhmä'] || transaction['RYHMÄ'] || '',
-                    invoiceNumber: invoiceNumber,
+                    invoiceNumber: voucherNumber,
                     rowType: transaction['Rivin tyyppi'] || 'Lasku'
                 };
                 voucherRows.push(creditRow);
@@ -154,10 +175,10 @@ function createTalenomVoucherFromEsimerkkiseura(group, accountMappingService = n
         
         // Create the main voucher structure
         const voucher = {
-            voucherNumber: invoiceNumber,
+            voucherNumber: voucherNumber,
             voucherDate: date,
             voucherStateCID: "Draft",
-            description: `Esimerkkiseura import - ${invoiceNumber}`,
+            description: `Esimerkkiseura import - ${voucherNumber}`,
             totalDebit: totalDebit,
             totalCredit: totalCredit,
             isBalanced: Math.abs(totalDebit - totalCredit) < 0.01,
@@ -171,6 +192,12 @@ function createTalenomVoucherFromEsimerkkiseura(group, accountMappingService = n
         
     } catch (error) {
         logger.error('Error creating voucher from Esimerkkiseura data:', error);
+        logger.error('Error details:', {
+            message: error.message,
+            stack: error.stack,
+            customSelite: customSelite,
+            customTosite: customTosite
+        });
         return null;
     }
 }
@@ -199,11 +226,22 @@ function getAccountName(accountNumber) {
  * Process Excel file in Esimerkkiseura format
  * @param {Buffer} fileBuffer - Excel file buffer
  * @param {string} fileName - Original file name
+ * @param {Object} accountMappingService - Account mapping service instance
+ * @param {string} sheetSelection - Which sheets to process: 'both', 'kirjanpito', or 'erittely'
+ * @param {string} customSelite - Custom SELITE text to use for all rows (optional)
+ * @param {string} customTosite - Custom TOSITE text to use for all rows (optional)
  * @returns {object} - Processing results
  */
-function processEsimerkkiseuraExcel(fileBuffer, fileName, accountMappingService = null) {
+function processEsimerkkiseuraExcel(fileBuffer, fileName, accountMappingService = null, sheetSelection = 'both', customSelite = '', customTosite = '') {
     try {
         logger.info(`Processing Esimerkkiseura Excel file: ${fileName}`);
+        logger.info(`Sheet selection: ${sheetSelection}`);
+        if (customSelite) {
+            logger.info(`Using custom SELITE: "${customSelite}"`);
+        }
+        if (customTosite) {
+            logger.info(`Using custom TOSITE: "${customTosite}"`);
+        }
         
         // Read the workbook
         const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
@@ -211,11 +249,32 @@ function processEsimerkkiseuraExcel(fileBuffer, fileName, accountMappingService 
         
         logger.info(`Found sheets: ${sheetNames.join(', ')}`);
         
+        // Filter sheets based on selection
+        let sheetsToProcess = sheetNames;
+        if (sheetSelection === 'kirjanpito') {
+            sheetsToProcess = sheetNames.filter(name => 
+                name.toLowerCase() === 'kirjanpito'
+            );
+            logger.info(`Sheet selection: kirjanpito. Matching sheets: ${sheetsToProcess.join(', ') || 'none'}`);
+        } else if (sheetSelection === 'erittely') {
+            sheetsToProcess = sheetNames.filter(name => 
+                name.toLowerCase() === 'erittely'
+            );
+            logger.info(`Sheet selection: erittely. Matching sheets: ${sheetsToProcess.join(', ') || 'none'}`);
+        } else {
+            logger.info(`Sheet selection: both. Processing all sheets: ${sheetsToProcess.join(', ')}`);
+        }
+        
+        if (sheetsToProcess.length === 0) {
+            logger.warn(`No sheets found matching selection: ${sheetSelection}. Available sheets: ${sheetNames.join(', ')}`);
+            sheetsToProcess = sheetNames; // Fallback to all sheets
+        }
+        
         let allVouchers = [];
         const sheetResults = {};
         
         // Process each sheet
-        sheetNames.forEach(sheetName => {
+        sheetsToProcess.forEach(sheetName => {
             logger.info(`Processing sheet: ${sheetName}`);
             
             const worksheet = workbook.Sheets[sheetName];
@@ -244,7 +303,7 @@ function processEsimerkkiseuraExcel(fileBuffer, fileName, accountMappingService 
             });
             
             // Transform the data
-            const vouchers = transformEsimerkkiseuraToTalenomFormat(data, sheetName, accountMappingService);
+            const vouchers = transformEsimerkkiseuraToTalenomFormat(data, sheetName, accountMappingService, customSelite, customTosite);
             
             sheetResults[sheetName] = {
                 originalRowCount: data.length,
@@ -260,11 +319,12 @@ function processEsimerkkiseuraExcel(fileBuffer, fileName, accountMappingService 
         return {
             success: true,
             fileName: fileName,
-            totalSheets: sheetNames.length,
+            totalSheets: sheetsToProcess.length,
             totalVouchers: allVouchers.length,
             sheetResults: sheetResults,
             vouchers: allVouchers,
-            processedAt: new Date().toISOString()
+            processedAt: new Date().toISOString(),
+            sheetSelection: sheetSelection
         };
         
     } catch (error) {
@@ -300,8 +360,7 @@ function generateEsimerkkiseuraExcel(vouchers, originalFileName) {
             'KL',        // Cost type  
             'PROJ',      // Project
             'PLAJI',     // Project type
-            'AVAIN',     // Match key
-            'KONSYR'     // Consolidation key
+            'AVAIN'      // Match key
         ];
         excelData.push(headers);
         
@@ -312,18 +371,26 @@ function generateEsimerkkiseuraExcel(vouchers, originalFileName) {
                 const credit = parseFloat(row.creditAmount) || 0;
                 const brutto = debit - credit;
                 
+                // Format date from YYYY-MM-DD to DD.MM.YYYY
+                let formattedDate = voucher.voucherDate || '';
+                if (formattedDate && formattedDate.includes('-')) {
+                    const parts = formattedDate.split('-');
+                    if (parts.length === 3) {
+                        formattedDate = `${parts[2]}.${parts[1]}.${parts[0]}`;
+                    }
+                }
+                
                 const excelRow = [
                     row.accountNumber || '',                    // TILI
                     voucher.voucherNumber || '',               // TOSITE
-                    voucher.voucherDate || '',                 // PVM
+                    formattedDate,                             // PVM
                     brutto,                                    // BRUTTO
                     row.description || '',                     // SELITE
                     '', // KP (cost center - not available in Esimerkkiseura)
                     '', // KL (cost type - not available in Esimerkkiseura)
                     row.projectCode || '',                     // PROJ
                     '', // PLAJI (project type - not available in Esimerkkiseura)
-                    '', // AVAIN (match key - not needed for Esimerkkiseura)
-                    ''  // KONSYR (consolidation key - not available in Esimerkkiseura)
+                    ''  // AVAIN (match key - not needed for Esimerkkiseura)
                 ];
                 excelData.push(excelRow);
             });
@@ -343,8 +410,7 @@ function generateEsimerkkiseuraExcel(vouchers, originalFileName) {
             { wch: 12 }, // KL
             { wch: 15 }, // PROJ
             { wch: 15 }, // PLAJI
-            { wch: 20 }, // AVAIN
-            { wch: 10 }  // KONSYR
+            { wch: 20 }  // AVAIN
         ];
         worksheet['!cols'] = columnWidths;
         

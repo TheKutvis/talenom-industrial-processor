@@ -148,17 +148,6 @@
             background: rgba(255, 109, 46, 0.15);
         }
 
-        .version-badge {
-            background: var(--gradient-primary);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
         /* Main content */
         .main-container {
             max-width: 1200px;
@@ -500,7 +489,7 @@
                     <button class="btn btn-lang" data-lang="fi">🇫🇮 FI</button>
                     <button class="btn btn-lang" data-lang="sv">🇸🇪 SV</button>
                 </div>
-                <div class="version-badge">v2.0 Toolbox</div>
+                <div class="version-badge" data-i18n="app.version">v2.0 Toolbox</div>
             </div>
         </div>
     </header>
@@ -827,5 +816,6 @@
         log('🔗 Jatko-PASI Industrial Data Merger initialized', 'info');
         log('🏭 Industrial sound system armed and ready', 'debug');
     </script>
+    <script src="version.js"></script>
 </body>
 </html>

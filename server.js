@@ -1245,7 +1245,17 @@ app.post('/api/upload-esimerkkiseura', uploadEsimerkkiseura.single('file'), asyn
 
     // Process the Excel file using Esimerkkiseura processor
     const { processEsimerkkiseuraExcel, generateEsimerkkiseuraExcel } = require('./services/esimerkkiseuraProcessor');
-    const result = await processEsimerkkiseuraExcel(buffer, originalname, accountMappingService);
+    const sheetSelection = req.body.sheetSelection || 'both'; // Get sheet selection from request body
+    const customSelite = req.body.customSelite || ''; // Get custom SELITE text from request body
+    const customTosite = req.body.customTosite || ''; // Get custom TOSITE text from request body
+    logger.info(`Sheet selection received: ${sheetSelection}`);
+    if (customSelite) {
+      logger.info(`Custom SELITE received: "${customSelite}"`);
+    }
+    if (customTosite) {
+      logger.info(`Custom TOSITE received: "${customTosite}"`);
+    }
+    const result = await processEsimerkkiseuraExcel(buffer, originalname, accountMappingService, sheetSelection, customSelite, customTosite);
 
     // Store processed data globally for download
     lastProcessedJsonData = result.vouchers;
