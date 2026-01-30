@@ -1,4 +1,4 @@
-const XLSX = require('xlsx');
+const ExcelJS = require('exceljs');
 const logger = require('../utils/logger');
 
 /**
@@ -232,7 +232,7 @@ function getAccountName(accountNumber) {
  * @param {string} customTosite - Custom TOSITE text to use for all rows (optional)
  * @returns {object} - Processing results
  */
-function processEsimerkkiseuraExcel(fileBuffer, fileName, accountMappingService = null, sheetSelection = 'both', customSelite = '', customTosite = '') {
+async function processEsimerkkiseuraExcel(fileBuffer, fileName, accountMappingService = null, sheetSelection = 'both', customSelite = '', customTosite = '') {
     try {
         logger.info(`Processing Esimerkkiseura Excel file: ${fileName}`);
         logger.info(`Sheet selection: ${sheetSelection}`);
@@ -242,57 +242,59 @@ function processEsimerkkiseuraExcel(fileBuffer, fileName, accountMappingService 
         if (customTosite) {
             logger.info(`Using custom TOSITE: "${customTosite}"`);
         }
-        
-        // Read the workbook
-        const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
-        const sheetNames = workbook.SheetNames;
-        
+
+        // Read the workbook using exceljs
+        const workbook = new ExcelJS.Workbook();
+        await workbook.xlsx.load(fileBuffer);
+        const sheetNames = workbook.worksheets.map(ws => ws.name);
+
         logger.info(`Found sheets: ${sheetNames.join(', ')}`);
-        
+
         // Filter sheets based on selection
         let sheetsToProcess = sheetNames;
         if (sheetSelection === 'kirjanpito') {
-            sheetsToProcess = sheetNames.filter(name => 
-                name.toLowerCase() === 'kirjanpito'
-            );
+            sheetsToProcess = sheetNames.filter(name => name.toLowerCase() === 'kirjanpito');
             logger.info(`Sheet selection: kirjanpito. Matching sheets: ${sheetsToProcess.join(', ') || 'none'}`);
         } else if (sheetSelection === 'erittely') {
-            sheetsToProcess = sheetNames.filter(name => 
-                name.toLowerCase() === 'erittely'
-            );
+            sheetsToProcess = sheetNames.filter(name => name.toLowerCase() === 'erittely');
             logger.info(`Sheet selection: erittely. Matching sheets: ${sheetsToProcess.join(', ') || 'none'}`);
         } else {
             logger.info(`Sheet selection: both. Processing all sheets: ${sheetsToProcess.join(', ')}`);
         }
-        
+
         if (sheetsToProcess.length === 0) {
             logger.warn(`No sheets found matching selection: ${sheetSelection}. Available sheets: ${sheetNames.join(', ')}`);
             sheetsToProcess = sheetNames; // Fallback to all sheets
         }
-        
+
         let allVouchers = [];
         const sheetResults = {};
-        
+
         // Process each sheet
-        sheetsToProcess.forEach(sheetName => {
+        for (const sheetName of sheetsToProcess) {
             logger.info(`Processing sheet: ${sheetName}`);
-            
-            const worksheet = workbook.Sheets[sheetName];
-            
+            const worksheet = workbook.getWorksheet(sheetName);
+            if (!worksheet) {
+                logger.warn(`Sheet ${sheetName} not found in workbook.`);
+                continue;
+            }
+
             // Convert to JSON with headers
-            const jsonData = XLSX.utils.sheet_to_json(worksheet, {
-                header: 1,
-                defval: ''
+            const rows = [];
+            worksheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
+                rows.push(row.values);
             });
-            
+            // Remove first empty element (exceljs row.values is 1-based)
+            const jsonData = rows.map(r => Array.isArray(r) ? r.slice(1) : r);
+
             if (jsonData.length < 2) {
                 logger.warn(`Sheet ${sheetName} has insufficient data`);
-                return;
+                continue;
             }
-            
+
             // Get headers from first row
             const headers = jsonData[0];
-            
+
             // Convert remaining rows to objects
             const data = jsonData.slice(1).map(row => {
                 const obj = {};
@@ -301,21 +303,21 @@ function processEsimerkkiseuraExcel(fileBuffer, fileName, accountMappingService 
                 });
                 return obj;
             });
-            
+
             // Transform the data
             const vouchers = transformEsimerkkiseuraToTalenomFormat(data, sheetName, accountMappingService, customSelite, customTosite);
-            
+
             sheetResults[sheetName] = {
                 originalRowCount: data.length,
                 voucherCount: vouchers.length,
                 vouchers: vouchers
             };
-            
+
             allVouchers = allVouchers.concat(vouchers);
-        });
-        
+        }
+
         logger.info(`Total vouchers created: ${allVouchers.length}`);
-        
+
         return {
             success: true,
             fileName: fileName,
@@ -326,7 +328,7 @@ function processEsimerkkiseuraExcel(fileBuffer, fileName, accountMappingService 
             processedAt: new Date().toISOString(),
             sheetSelection: sheetSelection
         };
-        
+
     } catch (error) {
         logger.error('Error processing Esimerkkiseura Excel file:', error);
         throw error;
@@ -339,16 +341,11 @@ function processEsimerkkiseuraExcel(fileBuffer, fileName, accountMappingService 
  * @param {string} originalFileName - Original file name for naming
  * @returns {Buffer} - Excel file buffer
  */
-function generateEsimerkkiseuraExcel(vouchers, originalFileName) {
+async function generateEsimerkkiseuraExcel(vouchers, originalFileName) {
     try {
-        const XLSX = require('xlsx');
-        
-        // Create workbook
-        const workbook = XLSX.utils.book_new();
-        
-        // Flatten voucher data into rows for Excel using main application format
-        const excelData = [];
-        
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Kirjanpitodata');
+
         // Add headers matching main application format
         const headers = [
             'TILI',      // Account number
@@ -357,20 +354,20 @@ function generateEsimerkkiseuraExcel(vouchers, originalFileName) {
             'BRUTTO',    // Gross amount (debit - credit)
             'SELITE',    // Description
             'KP',        // Cost center
-            'KL',        // Cost type  
+            'KL',        // Cost type
             'PROJ',      // Project
             'PLAJI',     // Project type
             'AVAIN'      // Match key
         ];
-        excelData.push(headers);
-        
+        worksheet.addRow(headers);
+
         // Process each voucher
         vouchers.forEach(voucher => {
             voucher.voucherRows.forEach(row => {
                 const debit = parseFloat(row.debitAmount) || 0;
                 const credit = parseFloat(row.creditAmount) || 0;
                 const brutto = debit - credit;
-                
+
                 // Format date from YYYY-MM-DD to DD.MM.YYYY
                 let formattedDate = voucher.voucherDate || '';
                 if (formattedDate && formattedDate.includes('-')) {
@@ -379,11 +376,11 @@ function generateEsimerkkiseuraExcel(vouchers, originalFileName) {
                         formattedDate = `${parts[2]}.${parts[1]}.${parts[0]}`;
                     }
                 }
-                
+
                 // Parse TILI (account number) as number to ensure Excel treats it as numeric
                 let tiliStr = String(row.accountNumber || '').trim();
                 const tili = parseInt(tiliStr, 10) || tiliStr; // Convert to number if possible
-                
+
                 const excelRow = [
                     tili,                                      // TILI (as number)
                     voucher.voucherNumber || '',               // TOSITE
@@ -396,62 +393,36 @@ function generateEsimerkkiseuraExcel(vouchers, originalFileName) {
                     '', // PLAJI (project type - not available in Esimerkkiseura)
                     ''  // AVAIN (match key - not needed for Esimerkkiseura)
                 ];
-                excelData.push(excelRow);
+                worksheet.addRow(excelRow);
             });
         });
-        
-        // Create worksheet from array of arrays with raw: false to ensure proper type handling
-        const worksheet = XLSX.utils.aoa_to_sheet(excelData, { raw: false });
-        
-        // Explicitly set TILI column cells as numeric type with Excel's General number format
-        const range = XLSX.utils.decode_range(worksheet['!ref']);
-        for (let row = range.s.r + 1; row <= range.e.r; row++) {
-            const cellAddress = XLSX.utils.encode_cell({ r: row, c: 0 }); // Column A (TILI)
-            const cell = worksheet[cellAddress];
-            if (cell) {
-                // Ensure it's a number type
-                const numValue = typeof cell.v === 'number' ? cell.v : parseInt(String(cell.v), 10);
-                if (!isNaN(numValue)) {
-                    cell.v = numValue;
-                    cell.t = 'n';
-                    // Use Excel's General format (no specific format code = General)
-                    delete cell.z;
-                    delete cell.w;
-                    // Set basic number style
-                    cell.s = { numFmt: 0 }; // 0 = General format in Excel
-                }
-            }
-        }
-        
+
         // Set column widths matching main application
-        const columnWidths = [
-            { wch: 8 },  // TILI
-            { wch: 10 }, // TOSITE
-            { wch: 12 }, // PVM
-            { wch: 12 }, // BRUTTO
-            { wch: 25 }, // SELITE
-            { wch: 15 }, // KP
-            { wch: 12 }, // KL
-            { wch: 15 }, // PROJ
-            { wch: 15 }, // PLAJI
-            { wch: 20 }  // AVAIN
+        worksheet.columns = [
+            { width: 8 },  // TILI
+            { width: 10 }, // TOSITE
+            { width: 12 }, // PVM
+            { width: 12 }, // BRUTTO
+            { width: 25 }, // SELITE
+            { width: 15 }, // KP
+            { width: 12 }, // KL
+            { width: 15 }, // PROJ
+            { width: 15 }, // PLAJI
+            { width: 20 }  // AVAIN
         ];
-        worksheet['!cols'] = columnWidths;
-        
-        // Add the worksheet to the workbook
-        XLSX.utils.book_append_sheet(workbook, worksheet, 'Kirjanpitodata');
-        
-        // Generate Excel file buffer with cellStyles enabled
-        const buffer = XLSX.write(workbook, { 
-            type: 'buffer', 
-            bookType: 'xlsx',
-            cellStyles: true,   // Required for cell.s property to work
-            bookSST: true,      // Use shared strings table
-            compression: false  // Cleaner XML output
+
+        // Set TILI column as numeric
+        worksheet.eachRow((row, rowNumber) => {
+            if (rowNumber === 1) return; // skip header
+            const cell = row.getCell(1);
+            if (typeof cell.value === 'string' && !isNaN(parseInt(cell.value, 10))) {
+                cell.value = parseInt(cell.value, 10);
+            }
         });
-        
+
+        // Write to buffer
+        const buffer = await workbook.xlsx.writeBuffer();
         return buffer;
-        
     } catch (error) {
         logger.error('Error generating Esimerkkiseura Excel file:', error);
         throw error;

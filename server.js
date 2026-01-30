@@ -5,7 +5,7 @@ const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const multer = require('multer');
 const csv = require('csv-parser');
-const XLSX = require('xlsx');
+const ExcelJS = require('exceljs');
 const fs = require('fs');
 const path = require('path');
 
@@ -810,11 +810,22 @@ app.post('/api/upload-file', upload.single('file'), async (req, res) => {
         data = rawResults;
       }
     } else if (originalName.endsWith('.xlsx') || originalName.endsWith('.xls')) {
-      // Parse Excel from buffer
-      const workbook = XLSX.read(buffer, { type: 'buffer' });
-      const sheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[sheetName];
-      data = XLSX.utils.sheet_to_json(worksheet);
+      // Parse Excel from buffer using exceljs
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.load(buffer);
+      const worksheet = workbook.worksheets[0];
+      data = [];
+      if (worksheet) {
+        const headers = worksheet.getRow(1).values.slice(1);
+        worksheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
+          if (rowNumber === 1) return; // skip header
+          const rowObj = {};
+          headers.forEach((header, colIndex) => {
+            rowObj[header] = row.getCell(colIndex + 1).value;
+          });
+          data.push(rowObj);
+        });
+      }
     }
 
     // Validate that the data contains proper Finnish accounting structure
@@ -957,7 +968,7 @@ app.post('/api/upload-maestro', upload.single('file'), async (req, res) => {
 });
 
 // Download populated template endpoint
-app.get('/api/download-populated-template', (req, res) => {
+app.get('/api/download-populated-template', async (req, res) => {
   try {
     logger.info('Populated template download request received');
     
@@ -1030,18 +1041,18 @@ app.get('/api/download-populated-template', (req, res) => {
       });
     }
     
-    // Create workbook and worksheet with formatted data
-    const workbook = XLSX.utils.book_new();
+    // Create workbook and worksheet with formatted data using exceljs
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Kirjanpitodata');
     
-    // Create worksheet using array of arrays for better control over cell types
     // Header row
     const headers = ['TILI', 'TOSITE', 'PVM', 'BRUTTO', 'SELITE', 'KP', 'KL', 'PROJ', 'PLAJI', 'AVAIN'];
-    const aoaData = [headers];
+    worksheet.addRow(headers);
     
-    // Data rows - explicitly convert to array format
+    // Data rows
     formattedData.forEach(row => {
-      aoaData.push([
-        row.TILI,      // Will be set as number
+      worksheet.addRow([
+        row.TILI,
         row.TOSITE,
         row.PVM,
         row.BRUTTO,
@@ -1054,66 +1065,31 @@ app.get('/api/download-populated-template', (req, res) => {
       ]);
     });
     
-    // Create worksheet from array of arrays with raw: false to ensure proper type handling
-    const worksheet = XLSX.utils.aoa_to_sheet(aoaData, { raw: false, dateNF: 'DD.MM.YYYY' });
-    
-    // Explicitly set TILI column cells as numeric type with Excel's General number format
-    const range = XLSX.utils.decode_range(worksheet['!ref']);
-    let debugCellCount = 0;
-    for (let row = range.s.r + 1; row <= range.e.r; row++) {
-      const cellAddress = XLSX.utils.encode_cell({ r: row, c: 0 }); // Column A (TILI)
-      const cell = worksheet[cellAddress];
-      if (cell) {
-        // Debug log first few cells
-        if (debugCellCount < 3) {
-          logger.info(`TILI cell ${cellAddress} before:`, { v: cell.v, t: cell.t, z: cell.z, w: cell.w, s: cell.s });
-        }
-        
-        // Ensure it's a number type
-        const numValue = typeof cell.v === 'number' ? cell.v : parseInt(String(cell.v), 10);
-        if (!isNaN(numValue)) {
-          cell.v = numValue;
-          cell.t = 'n';
-          // Use Excel's General format (no specific format code = General)
-          delete cell.z;
-          delete cell.w;
-          // Set basic number style
-          cell.s = { numFmt: 0 }; // 0 = General format in Excel
-        }
-        
-        if (debugCellCount < 3) {
-          logger.info(`TILI cell ${cellAddress} after:`, { v: cell.v, t: cell.t, z: cell.z, w: cell.w, s: cell.s });
-          debugCellCount++;
-        }
-      }
-    }
-    
-    // Set column widths optimized for the new format (KONSYR removed)
-    const columnWidths = [
-      { wch: 8 },   // TILI
-      { wch: 12 },  // TOSITE
-      { wch: 12 },  // PVM
-      { wch: 15 },  // BRUTTO
-      { wch: 35 },  // SELITE
-      { wch: 15 },  // KP
-      { wch: 12 },  // KL
-      { wch: 15 },  // PROJ
-      { wch: 15 },  // PLAJI
-      { wch: 20 }   // AVAIN
+    // Set column widths
+    worksheet.columns = [
+      { width: 8 },   // TILI
+      { width: 12 },  // TOSITE
+      { width: 12 },  // PVM
+      { width: 15 },  // BRUTTO
+      { width: 35 },  // SELITE
+      { width: 15 },  // KP
+      { width: 12 },  // KL
+      { width: 15 },  // PROJ
+      { width: 15 },  // PLAJI
+      { width: 20 }   // AVAIN
     ];
-    worksheet['!cols'] = columnWidths;
     
-    // Add the worksheet to the workbook
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Kirjanpitodata');
-    
-    // Generate Excel file buffer with cellStyles enabled for number formatting
-    const buffer = XLSX.write(workbook, { 
-      type: 'buffer', 
-      bookType: 'xlsx',
-      cellStyles: true,   // Required for cell.s property
-      bookSST: true,      // Use shared strings table
-      compression: false  // Cleaner XML output
+    // Set TILI column as numeric
+    worksheet.eachRow((row, rowNumber) => {
+      if (rowNumber === 1) return; // skip header
+      const cell = row.getCell(1);
+      if (typeof cell.value === 'string' && !isNaN(parseInt(cell.value, 10))) {
+        cell.value = parseInt(cell.value, 10);
+      }
     });
+    
+    // Write to buffer
+    const buffer = await workbook.xlsx.writeBuffer();
     
     // Set response headers for file download
     res.setHeader('Content-Disposition', `attachment; filename="${lastProcessedFileName}"`);
@@ -1135,7 +1111,7 @@ app.get('/api/download-populated-template', (req, res) => {
 });
 
 // Template download endpoint
-app.get('/api/download-template', (req, res) => {
+app.get('/api/download-template', async (req, res) => {
   try {
     logger.info('Template download request received');
     

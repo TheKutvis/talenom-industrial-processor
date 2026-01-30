@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 const csv = require('csv-parser');
-const { createObjectCsvWriter } = require('csv-writer');
 const logger = require('../utils/logger');
 
 class JatkoPasiProcessor {
