@@ -30,6 +30,7 @@ if (isPackaged) {
 const ApiClient = require('./services/apiClient');
 const logger = require('./utils/logger');
 const AccountMappingService = require('./services/accountMappingService');
+const CostCentreMappingService = require('./services/costCentreMappingService');
 const JatkoPasiProcessor = require('./services/jatkoPasiProcessor');
 
 const app = express();
@@ -91,9 +92,19 @@ app.get('/general-ledger', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// Serve the General Ledger settings
+app.get('/general-ledger-settings', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'general-ledger-config.html'));
+});
+
 // Serve the Myclub processor
 app.get('/myclub-processor', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'esimerkkiseura.html'));
+});
+
+// Serve the Myclub settings
+app.get('/myclub-settings', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'myclub-config.html'));
 });
 
 // Serve the Jatko-PASI processor
@@ -1619,8 +1630,9 @@ app.get('/api/debug-oauth', async (req, res) => {
   }
 });
 
-// Initialize Account Mapping Service
+// Initialize Mapping Services
 const accountMappingService = new AccountMappingService();
+const costCentreMappingService = new CostCentreMappingService();
 
 // Account Mapping Configuration Endpoints
 

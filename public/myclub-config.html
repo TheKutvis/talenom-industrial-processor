@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚙️ Myclub Settings - Talenom GL</title>
+    <link rel="stylesheet" href="unified-styles.css">
+    <style>
+        /* Page-specific styles - Myclub mapping interface */
+        
+        /* App sections grid layout */
+        .app-sections {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        /* Mapping forms layout */
+        .mapping-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+
+        .mapping-form-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .mapping-form .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        /* Status value with gradient text */
+        .status-value {
+            font-weight: 700;
+            font-size: 15px;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Actions grid for management section */
+        .actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+            width: 100%;
+        }
+        
+        .excel-controls {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .excel-controls .btn {
+            flex: 1;
+            min-width: 140px;
+            justify-content: center;
+        }
+        
+        .import-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .import-status {
+            font-size: 12px;
+            padding: 8px 16px;
+            border-radius: 6px;
+            min-height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            text-align: center;
+            max-width: 400px;
+        }
+        
+        .import-status.success {
+            background-color: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+        
+        .import-status.error {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        .import-status.info {
+            background-color: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+        
+        .import-status.warning {
+            background-color: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        /* Tab style for account/cost centre sections */
+        .config-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border-primary);
+        }
+        
+        .config-tab {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .config-tab.active {
+            color: var(--text-primary);
+            border-bottom-color: var(--primary);
+        }
+        
+        .config-tab:hover {
+            color: var(--text-primary);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <div class="header-content">
+                <div class="logo">
+                    <span class="logo-icon">🏗️</span>
+                    <span class="logo-text">Myclub Settings</span>
+                </div>
+                <div class="nav-links">
+                    <a href="index.html" class="nav-link">🏭 GL Processor</a>
+                    <a href="esimerkkiseura.html" class="nav-link">🏗️ Myclub</a>
+                    <a href="general-ledger-settings" class="nav-link">🔧 GL Settings</a>
+                    <a href="myclub-settings" class="nav-link active">⚙️ Myclub Settings</a>
+                </div>
+                <div class="language-selector">
+                    <button class="btn btn-lang active" data-lang="en">🇬🇧 EN</button>
+                    <button class="btn btn-lang" data-lang="fi">🇫🇮 FI</button>
+                    <button class="btn btn-lang" data-lang="sv">🇸🇪 SV</button>
+                </div>
+                <div class="version-badge" data-i18n="app.version">v2.0 Toolbox</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-container">
+        <div class="content-grid">
+            <div class="content-section">
+                <div class="section-title">
+                    🏗️ Myclub Configuration
+                </div>
+                <div class="section-subtitle">
+                    Configure account and cost centre mappings for the Myclub processor (Esimerkkiseura)
+                </div>
+
+                <!-- Configuration Tabs -->
+                <div class="config-tabs">
+                    <button class="config-tab active" data-tab="accounts">💼 Account Mappings</button>
+                    <button class="config-tab" data-tab="cost-centres">🏢 Cost Centre Mappings</button>
+                </div>
+
+                <!-- Account Mappings Tab -->
+                <div id="accounts-tab" class="tab-content active">
+                    <div id="accountStatusInfo">
+                        <div class="status-item">
+                            <span class="status-label">Account Mappings:</span>
+                            <span class="status-value" id="accountCount">Loading...</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Last Modified:</span>
+                            <span class="status-value" id="accountLastModified">Loading...</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mapping-form">
+                        <div class="mapping-form-inputs">
+                            <div class="form-group">
+                                <label for="sourceAccount">Source Account</label>
+                                <input type="text" id="sourceAccount" placeholder="e.g., 1700" maxlength="10">
+                            </div>
+                            <div class="form-group">
+                                <label for="targetAccount">Target Account</label>
+                                <input type="text" id="targetAccount" placeholder="e.g., 1702" maxlength="10">
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" id="addAccountMapping">➕ Add Account Mapping</button>
+                    </div>
+
+                    <div id="accountMappings"></div>
+
+                    <!-- Account Management Actions -->
+                    <div style="margin-top: 30px; padding-top: 30px; border-top: 1px solid var(--border-primary);">
+                        <h3 style="font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                            ⚙️ Account Management
+                        </h3>
+                        <div class="actions">
+                            <div class="btn-group">
+                                <button class="btn btn-secondary" id="refreshAccountsButton">🔄 Refresh Accounts</button>
+                                <button class="btn btn-danger" id="clearAccountsButton">🗑️ Clear All Accounts</button>
+                            </div>
+                            
+                            <div class="btn-group excel-controls">
+                                <button class="btn btn-success" id="exportAccountsButton">📊 Export Accounts</button>
+                                <button class="btn btn-primary" id="importAccountsButton">📤 Import Accounts</button>
+                                <input type="file" id="accountsFileInput" accept=".xlsx,.xls" style="display: none;">
+                            </div>
+                        </div>
+                        <div id="accountImportStatus" class="import-status"></div>
+                    </div>
+                </div>
+
+                <!-- Cost Centre Mappings Tab -->
+                <div id="cost-centres-tab" class="tab-content">
+                    <div id="costCentreStatusInfo">
+                        <div class="status-item">
+                            <span class="status-label">Cost Centre Mappings:</span>
+                            <span class="status-value" id="costCentreCount">Loading...</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Last Modified:</span>
+                            <span class="status-value" id="costCentreLastModified">Loading...</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mapping-form">
+                        <div class="mapping-form-inputs">
+                            <div class="form-group">
+                                <label for="sourceCostCentre">Source Cost Centre</label>
+                                <input type="text" id="sourceCostCentre" placeholder="e.g., CC001" maxlength="20">
+                            </div>
+                            <div class="form-group">
+                                <label for="targetCostCentre">Target Cost Centre</label>
+                                <input type="text" id="targetCostCentre" placeholder="e.g., CC100" maxlength="20">
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" id="addCostCentreMapping">➕ Add Cost Centre Mapping</button>
+                    </div>
+
+                    <div id="costCentreMappings"></div>
+
+                    <!-- Cost Centre Management Actions -->
+                    <div style="margin-top: 30px; padding-top: 30px; border-top: 1px solid var(--border-primary);">
+                        <h3 style="font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                            ⚙️ Cost Centre Management
+                        </h3>
+                        <div class="actions">
+                            <div class="btn-group">
+                                <button class="btn btn-secondary" id="refreshCostCentresButton">🔄 Refresh Cost Centres</button>
+                                <button class="btn btn-danger" id="clearCostCentresButton">🗑️ Clear All Cost Centres</button>
+                            </div>
+                            
+                            <div class="btn-group excel-controls">
+                                <button class="btn btn-success" id="exportCostCentresButton">📊 Export Cost Centres</button>
+                                <button class="btn btn-primary" id="importCostCentresButton">📤 Import Cost Centres</button>
+                                <input type="file" id="costCentresFileInput" accept=".xlsx,.xls" style="display: none;">
+                            </div>
+                        </div>
+                        <div id="costCentreImportStatus" class="import-status"></div>
+                    </div>
+                </div>
+
+                <div id="message" class="message"></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let currentAccountMappings = { esimerkkiseura: {} };
+        let currentCostCentreMappings = { esimerkkiseura: {} };
+
+        // Tab switching functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            setupTabSwitching();
+            setupAccountMappings();
+            setupCostCentreMappings();
+            loadAccountMappings();
+            loadCostCentreMappings();
+        });
+
+        function setupTabSwitching() {
+            const tabs = document.querySelectorAll('.config-tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const targetTab = tab.dataset.tab;
+                    
+                    // Update active tab
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    // Update active content
+                    tabContents.forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    document.getElementById(`${targetTab}-tab`).classList.add('active');
+                });
+            });
+        }
+
+        function setupAccountMappings() {
+            const addBtn = document.getElementById('addAccountMapping');
+            const refreshBtn = document.getElementById('refreshAccountsButton');
+            const clearBtn = document.getElementById('clearAccountsButton');
+            const exportBtn = document.getElementById('exportAccountsButton');
+            const importBtn = document.getElementById('importAccountsButton');
+            const fileInput = document.getElementById('accountsFileInput');
+            
+            if (addBtn) addBtn.addEventListener('click', () => addAccountMapping());
+            if (refreshBtn) refreshBtn.addEventListener('click', loadAccountMappings);
+            if (clearBtn) clearBtn.addEventListener('click', clearAccountMappings);
+            if (exportBtn) exportBtn.addEventListener('click', exportAccountMappings);
+            if (importBtn) importBtn.addEventListener('click', () => fileInput.click());
+            if (fileInput) fileInput.addEventListener('change', importAccountMappings);
+        }
+
+        function setupCostCentreMappings() {
+            const addBtn = document.getElementById('addCostCentreMapping');
+            const refreshBtn = document.getElementById('refreshCostCentresButton');
+            const clearBtn = document.getElementById('clearCostCentresButton');
+            const exportBtn = document.getElementById('exportCostCentresButton');
+            const importBtn = document.getElementById('importCostCentresButton');
+            const fileInput = document.getElementById('costCentresFileInput');
+            
+            if (addBtn) addBtn.addEventListener('click', () => addCostCentreMapping());
+            if (refreshBtn) refreshBtn.addEventListener('click', loadCostCentreMappings);
+            if (clearBtn) clearBtn.addEventListener('click', clearCostCentreMappings);
+            if (exportBtn) exportBtn.addEventListener('click', exportCostCentreMappings);
+            if (importBtn) importBtn.addEventListener('click', () => fileInput.click());
+            if (fileInput) fileInput.addEventListener('change', importCostCentreMappings);
+        }
+
+        // Account mapping functions
+        async function loadAccountMappings() {
+            try {
+                const response = await fetch('/api/myclub/account-mappings');
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentAccountMappings = data.mappings;
+                    updateAccountStatus(data.status);
+                    renderAccountMappings();
+                } else {
+                    showMessage('Error loading account mappings: ' + data.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('Failed to load account mappings', 'error');
+            }
+        }
+
+        function updateAccountStatus(status) {
+            document.getElementById('accountCount').textContent = status.esimerkkiseuraMappings || 0;
+            document.getElementById('accountLastModified').textContent = 
+                status.lastModified ? new Date(status.lastModified).toLocaleString() : 'Never';
+        }
+
+        function renderAccountMappings() {
+            const container = document.getElementById('accountMappings');
+            const mappings = currentAccountMappings.esimerkkiseura || {};
+            
+            if (Object.keys(mappings).length === 0) {
+                container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 20px;">No account mappings configured</p>';
+                return;
+            }
+            
+            let html = '<div class="mappings-list">';
+            for (const [source, target] of Object.entries(mappings)) {
+                html += `
+                    <div class="mapping-item" style="display: flex; justify-content: space-between; align-items: center; padding: 12px; border: 1px solid var(--border-primary); border-radius: 8px; margin-bottom: 8px;">
+                        <span>${source} → ${target}</span>
+                        <button class="btn btn-sm btn-danger" onclick="removeAccountMapping('${source}')">🗑️ Remove</button>
+                    </div>
+                `;
+            }
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        async function addAccountMapping() {
+            const source = document.getElementById('sourceAccount').value.trim();
+            const target = document.getElementById('targetAccount').value.trim();
+            
+            if (!source || !target) {
+                showMessage('Please fill in both source and target accounts', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/myclub/account-mappings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sourceAccount: source, targetAccount: target })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('sourceAccount').value = '';
+                    document.getElementById('targetAccount').value = '';
+                    showMessage('Account mapping added successfully', 'success');
+                    loadAccountMappings();
+                } else {
+                    showMessage('Error: ' + data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Failed to add account mapping', 'error');
+            }
+        }
+
+        async function removeAccountMapping(source) {
+            try {
+                const response = await fetch('/api/myclub/account-mappings', {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sourceAccount: source })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    showMessage('Account mapping removed', 'success');
+                    loadAccountMappings();
+                } else {
+                    showMessage('Error: ' + data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Failed to remove account mapping', 'error');
+            }
+        }
+
+        async function clearAccountMappings() {
+            if (!confirm('Are you sure you want to clear all account mappings?')) return;
+            
+            try {
+                const response = await fetch('/api/myclub/account-mappings/clear', { method: 'POST' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage('All account mappings cleared', 'success');
+                    loadAccountMappings();
+                } else {
+                    showMessage('Error: ' + data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Failed to clear account mappings', 'error');
+            }
+        }
+
+        // Cost centre mapping functions
+        async function loadCostCentreMappings() {
+            try {
+                const response = await fetch('/api/myclub/cost-centre-mappings');
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentCostCentreMappings = data.mappings;
+                    updateCostCentreStatus(data.status);
+                    renderCostCentreMappings();
+                } else {
+                    showMessage('Error loading cost centre mappings: ' + data.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('Failed to load cost centre mappings', 'error');
+            }
+        }
+
+        function updateCostCentreStatus(status) {
+            document.getElementById('costCentreCount').textContent = status.esimerkkiseuraMappings || 0;
+            document.getElementById('costCentreLastModified').textContent = 
+                status.lastModified ? new Date(status.lastModified).toLocaleString() : 'Never';
+        }
+
+        function renderCostCentreMappings() {
+            const container = document.getElementById('costCentreMappings');
+            const mappings = currentCostCentreMappings.esimerkkiseura || {};
+            
+            if (Object.keys(mappings).length === 0) {
+                container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 20px;">No cost centre mappings configured</p>';
+                return;
+            }
+            
+            let html = '<div class="mappings-list">';
+            for (const [source, target] of Object.entries(mappings)) {
+                html += `
+                    <div class="mapping-item" style="display: flex; justify-content: space-between; align-items: center; padding: 12px; border: 1px solid var(--border-primary); border-radius: 8px; margin-bottom: 8px;">
+                        <span>${source} → ${target}</span>
+                        <button class="btn btn-sm btn-danger" onclick="removeCostCentreMapping('${source}')">🗑️ Remove</button>
+                    </div>
+                `;
+            }
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        async function addCostCentreMapping() {
+            const source = document.getElementById('sourceCostCentre').value.trim();
+            const target = document.getElementById('targetCostCentre').value.trim();
+            
+            if (!source || !target) {
+                showMessage('Please fill in both source and target cost centres', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/myclub/cost-centre-mappings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sourceCostCentre: source, targetCostCentre: target })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('sourceCostCentre').value = '';
+                    document.getElementById('targetCostCentre').value = '';
+                    showMessage('Cost centre mapping added successfully', 'success');
+                    loadCostCentreMappings();
+                } else {
+                    showMessage('Error: ' + data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Failed to add cost centre mapping', 'error');
+            }
+        }
+
+        async function removeCostCentreMapping(source) {
+            try {
+                const response = await fetch('/api/myclub/cost-centre-mappings', {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sourceCostCentre: source })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    showMessage('Cost centre mapping removed', 'success');
+                    loadCostCentreMappings();
+                } else {
+                    showMessage('Error: ' + data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Failed to remove cost centre mapping', 'error');
+            }
+        }
+
+        async function clearCostCentreMappings() {
+            if (!confirm('Are you sure you want to clear all cost centre mappings?')) return;
+            
+            try {
+                const response = await fetch('/api/myclub/cost-centre-mappings/clear', { method: 'POST' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage('All cost centre mappings cleared', 'success');
+                    loadCostCentreMappings();
+                } else {
+                    showMessage('Error: ' + data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Failed to clear cost centre mappings', 'error');
+            }
+        }
+
+        // Export/Import functions (placeholder)
+        function exportAccountMappings() {
+            showMessage('Export functionality coming soon...', 'info');
+        }
+
+        function importAccountMappings() {
+            showMessage('Import functionality coming soon...', 'info');
+        }
+
+        function exportCostCentreMappings() {
+            showMessage('Export functionality coming soon...', 'info');
+        }
+
+        function importCostCentreMappings() {
+            showMessage('Import functionality coming soon...', 'info');
+        }
+
+        // Utility function
+        function showMessage(text, type = 'info') {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = text;
+            messageEl.className = `message ${type}`;
+            messageEl.style.display = 'block';
+            setTimeout(() => {
+                messageEl.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
