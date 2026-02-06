@@ -319,6 +319,9 @@
                         <button class="btn btn-format" data-format="netvisor" type="button">
                             🌐 Netvisor-CSV
                         </button>
+                        <button class="btn btn-format" data-format="emce" type="button">
+                            🏦 Emce
+                        </button>
                     </div>
                 </div>
 
@@ -1020,7 +1023,14 @@
                 log('🔨 Jackhammer breaking through concrete data...', 'info');
                 
                 // Choose endpoint based on format
-                const endpoint = format === 'maestro' ? '/api/upload-maestro' : '/api/upload-file';
+                let endpoint;
+                if (format === 'maestro') {
+                    endpoint = '/api/upload-maestro';
+                } else if (format === 'emce') {
+                    endpoint = '/api/upload-emce';
+                } else {
+                    endpoint = '/api/upload-file';
+                }
                 
                 // Add format to formData for backend processing
                 if (format === 'netvisor') {
@@ -1101,6 +1111,12 @@
                     } else if (selectedFormat === 'maestro') {
                         fileInput.accept = '.xls,.xlsx';
                         updateStatus('info', 'Maestro format selected - Please upload an Excel file from Maestro system');
+                    } else if (selectedFormat === 'emce') {
+                        fileInput.accept = '.xls,.xlsx';
+                        updateStatus('info', 'Emce format selected - Please upload an Excel file from Emce system');
+                    } else if (selectedFormat === 'netvisor') {
+                        fileInput.accept = '.csv';
+                        updateStatus('info', 'Netvisor-CSV format selected - Please upload a CSV file from Netvisor system');
                     }
                     
                     // Clear any previously selected file

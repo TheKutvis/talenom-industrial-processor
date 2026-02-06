@@ -32,6 +32,7 @@ const logger = require('./utils/logger');
 const AccountMappingService = require('./services/accountMappingService');
 const CostCentreMappingService = require('./services/costCentreMappingService');
 const JatkoPasiProcessor = require('./services/jatkoPasiProcessor');
+const { processEmceExcel } = require('./services/emceProcessor');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -974,6 +975,69 @@ app.post('/api/upload-maestro', upload.single('file'), async (req, res) => {
       error: 'Failed to process Maestro file',
       message: error.message,
       timestamp: new Date().toISOString()
+    });
+  }
+});
+
+// Upload and parse Emce Excel files
+app.post('/api/upload-emce', upload.single('file'), async (req, res) => {
+  logger.info('Emce upload request received');
+  logger.info('Request headers:', JSON.stringify(req.headers));
+  logger.info('Request file:', req.file ? 'File received' : 'No file');
+  
+  try {
+    if (!req.file) {
+      logger.error('No file in request');
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: 'No file uploaded'
+      });
+    }
+
+    const buffer = req.file.buffer;
+    const originalName = req.file.originalname;
+
+    logger.info(`Processing Emce file: ${originalName}`);
+
+    // Validate file type
+    if (!originalName.endsWith('.xlsx') && !originalName.endsWith('.xls')) {
+      return res.status(400).json({
+        error: 'Invalid file type',
+        message: 'Emce format requires Excel files (.xls or .xlsx)'
+      });
+    }
+
+    // Process Emce Excel file
+    const result = await processEmceExcel(buffer, originalName);
+    
+    if (!result.success) {
+      throw new Error('Failed to process Emce file');
+    }
+
+    logger.info(`Processed ${result.vouchers.length} voucher entries from Emce file`);
+    
+    // Store processed data for template download
+    lastProcessedData = result.vouchers;
+    lastTransformedData = result.vouchers;
+    lastProcessedFileName = originalName.replace(/\.[^/.]+$/, '') + '_emce_processed.xlsx';
+
+    res.json({
+      success: true,
+      message: `Successfully processed ${result.vouchers.length} entries`,
+      data: result.vouchers,
+      fileName: originalName,
+      rowCount: result.vouchers.length,
+      summary: result.summary,
+      hasProcessedTemplate: true,
+      format: 'emce',
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    logger.error('Error processing Emce file:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: error.message || 'An error occurred while processing the Emce file'
     });
   }
 });
