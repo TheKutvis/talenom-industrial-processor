@@ -31,9 +31,30 @@ try {
 
   console.log('🔨 Building executable with CAXA...');
   
-  const command = `npx caxa --input . --output "${outputPath}" -- "{{caxa}}/node_modules/.bin/node" "{{caxa}}/server.js"`;
+  // Create optimized command with exclusions
+  const excludes = [
+    '--exclude', 'node_modules/.cache/**',
+    '--exclude', 'node_modules/*/test/**', 
+    '--exclude', 'node_modules/*/tests/**',
+    '--exclude', 'node_modules/*/*.md',
+    '--exclude', 'node_modules/*/README*',
+    '--exclude', 'node_modules/*/CHANGELOG*',
+    '--exclude', 'node_modules/*/LICENSE*',
+    '--exclude', 'node_modules/*/.github/**',
+    '--exclude', 'node_modules/*/docs/**',
+    '--exclude', 'temp/**',
+    '--exclude', 'logs/**',
+    '--exclude', 'uploads/**',
+    '--exclude', 'test/**',
+    '--exclude', '.git/**',
+    '--exclude', '*.log',
+    '--exclude', '*.map',
+    '--exclude', '.DS_Store'
+  ];
   
-  console.log(`🔧 Running: ${command}`);
+  const command = `npx caxa --input . --output "${outputPath}" ${excludes.join(' ')} -- "{{caxa}}/node_modules/.bin/node" "{{caxa}}/server.js"`;
+  
+  console.log('🗜️  Building optimized executable...');
   execSync(command, { stdio: 'inherit' });
 
   // Step 4: Make executable on Unix systems

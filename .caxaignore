@@ -1,0 +1,41 @@
+# Exclude development files
+node_modules/.cache
+node_modules/.nyc_output
+node_modules/*/test
+node_modules/*/tests
+node_modules/*/*.md
+node_modules/*/README*
+node_modules/*/CHANGELOG*
+node_modules/*/LICENSE*
+node_modules/*/.github
+node_modules/*/docs
+node_modules/*/example*
+
+# Exclude build artifacts
+dist/
+build/
+*.log
+*.tmp
+
+# Exclude temp files
+temp/
+logs/
+uploads/
+
+# Exclude test files
+test/
+__tests__/
+*.test.js
+*.spec.js
+
+# Exclude development tools
+.git/
+.vscode/
+*.map
+.DS_Store
+
+# Exclude large unnecessary modules
+node_modules/puppeteer
+node_modules/playwright
+node_modules/electron
+node_modules/@types
