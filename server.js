@@ -6,6 +6,7 @@ const rateLimit = require('express-rate-limit');
 const multer = require('multer');
 const csv = require('csv-parser');
 const ExcelJS = require('exceljs');
+const XLSX = require('xlsx');
 const fs = require('fs');
 const path = require('path');
 
@@ -1008,7 +1009,7 @@ app.post('/api/upload-emce', upload.single('file'), async (req, res) => {
     }
 
     // Process Emce Excel file
-    const result = await processEmceExcel(buffer, originalName);
+    const result = await processEmceExcel(buffer, originalName, accountMappingService);
     
     if (!result.success) {
       throw new Error('Failed to process Emce file');
@@ -1697,6 +1698,450 @@ app.get('/api/debug-oauth', async (req, res) => {
 // Initialize Mapping Services
 const accountMappingService = new AccountMappingService();
 const costCentreMappingService = new CostCentreMappingService();
+
+// ============================================================
+// General Ledger Account Mapping Endpoints (app = 'main')
+// ============================================================
+
+app.get('/api/general-ledger/account-mappings', async (req, res) => {
+  try {
+    const mappings = accountMappingService.getMappings();
+    const status = accountMappingService.getStatus();
+    res.json({ success: true, mappings: mappings, status: status });
+  } catch (error) {
+    logger.error('Error getting GL account mappings:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.post('/api/general-ledger/account-mappings', async (req, res) => {
+  try {
+    const { sourceAccount, targetAccount } = req.body;
+    if (!sourceAccount || !targetAccount) {
+      return res.status(400).json({ success: false, message: 'Missing required fields: sourceAccount, targetAccount' });
+    }
+    accountMappingService.addMapping('main', sourceAccount, targetAccount);
+    res.json({ success: true, message: 'Account mapping added for GL' });
+  } catch (error) {
+    logger.error('Error adding GL account mapping:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.delete('/api/general-ledger/account-mappings', async (req, res) => {
+  try {
+    const { sourceAccount } = req.body;
+    if (!sourceAccount) {
+      return res.status(400).json({ success: false, message: 'Missing required field: sourceAccount' });
+    }
+    accountMappingService.removeMapping('main', sourceAccount);
+    res.json({ success: true, message: 'Account mapping removed for GL' });
+  } catch (error) {
+    logger.error('Error removing GL account mapping:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.post('/api/general-ledger/account-mappings/clear', async (req, res) => {
+  try {
+    const allMappings = accountMappingService.getMappings();
+    accountMappingService.setMappings({ main: {}, esimerkkiseura: allMappings.esimerkkiseura || {} });
+    res.json({ success: true, message: 'GL account mappings cleared' });
+  } catch (error) {
+    logger.error('Error clearing GL account mappings:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.get('/api/general-ledger/account-mappings/export', (req, res) => {
+  try {
+    const mappings = accountMappingService.getMappings();
+    const excelData = [['Source Account', 'Target Account']];
+    if (mappings.main) {
+      Object.entries(mappings.main).forEach(([source, target]) => {
+        excelData.push([source, target]);
+      });
+    }
+    const worksheet = XLSX.utils.aoa_to_sheet(excelData);
+    worksheet['!cols'] = [{ wch: 20 }, { wch: 20 }];
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Account Mappings');
+    const excelBuffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+    const fileName = `gl-account-mappings-${new Date().toISOString().slice(0, 10)}.xlsx`;
+    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.send(excelBuffer);
+  } catch (error) {
+    logger.error('Error exporting GL account mappings:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.post('/api/general-ledger/account-mappings/import', upload.single('file'), (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'No file uploaded' });
+    }
+    const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
+    const data = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { header: 1 });
+    if (data.length < 2) {
+      return res.status(400).json({ success: false, message: 'Excel file must contain a header row and at least one data row' });
+    }
+    const headers = data[0].map(h => String(h).toLowerCase().trim());
+    const srcIdx = headers.findIndex(h => h.includes('source') || h.includes('old'));
+    const tgtIdx = headers.findIndex(h => h.includes('target') || h.includes('new'));
+    if (srcIdx === -1 || tgtIdx === -1) {
+      return res.status(400).json({ success: false, message: 'Excel must have Source/Old Account and Target/New Account columns' });
+    }
+    const newMainMappings = {};
+    let imported = 0;
+    for (let i = 1; i < data.length; i++) {
+      const row = data[i];
+      const src = String(row[srcIdx] || '').trim();
+      const tgt = String(row[tgtIdx] || '').trim();
+      if (src && tgt) { newMainMappings[src] = tgt; imported++; }
+    }
+    const allMappings = accountMappingService.getMappings();
+    accountMappingService.setMappings({ main: newMainMappings, esimerkkiseura: allMappings.esimerkkiseura || {} });
+    res.json({ success: true, message: `Imported ${imported} GL account mappings`, details: { imported } });
+  } catch (error) {
+    logger.error('Error importing GL account mappings:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// ============================================================
+// General Ledger Cost Centre Mapping Endpoints (app = 'main')
+// ============================================================
+
+app.get('/api/general-ledger/cost-centre-mappings', async (req, res) => {
+  try {
+    const mappings = costCentreMappingService.getMappings();
+    const status = costCentreMappingService.getStatus();
+    res.json({ success: true, mappings: mappings, status: status });
+  } catch (error) {
+    logger.error('Error getting GL cost centre mappings:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.post('/api/general-ledger/cost-centre-mappings', async (req, res) => {
+  try {
+    const { sourceCostCentre, targetCostCentre } = req.body;
+    if (!sourceCostCentre || !targetCostCentre) {
+      return res.status(400).json({ success: false, message: 'Missing required fields' });
+    }
+    costCentreMappingService.addMapping('main', sourceCostCentre, targetCostCentre);
+    res.json({ success: true, message: 'Cost centre mapping added for GL' });
+  } catch (error) {
+    logger.error('Error adding GL cost centre mapping:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.delete('/api/general-ledger/cost-centre-mappings', async (req, res) => {
+  try {
+    const { sourceCostCentre } = req.body;
+    if (!sourceCostCentre) {
+      return res.status(400).json({ success: false, message: 'Missing required field: sourceCostCentre' });
+    }
+    costCentreMappingService.removeMapping('main', sourceCostCentre);
+    res.json({ success: true, message: 'Cost centre mapping removed for GL' });
+  } catch (error) {
+    logger.error('Error removing GL cost centre mapping:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.post('/api/general-ledger/cost-centre-mappings/clear', async (req, res) => {
+  try {
+    const allMappings = costCentreMappingService.getMappings();
+    costCentreMappingService.setMappings({ main: {}, esimerkkiseura: allMappings.esimerkkiseura || {} });
+    res.json({ success: true, message: 'GL cost centre mappings cleared' });
+  } catch (error) {
+    logger.error('Error clearing GL cost centre mappings:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.get('/api/general-ledger/cost-centre-mappings/export', (req, res) => {
+  try {
+    const mappings = costCentreMappingService.getMappings();
+    const excelData = [['Source Cost Centre', 'Target Cost Centre']];
+    if (mappings.main) {
+      Object.entries(mappings.main).forEach(([source, target]) => {
+        excelData.push([source, target]);
+      });
+    }
+    const worksheet = XLSX.utils.aoa_to_sheet(excelData);
+    worksheet['!cols'] = [{ wch: 25 }, { wch: 25 }];
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Cost Centre Mappings');
+    const excelBuffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+    const fileName = `gl-cost-centre-mappings-${new Date().toISOString().slice(0, 10)}.xlsx`;
+    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.send(excelBuffer);
+  } catch (error) {
+    logger.error('Error exporting GL cost centre mappings:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.post('/api/general-ledger/cost-centre-mappings/import', upload.single('file'), (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'No file uploaded' });
+    }
+    const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
+    const data = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { header: 1 });
+    if (data.length < 2) {
+      return res.status(400).json({ success: false, message: 'Excel file must contain a header row and at least one data row' });
+    }
+    const headers = data[0].map(h => String(h).toLowerCase().trim());
+    const srcIdx = headers.findIndex(h => h.includes('source') || h.includes('old'));
+    const tgtIdx = headers.findIndex(h => h.includes('target') || h.includes('new'));
+    if (srcIdx === -1 || tgtIdx === -1) {
+      return res.status(400).json({ success: false, message: 'Excel must have Source/Old and Target/New cost centre columns' });
+    }
+    const newMainMappings = {};
+    let imported = 0;
+    for (let i = 1; i < data.length; i++) {
+      const row = data[i];
+      const src = String(row[srcIdx] || '').trim();
+      const tgt = String(row[tgtIdx] || '').trim();
+      if (src && tgt) { newMainMappings[src] = tgt; imported++; }
+    }
+    const allMappings = costCentreMappingService.getMappings();
+    costCentreMappingService.setMappings({ main: newMainMappings, esimerkkiseura: allMappings.esimerkkiseura || {} });
+    res.json({ success: true, message: `Imported ${imported} GL cost centre mappings`, details: { imported } });
+  } catch (error) {
+    logger.error('Error importing GL cost centre mappings:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// ============================================================
+// Myclub Account Mapping Endpoints (app = 'esimerkkiseura')
+// ============================================================
+
+app.get('/api/myclub/account-mappings', async (req, res) => {
+  try {
+    const mappings = accountMappingService.getMappings();
+    const status = accountMappingService.getStatus();
+    res.json({ success: true, mappings: mappings, status: status });
+  } catch (error) {
+    logger.error('Error getting Myclub account mappings:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.post('/api/myclub/account-mappings', async (req, res) => {
+  try {
+    const { sourceAccount, targetAccount } = req.body;
+    if (!sourceAccount || !targetAccount) {
+      return res.status(400).json({ success: false, message: 'Missing required fields: sourceAccount, targetAccount' });
+    }
+    accountMappingService.addMapping('esimerkkiseura', sourceAccount, targetAccount);
+    res.json({ success: true, message: 'Account mapping added for Myclub' });
+  } catch (error) {
+    logger.error('Error adding Myclub account mapping:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.delete('/api/myclub/account-mappings', async (req, res) => {
+  try {
+    const { sourceAccount } = req.body;
+    if (!sourceAccount) {
+      return res.status(400).json({ success: false, message: 'Missing required field: sourceAccount' });
+    }
+    accountMappingService.removeMapping('esimerkkiseura', sourceAccount);
+    res.json({ success: true, message: 'Account mapping removed for Myclub' });
+  } catch (error) {
+    logger.error('Error removing Myclub account mapping:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.post('/api/myclub/account-mappings/clear', async (req, res) => {
+  try {
+    const allMappings = accountMappingService.getMappings();
+    accountMappingService.setMappings({ main: allMappings.main || {}, esimerkkiseura: {} });
+    res.json({ success: true, message: 'Myclub account mappings cleared' });
+  } catch (error) {
+    logger.error('Error clearing Myclub account mappings:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.get('/api/myclub/account-mappings/export', (req, res) => {
+  try {
+    const mappings = accountMappingService.getMappings();
+    const excelData = [['Source Account', 'Target Account']];
+    if (mappings.esimerkkiseura) {
+      Object.entries(mappings.esimerkkiseura).forEach(([source, target]) => {
+        excelData.push([source, target]);
+      });
+    }
+    const worksheet = XLSX.utils.aoa_to_sheet(excelData);
+    worksheet['!cols'] = [{ wch: 20 }, { wch: 20 }];
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Account Mappings');
+    const excelBuffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+    const fileName = `myclub-account-mappings-${new Date().toISOString().slice(0, 10)}.xlsx`;
+    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.send(excelBuffer);
+  } catch (error) {
+    logger.error('Error exporting Myclub account mappings:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.post('/api/myclub/account-mappings/import', upload.single('file'), (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'No file uploaded' });
+    }
+    const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
+    const data = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { header: 1 });
+    if (data.length < 2) {
+      return res.status(400).json({ success: false, message: 'Excel file must contain a header row and at least one data row' });
+    }
+    const headers = data[0].map(h => String(h).toLowerCase().trim());
+    const srcIdx = headers.findIndex(h => h.includes('source') || h.includes('old'));
+    const tgtIdx = headers.findIndex(h => h.includes('target') || h.includes('new'));
+    if (srcIdx === -1 || tgtIdx === -1) {
+      return res.status(400).json({ success: false, message: 'Excel must have Source/Old Account and Target/New Account columns' });
+    }
+    const newMappings = {};
+    let imported = 0;
+    for (let i = 1; i < data.length; i++) {
+      const row = data[i];
+      const src = String(row[srcIdx] || '').trim();
+      const tgt = String(row[tgtIdx] || '').trim();
+      if (src && tgt) { newMappings[src] = tgt; imported++; }
+    }
+    const allMappings = accountMappingService.getMappings();
+    accountMappingService.setMappings({ main: allMappings.main || {}, esimerkkiseura: newMappings });
+    res.json({ success: true, message: `Imported ${imported} Myclub account mappings`, details: { imported } });
+  } catch (error) {
+    logger.error('Error importing Myclub account mappings:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// ============================================================
+// Myclub Cost Centre Mapping Endpoints (app = 'esimerkkiseura')
+// ============================================================
+
+app.get('/api/myclub/cost-centre-mappings', async (req, res) => {
+  try {
+    const mappings = costCentreMappingService.getMappings();
+    const status = costCentreMappingService.getStatus();
+    res.json({ success: true, mappings: mappings, status: status });
+  } catch (error) {
+    logger.error('Error getting Myclub cost centre mappings:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.post('/api/myclub/cost-centre-mappings', async (req, res) => {
+  try {
+    const { sourceCostCentre, targetCostCentre } = req.body;
+    if (!sourceCostCentre || !targetCostCentre) {
+      return res.status(400).json({ success: false, message: 'Missing required fields' });
+    }
+    costCentreMappingService.addMapping('esimerkkiseura', sourceCostCentre, targetCostCentre);
+    res.json({ success: true, message: 'Cost centre mapping added for Myclub' });
+  } catch (error) {
+    logger.error('Error adding Myclub cost centre mapping:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.delete('/api/myclub/cost-centre-mappings', async (req, res) => {
+  try {
+    const { sourceCostCentre } = req.body;
+    if (!sourceCostCentre) {
+      return res.status(400).json({ success: false, message: 'Missing required field: sourceCostCentre' });
+    }
+    costCentreMappingService.removeMapping('esimerkkiseura', sourceCostCentre);
+    res.json({ success: true, message: 'Cost centre mapping removed for Myclub' });
+  } catch (error) {
+    logger.error('Error removing Myclub cost centre mapping:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.post('/api/myclub/cost-centre-mappings/clear', async (req, res) => {
+  try {
+    const allMappings = costCentreMappingService.getMappings();
+    costCentreMappingService.setMappings({ main: allMappings.main || {}, esimerkkiseura: {} });
+    res.json({ success: true, message: 'Myclub cost centre mappings cleared' });
+  } catch (error) {
+    logger.error('Error clearing Myclub cost centre mappings:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.get('/api/myclub/cost-centre-mappings/export', (req, res) => {
+  try {
+    const mappings = costCentreMappingService.getMappings();
+    const excelData = [['Source Cost Centre', 'Target Cost Centre']];
+    if (mappings.esimerkkiseura) {
+      Object.entries(mappings.esimerkkiseura).forEach(([source, target]) => {
+        excelData.push([source, target]);
+      });
+    }
+    const worksheet = XLSX.utils.aoa_to_sheet(excelData);
+    worksheet['!cols'] = [{ wch: 25 }, { wch: 25 }];
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Cost Centre Mappings');
+    const excelBuffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+    const fileName = `myclub-cost-centre-mappings-${new Date().toISOString().slice(0, 10)}.xlsx`;
+    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.send(excelBuffer);
+  } catch (error) {
+    logger.error('Error exporting Myclub cost centre mappings:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.post('/api/myclub/cost-centre-mappings/import', upload.single('file'), (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'No file uploaded' });
+    }
+    const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
+    const data = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { header: 1 });
+    if (data.length < 2) {
+      return res.status(400).json({ success: false, message: 'Excel file must contain a header row and at least one data row' });
+    }
+    const headers = data[0].map(h => String(h).toLowerCase().trim());
+    const srcIdx = headers.findIndex(h => h.includes('source') || h.includes('old'));
+    const tgtIdx = headers.findIndex(h => h.includes('target') || h.includes('new'));
+    if (srcIdx === -1 || tgtIdx === -1) {
+      return res.status(400).json({ success: false, message: 'Excel must have Source/Old and Target/New cost centre columns' });
+    }
+    const newMappings = {};
+    let imported = 0;
+    for (let i = 1; i < data.length; i++) {
+      const row = data[i];
+      const src = String(row[srcIdx] || '').trim();
+      const tgt = String(row[tgtIdx] || '').trim();
+      if (src && tgt) { newMappings[src] = tgt; imported++; }
+    }
+    const allMappings = costCentreMappingService.getMappings();
+    costCentreMappingService.setMappings({ main: allMappings.main || {}, esimerkkiseura: newMappings });
+    res.json({ success: true, message: `Imported ${imported} Myclub cost centre mappings`, details: { imported } });
+  } catch (error) {
+    logger.error('Error importing Myclub cost centre mappings:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
 
 // Account Mapping Configuration Endpoints
 

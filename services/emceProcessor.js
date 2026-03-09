@@ -80,7 +80,16 @@ async function processEmceExcel(fileBuffer, fileName, accountMappingService = nu
                 if (typeof cellValue === 'string') {
                     const match = cellValue.match(/Tili\s+(\d+)\s+yhteensä/i);
                     if (match) {
-                        const accountNumber = match[1];
+                        const originalAccountNumber = match[1];
+                        
+                        // Apply account mapping if service is available
+                        const accountNumber = accountMappingService 
+                            ? accountMappingService.mapAccount('main', originalAccountNumber) 
+                            : originalAccountNumber;
+                        
+                        if (accountNumber !== originalAccountNumber) {
+                            logger.info(`Mapped account ${originalAccountNumber} -> ${accountNumber}`);
+                        }
                         
                         // Get the SALDO value from column J (index 9) in the same row
                         const saldoValue = parseSaldoValue(row[9]);

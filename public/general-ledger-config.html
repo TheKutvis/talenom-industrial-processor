@@ -591,21 +591,103 @@
             }
         }
 
-        // Export/Import functions (placeholder)
-        function exportAccountMappings() {
-            showMessage('Export functionality coming soon...', 'info');
+        // Export/Import functions
+        async function exportAccountMappings() {
+            try {
+                showMessage('Generating Excel file...', 'info');
+                const response = await fetch('/api/general-ledger/account-mappings/export');
+                if (!response.ok) throw new Error('Export failed: ' + response.status);
+                const contentDisposition = response.headers.get('Content-Disposition');
+                const match = contentDisposition && contentDisposition.match(/filename="(.+)"/);
+                const filename = match ? match[1] : 'gl-account-mappings.xlsx';
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+                showMessage('Account mappings exported successfully', 'success');
+            } catch (error) {
+                console.error('Export error:', error);
+                showMessage('Export failed: ' + error.message, 'error');
+            }
         }
 
-        function importAccountMappings() {
-            showMessage('Import functionality coming soon...', 'info');
+        async function importAccountMappings(event) {
+            const file = event ? event.target.files[0] : null;
+            if (!file) return;
+            try {
+                showMessage('Uploading and processing Excel file...', 'info');
+                const formData = new FormData();
+                formData.append('file', file);
+                const response = await fetch('/api/general-ledger/account-mappings/import', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showMessage(result.message, 'success');
+                    loadAccountMappings();
+                } else {
+                    showMessage('Import failed: ' + result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Import error:', error);
+                showMessage('Import failed: ' + error.message, 'error');
+            }
+            if (event && event.target) event.target.value = '';
         }
 
-        function exportCostCentreMappings() {
-            showMessage('Export functionality coming soon...', 'info');
+        async function exportCostCentreMappings() {
+            try {
+                showMessage('Generating Excel file...', 'info');
+                const response = await fetch('/api/general-ledger/cost-centre-mappings/export');
+                if (!response.ok) throw new Error('Export failed: ' + response.status);
+                const contentDisposition = response.headers.get('Content-Disposition');
+                const match = contentDisposition && contentDisposition.match(/filename="(.+)"/);
+                const filename = match ? match[1] : 'gl-cost-centre-mappings.xlsx';
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+                showMessage('Cost centre mappings exported successfully', 'success');
+            } catch (error) {
+                console.error('Export error:', error);
+                showMessage('Export failed: ' + error.message, 'error');
+            }
         }
 
-        function importCostCentreMappings() {
-            showMessage('Import functionality coming soon...', 'info');
+        async function importCostCentreMappings(event) {
+            const file = event ? event.target.files[0] : null;
+            if (!file) return;
+            try {
+                showMessage('Uploading and processing Excel file...', 'info');
+                const formData = new FormData();
+                formData.append('file', file);
+                const response = await fetch('/api/general-ledger/cost-centre-mappings/import', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showMessage(result.message, 'success');
+                    loadCostCentreMappings();
+                } else {
+                    showMessage('Import failed: ' + result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Import error:', error);
+                showMessage('Import failed: ' + error.message, 'error');
+            }
+            if (event && event.target) event.target.value = '';
         }
 
         // Utility function
