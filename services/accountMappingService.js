@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const winston = require('winston');
+const DatabaseService = require('./databaseService');
 
 // Create logger
 const logger = winston.createLogger({
@@ -18,74 +19,58 @@ const logger = winston.createLogger({
 // Determine if running as packaged executable
 const isPackaged = typeof process.pkg !== 'undefined';
 
-// Use executable directory for config when packaged, otherwise use project directory
-const CONFIG_FILE = isPackaged 
+// Legacy JSON config file path (for migration)
+const LEGACY_CONFIG_FILE = isPackaged 
     ? path.join(path.dirname(process.execPath), 'config', 'account-mappings.json')
     : path.join(__dirname, '..', 'config', 'account-mappings.json');
 
 /**
  * Account Mapping Service
  * Manages account number mappings for both main application and Esimerkkiseura
+ * Now uses SQLite database instead of JSON file
  */
 class AccountMappingService {
-    constructor() {
-        this.mappings = {
-            main: {},
-            esimerkkiseura: {}
-        };
-        this.loadMappings();
+    constructor(dbService = null) {
+        // Use provided database service or create new one
+        this.db = dbService || new DatabaseService();
+        this.migrateFromLegacyConfig();
     }
 
     /**
-     * Load account mappings from configuration file
+     * Migrate existing JSON mappings to database (one-time operation)
      */
-    loadMappings() {
+    migrateFromLegacyConfig() {
         try {
-            // Ensure config directory exists
-            const configDir = path.dirname(CONFIG_FILE);
-            if (!fs.existsSync(configDir)) {
-                try {
-                    fs.mkdirSync(configDir, { recursive: true });
-                } catch (mkdirError) {
-                    logger.warn('Could not create config directory, using default mappings:', mkdirError.message);
-                    return; // Continue with default empty mappings
-                }
-            }
-
-            // Load existing mappings if file exists
-            if (fs.existsSync(CONFIG_FILE)) {
-                const data = fs.readFileSync(CONFIG_FILE, 'utf8');
-                this.mappings = JSON.parse(data);
-                logger.info('Account mappings loaded from configuration file');
-            } else {
-                // Try to create default configuration
-                try {
-                    this.saveMappings();
-                    logger.info('Created default account mappings configuration');
-                } catch (saveError) {
-                    logger.warn('Could not save default mappings, using in-memory mappings:', saveError.message);
+            // Check if legacy config file exists
+            if (fs.existsSync(LEGACY_CONFIG_FILE)) {
+                logger.info('Found legacy JSON config file, checking for migration...');
+                
+                // Check if database is empty
+                const stats = this.db.getStats();
+                if (stats.accountMappings === 0) {
+                    // Database is empty, migrate from JSON
+                    const data = fs.readFileSync(LEGACY_CONFIG_FILE, 'utf8');
+                    const legacyMappings = JSON.parse(data);
+                    
+                    // Migrate each app type
+                    for (const [appType, mappings] of Object.entries(legacyMappings)) {
+                        if (Object.keys(mappings).length > 0) {
+                            this.db.bulkInsertAccountMappings(appType, mappings);
+                            logger.info(`Migrated ${Object.keys(mappings).length} account mappings for ${appType}`);
+                        }
+                    }
+                    
+                    // Rename legacy file to .migrated
+                    const backupPath = LEGACY_CONFIG_FILE + '.migrated';
+                    fs.renameSync(LEGACY_CONFIG_FILE, backupPath);
+                    logger.info(`Legacy config migrated and backed up to ${backupPath}`);
+                } else {
+                    logger.info('Database already contains mappings, skipping migration');
                 }
             }
         } catch (error) {
-            logger.error('Error loading account mappings:', error);
-            // Use default empty mappings on error
-            this.mappings = {
-                main: {},
-                esimerkkiseura: {}
-            };
-        }
-    }
-
-    /**
-     * Save account mappings to configuration file
-     */
-    saveMappings() {
-        try {
-            fs.writeFileSync(CONFIG_FILE, JSON.stringify(this.mappings, null, 2));
-            logger.info('Account mappings saved to configuration file');
-        } catch (error) {
-            logger.error('Error saving account mappings:', error);
-            throw error;
+            logger.warn('Error during migration from legacy config:', error.message);
+            // Don't throw - allow service to continue with empty mappings
         }
     }
 
@@ -96,9 +81,17 @@ class AccountMappingService {
      */
     getMappings(app) {
         if (app) {
-            return this.mappings[app] || {};
+            return this.db.getAccountMappings(app);
         }
-        return this.mappings;
+        
+        // Return all mappings organized by app type
+        const allMappings = this.db.getAllAccountMappings();
+        
+        // Ensure both main and esimerkkiseura keys exist
+        return {
+            main: allMappings.main || {},
+            esimerkkiseura: allMappings.esimerkkiseura || {}
+        };
     }
 
     /**
@@ -109,16 +102,25 @@ class AccountMappingService {
     setMappings(app, mappings) {
         if (typeof app === 'object' && mappings === undefined) {
             // Setting all mappings at once
-            this.mappings = app;
-            this.saveMappings();
+            // Clear existing and bulk insert new ones
+            for (const [appType, appMappings] of Object.entries(app)) {
+                this.db.clearAccountMappings(appType);
+                if (Object.keys(appMappings).length > 0) {
+                    this.db.bulkInsertAccountMappings(appType, appMappings);
+                }
+            }
             logger.info('All account mappings updated');
         } else if (typeof app === 'string') {
             // Setting mappings for specific app
             if (!['main', 'esimerkkiseura'].includes(app)) {
                 throw new Error('Invalid application name. Use "main" or "esimerkkiseura"');
             }
-            this.mappings[app] = mappings;
-            this.saveMappings();
+            
+            // Clear existing mappings for this app and insert new ones
+            this.db.clearAccountMappings(app);
+            if (Object.keys(mappings).length > 0) {
+                this.db.bulkInsertAccountMappings(app, mappings);
+            }
             logger.info(`Account mappings updated for ${app} application`);
         } else {
             throw new Error('Invalid parameters for setMappings');
@@ -136,12 +138,7 @@ class AccountMappingService {
             throw new Error('Invalid application name. Use "main" or "esimerkkiseura"');
         }
 
-        if (!this.mappings[app]) {
-            this.mappings[app] = {};
-        }
-
-        this.mappings[app][sourceAccount] = targetAccount;
-        this.saveMappings();
+        this.db.setAccountMapping(app, String(sourceAccount), String(targetAccount));
         logger.info(`Added mapping for ${app}: ${sourceAccount} -> ${targetAccount}`);
     }
 
@@ -155,11 +152,8 @@ class AccountMappingService {
             throw new Error('Invalid application name. Use "main" or "esimerkkiseura"');
         }
 
-        if (this.mappings[app] && this.mappings[app][sourceAccount]) {
-            delete this.mappings[app][sourceAccount];
-            this.saveMappings();
-            logger.info(`Removed mapping for ${app}: ${sourceAccount}`);
-        }
+        this.db.removeAccountMapping(app, String(sourceAccount));
+        logger.info(`Removed mapping for ${app}: ${sourceAccount}`);
     }
 
     /**
@@ -274,11 +268,15 @@ class AccountMappingService {
      * @returns {object} - Configuration status and statistics
      */
     getStatus() {
+        const stats = this.db.getStats();
+        const allMappings = this.getMappings();
+        
         return {
-            configFile: CONFIG_FILE,
-            mainMappings: Object.keys(this.mappings.main || {}).length,
-            esimerkkiseuraMappings: Object.keys(this.mappings.esimerkkiseura || {}).length,
-            lastModified: fs.existsSync(CONFIG_FILE) ? fs.statSync(CONFIG_FILE).mtime : null
+            storageType: 'sqlite',
+            databasePath: stats.databasePath,
+            mainMappings: Object.keys(allMappings.main || {}).length,
+            esimerkkiseuraMappings: Object.keys(allMappings.esimerkkiseura || {}).length,
+            totalMappings: stats.accountMappings
         };
     }
 }

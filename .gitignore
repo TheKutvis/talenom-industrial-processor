@@ -132,6 +132,19 @@ temp/
 !config/*.json
 !general-ledger-fi.json
 
+# SQLite database files (user data, should not be in source control)
+data/
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# User configuration files (migrated to database)
+config/account-mappings.json
+config/cost-centre-mappings.json
+config/*.migrated
+
 # Audio files (keep in repo for now, but can be moved to assets)
 # *.mp3
 # *.wav
